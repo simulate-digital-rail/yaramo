@@ -1,11 +1,9 @@
 
-from model.geonode import GeoNode
-from model.signal import Signal
-from node import Node
+from railway_model.geonode import GeoNode
+from railway_model.node import Node
 
 
 class Edge(object):
-    signals: list[Signal]
     intermediate_geo_nodes: list[GeoNode]
 
     def __init__(self, uuid: str, node_a: Node, node_b: Node, length: float=None):

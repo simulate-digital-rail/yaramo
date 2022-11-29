@@ -1,14 +1,10 @@
-from node import Node
-from geonode import GeoNode
+from railway_model.geonode import GeoNode
 
 
 class Node(object):
     uuid: str
     geo_node: GeoNode
-    connected_on_head: Node
-    connected_on_left: Node
-    connected_on_right: Node
-    connected_nodes = list[Node]
+    connected_nodes = list
 
     def __init__(self, uuid):
         self.uuid = uuid
@@ -18,15 +14,15 @@ class Node(object):
         self.connected_nodes = []
         self.geo_node = None
 
-    def set_connection_head(self, node: Node):
+    def set_connection_head(self, node: 'Node'):
         self.connected_on_head = node
         self.connected_nodes.append(node)
 
-    def set_connection_left(self, node: Node):
+    def set_connection_left(self, node):
         self.connected_on_left = node
         self.connected_nodes.append(node)
 
-    def set_connection_right(self, node: Node):
+    def set_connection_right(self, node):
         self.connected_on_right = node
         self.connected_nodes.append(node)
 

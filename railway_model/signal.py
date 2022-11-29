@@ -1,7 +1,7 @@
 
 import uuid
 
-from model.edge import Edge
+from railway_model.edge import Edge
 
 
 class Signal(object):
