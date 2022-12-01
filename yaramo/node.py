@@ -1,4 +1,4 @@
-from railway_model.geonode import GeoNode
+from yaramo.geonode import GeoNode
 
 
 class Node(object):

@@ -1,6 +1,6 @@
 
-from railway_model.geonode import GeoNode
-from railway_model.node import Node
+from yaramo.geonode import GeoNode
+from yaramo.node import Node
 
 
 class Edge(object):

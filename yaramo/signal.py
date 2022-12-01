@@ -1,7 +1,7 @@
 
 import uuid
 
-from railway_model.edge import Edge
+from yaramo.edge import Edge
 
 
 class Signal(object):
