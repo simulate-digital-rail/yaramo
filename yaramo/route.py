@@ -1,4 +1,4 @@
-import uuid
+from uuid import uuid4
 from yaramo.edge import Edge
 
 from yaramo.signal import Signal
@@ -10,7 +10,7 @@ class Route(object):
     edges: set[Edge]
 
     def __init__(self, v_hg, start_signal: Signal, uuid: str = None):
-        self.route_uuid = uuid or str(uuid.uuid4())
+        self.route_uuid = uuid or str(uuid4())
         self.v_hg = v_hg
         self.edges = set()
 

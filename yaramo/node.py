@@ -1,3 +1,4 @@
+from uuid import uuid4
 from yaramo.geonode import GeoNode
 
 
@@ -7,7 +8,7 @@ class Node(object):
     connected_nodes = list
 
     def __init__(self, uuid = None):
-        self.uuid = uuid or str(uuid.uuid4())
+        self.uuid = uuid or str(uuid4())
         self.connected_on_head = None
         self.connected_on_left = None
         self.connected_on_right = None

@@ -1,13 +1,13 @@
 
-import uuid
 
+from uuid import uuid4
 from yaramo.edge import Edge
 
 
 class Signal(object):
 
     def __init__(self, edge: Edge, distance_edge: float, direction: str, function: str, kind: str, element_name: str=None, uuid: str = None):
-        self.uuid = uuid or str(uuid.uuid4())
+        self.uuid = uuid or str(uuid4())
         self.trip = None
         self.edge = edge
         self.distance_edge = distance_edge
