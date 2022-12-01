@@ -1,5 +1,6 @@
 from yaramo.node import Node
 from yaramo.edge import Edge
+from yaramo.route import Route
 from yaramo.signal import Signal
 
 class Topology(object):
@@ -8,6 +9,7 @@ class Topology(object):
         self.nodes = dict[str, Node]
         self.edges = dict[str, Edge]
         self.signals = dict[str, Signal]
+        self.routes = list[Route]
 
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
@@ -17,6 +19,9 @@ class Topology(object):
 
     def add_signal(self, signal: Signal):
         self.signals[signal.uuid] = signal
+
+    def add_route(self, route: Route):
+        self.routes[route.uuid] = route
 
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
         for edge_uuid in self.edges:
