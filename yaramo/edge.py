@@ -6,8 +6,8 @@ from yaramo.node import Node
 class Edge(object):
     intermediate_geo_nodes: list[GeoNode]
 
-    def __init__(self, uuid: str, node_a: Node, node_b: Node, length: float=None):
-        self.uuid = uuid
+    def __init__(self, node_a: Node, node_b: Node, uuid: str = None, length: float=None):
+        self.uuid = uuid or str(uuid.uuid4())
         self.node_a = node_a
         self.node_b = node_b
         self.intermediate_geo_nodes = []

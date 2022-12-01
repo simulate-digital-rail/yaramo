@@ -4,10 +4,10 @@ import uuid
 
 class GeoNode(object):
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, uuid: str = None):
         self.x = x
         self.y = y
-        self.uuid = str(uuid.uuid4())
+        self.uuid = uuid or str(uuid.uuid4())
     
     def get_distance_to_other_geo_node(self, geo_node_b):
         min_x = min(self.x, geo_node_b.x)

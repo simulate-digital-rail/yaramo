@@ -5,8 +5,8 @@ from yaramo.edge import Edge
 
 class Trip(object):
 
-    def __init__(self, edges: list[Edge], name: str = None):
-        self.trip_uuid = str(uuid.uuid4())
+    def __init__(self, edges: list[Edge], name: str = None, uuid: str = None):
+        self.trip_uuid = uuid or str(uuid.uuid4())
         self.trip_name = name if name is not None else random.randrange(1000, 10000)
         self.edges = edges
 

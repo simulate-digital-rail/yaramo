@@ -9,8 +9,8 @@ class Route(object):
     end_signal: Signal
     edges: set[Edge]
 
-    def __init__(self, v_hg, start_signal: Signal):
-        self.route_uuid = str(uuid.uuid4())
+    def __init__(self, v_hg, start_signal: Signal, uuid: str = None):
+        self.route_uuid = uuid or str(uuid.uuid4())
         self.v_hg = v_hg
         self.edges = set()
 
