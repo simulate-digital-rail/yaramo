@@ -1,22 +1,18 @@
-from uuid import uuid4
+from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
-
 from yaramo.signal import Signal
 
 
-class Route(object):
-    start_signal: Signal
-    end_signal: Signal
-    edges: set[Edge]
+class Route(BaseElement):
 
-    def __init__(self, v_hg, start_signal: Signal, uuid: str = None):
-        self.route_uuid = uuid or str(uuid4())
-        self.v_hg = v_hg
-        self.edges = set()
+    def __init__(self, maximum_speed, start_signal: Signal, **kwargs):
+        super().__init__(**kwargs)
+        self.maximum_speed: int = maximum_speed
+        self.edges: set[Edge] = set()
+        self.start_signal: Signal = start_signal
+        self.end_signal: Signal = None
 
-        self.start_signal = start_signal
         self.edges.add(start_signal.edge)
-        self.end_signal = None
 
     def get_edges_in_order(self):
         if self.end_signal is None:

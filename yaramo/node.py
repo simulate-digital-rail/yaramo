@@ -1,19 +1,16 @@
-from uuid import uuid4
-from yaramo.geonode import GeoNode
+from yaramo.base_element import BaseElement
+from yaramo.geo_node import GeoNode
 
 
-class Node(object):
-    uuid: str
-    geo_node: GeoNode
-    connected_nodes = list
+class Node(BaseElement):
 
-    def __init__(self, uuid = None):
-        self.uuid = uuid or str(uuid4())
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.connected_on_head = None
         self.connected_on_left = None
         self.connected_on_right = None
-        self.connected_nodes = []
-        self.geo_node = None
+        self.connected_nodes: list[GeoNode] = []
+        self.geo_node: GeoNode = None
 
     def set_connection_head(self, node: 'Node'):
         self.connected_on_head = node

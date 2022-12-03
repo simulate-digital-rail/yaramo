@@ -1,13 +1,14 @@
 import math
-from uuid import uuid4
+
+from yaramo.base_element import BaseElement
 
 
-class GeoNode(object):
+class GeoPoint(BaseElement):
 
-    def __init__(self, x, y, uuid: str = None):
+    def __init__(self, x, y, **kwargs):
+        super().__init__(**kwargs)
         self.x = x
         self.y = y
-        self.uuid = uuid or str(uuid4())
     
     def get_distance_to_other_geo_node(self, geo_node_b):
         min_x = min(self.x, geo_node_b.x)

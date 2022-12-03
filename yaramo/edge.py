@@ -1,17 +1,15 @@
-
-from uuid import uuid4
-from yaramo.geonode import GeoNode
+from yaramo.base_element import BaseElement
+from yaramo.geo_node import GeoNode
 from yaramo.node import Node
 
 
-class Edge(object):
-    intermediate_geo_nodes: list[GeoNode]
+class Edge(BaseElement):
 
-    def __init__(self, node_a: Node, node_b: Node, uuid: str = None, length: float=None):
-        self.uuid = uuid or str(uuid4())
+    def __init__(self, node_a: Node, node_b: Node, length: float=None, **kwargs):
+        super().__init__(**kwargs)
         self.node_a = node_a
         self.node_b = node_b
-        self.intermediate_geo_nodes = []
+        self.intermediate_geo_nodes: list[GeoNode] = []
         self.signals = []
         self.length = length
 
