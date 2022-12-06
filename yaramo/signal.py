@@ -43,12 +43,12 @@ class Signal(BaseElement):
         self.control_member_uuid = str(uuid4())
 
         if isinstance(function, str):
-            self.function = SignalFunction.__members__.get(function.lower(), SignalFunction.Einfahr_Signal)
+            self.function = SignalFunction.__members__.get(function.lower(), SignalFunction.andere)
         elif isinstance(function, SignalFunction):
             self.function = function
 
         if isinstance(kind, str):
-            self.kind = SignalKind.__members__.get(kind.lower(), SignalKind.Einfahr_Signal)
+            self.kind = SignalKind.__members__.get(kind.lower(), SignalKind.andere)
         elif isinstance(kind, SignalKind):
             self.kind = kind
 
