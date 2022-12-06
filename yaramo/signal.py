@@ -17,7 +17,7 @@ class SignalDirection(Enum):
 class SignalFunction(Enum):
     Einfahr_Signal = 0
     Ausfahr_Signal = 1
-    Blocksignal = 2
+    Block_Signal = 2
     andere = 3
 
 
@@ -43,12 +43,12 @@ class Signal(BaseElement):
         self.control_member_uuid = str(uuid4())
 
         if isinstance(function, str):
-            self.function = SignalFunction.__members__.get(function.lower(), SignalFunction.andere)
+            self.function = SignalFunction.__members__.get(function, SignalFunction.andere)
         elif isinstance(function, SignalFunction):
             self.function = function
 
         if isinstance(kind, str):
-            self.kind = SignalKind.__members__.get(kind.lower(), SignalKind.andere)
+            self.kind = SignalKind.__members__.get(kind, SignalKind.andere)
         elif isinstance(kind, SignalKind):
             self.kind = kind
 

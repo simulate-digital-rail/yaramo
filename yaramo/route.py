@@ -1,19 +1,24 @@
 from typing import Dict
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
-from yaramo.signal import Signal, SignalDirection
 
 
 class Route(BaseElement):
 
-    def __init__(self, maximum_speed, start_signal: Signal, **kwargs):
+    def __init__(self, start_signal: Signal, maximum_speed: Optional[int] = None, **kwargs):
         super().__init__(**kwargs)
         self.maximum_speed: int = maximum_speed
-        self.edges: set[Edge] = set()
+        self.edges: set[Edge] = set([start_signal.edge])
         self.start_signal: Signal = start_signal
         self.end_signal: Signal = None
 
         self.edges.add(start_signal.edge)
+
+    def get_length(self):
+        length_sum = 0.0
+        for edge in self.edges:
+            length_sum = length_sum + float(edge.length)
+        return length_sum
 
     def get_edges_in_order(self):
         if self.end_signal is None:
@@ -43,7 +48,7 @@ class Route(BaseElement):
         return False
 
     def duplicate(self):
-        new_obj = Route(self.start_signal, None)
+        new_obj = Route(self.start_signal)
         new_obj.edges = []
         for edge in self.edges:
             new_obj.edges.append(edge)
