@@ -1,15 +1,17 @@
 
+from uuid import uuid4
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
 
 
 class Signal(BaseElement):
 
-    def __init__(self, edge: Edge, distance_edge: float, direction: str, function: str, kind: str, **kwargs):
+    def __init__(self, edge: Edge, distance_previous_node: float, direction: str, function: str, kind: str, side_distance: float = None,  **kwargs):
         super().__init__(**kwargs)
         self.trip = None
         self.edge = edge
-        self.distance_edge = distance_edge
+        self.side_distance: float = side_distance
+        self.distance_previous_node = distance_previous_node
         self.direction = direction.lower()
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
