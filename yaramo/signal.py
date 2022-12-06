@@ -36,9 +36,9 @@ class Signal(BaseElement):
         super().__init__(**kwargs)
         self.trip = None
         self.edge = edge
-        self.side_distance: float = side_distance
-        self.distance_previous_node = distance_previous_node
         self.direction = SignalDirection.IN if direction == SignalDirection.IN or direction.lower() == SignalDirection.IN.name.lower() else SignalDirection.GEGEN
+        self.side_distance: float = side_distance or 3.950 if self.direction == SignalDirection.IN else -3.950
+        self.distance_previous_node = distance_previous_node
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
 
