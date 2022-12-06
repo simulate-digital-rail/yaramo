@@ -1,6 +1,7 @@
+from typing import Dict
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
-from yaramo.signal import Signal
+from yaramo.signal import Signal, SignalDirection
 
 
 class Route(BaseElement):
@@ -34,3 +35,50 @@ class Route(BaseElement):
             previous_edge = next_edge
 
         return edges_in_order
+    
+    def contains_edge(self, _edge: Edge):
+        for edge in self.edges:
+            if edge.uuid == _edge.uuid:
+                return True
+        return False
+
+    def duplicate(self):
+        new_obj = Route(self.start_signal, None)
+        new_obj.edges = []
+        for edge in self.edges:
+            new_obj.edges.append(edge)
+        new_obj.end_signal = self.end_signal
+        return new_obj
+
+    def to_serializable(self) -> Dict:
+        output_dict = dict()
+        output_dict["start_signal"] = self.start_signal.uuid
+        output_dict["edges"] = []
+
+        for i in range(0, len(self.edges)):
+            edge = self.edges[i]
+            from_d = 0.0
+            to_d = 0.0
+
+            if i == 0:
+                if self.start_signal.direction == SignalDirection.IN:
+                    from_d = self.start_signal.distance_previous_node
+                    to_d = edge.length
+                else:
+                    from_d = self.start_signal.distance_previous_node
+                    to_d = 0.0
+                output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(from_d), "to": float(to_d)})
+            elif i == len(self.edges) - 1:
+                if self.end_signal.direction == SignalDirection.IN:
+                    from_d = 0.0
+                    to_d = self.end_signal.distance_previous_node
+                else:
+                    from_d = edge.length
+                    to_d = self.end_signal.distance_previous_node
+                output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(from_d), "to": float(to_d)})
+                pass
+            else:
+                output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(0), "to": float(edge.length)})
+
+        output_dict["end_signal"] = self.end_signal.uuid
+        return output_dict
