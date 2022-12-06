@@ -1,42 +1,59 @@
 
+from enum import Enum
 from uuid import uuid4
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
 
+# Richtung
+# IN
+# GEGEN
+
+
+class SignalDirection(Enum):
+    IN = 1
+    GEGEN = 2
+
+
+class SignalFunction(Enum):
+    Einfahr_Signal = 0
+    Ausfahr_Signal = 1
+    Blocksignal = 2
+    andere = 3
+
+
+class SignalKind(Enum):
+    Hauptsignal = 0
+    Mehrabschnittssignal = 1
+    Vorsignal = 2
+    Sperrsignal = 3
+    Hauptsperrsignal = 4
+    andere = 5
+
 
 class Signal(BaseElement):
 
-    def __init__(self, edge: Edge, distance_previous_node: float, direction: str, function: str, kind: str, side_distance: float = None,  **kwargs):
+    def __init__(self, edge: Edge, distance_previous_node: float, direction: SignalDirection | str, function: SignalFunction | str, kind: SignalKind | str, side_distance: float = None,  **kwargs):
         super().__init__(**kwargs)
         self.trip = None
         self.edge = edge
         self.side_distance: float = side_distance
         self.distance_previous_node = distance_previous_node
-        self.direction = direction.lower()
+        self.direction = SignalDirection.IN if direction == SignalDirection.IN or direction.lower() == SignalDirection.IN.name.lower() else SignalDirection.GEGEN
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
 
-        if function in Signal.get_supported_functions():
+        if isinstance(function, str):
+            self.function = SignalFunction.__members__.get(function.lower(), SignalFunction.Einfahr_Signal)
+        elif isinstance(function, SignalFunction):
             self.function = function
-        else:
-            self.function = Signal.get_supported_functions()[0]
 
-        if kind in Signal.get_supported_kinds():
+        if isinstance(kind, str):
+            self.kind = SignalKind.__members__.get(kind.lower(), SignalKind.Einfahr_Signal)
+        elif isinstance(kind, SignalKind):
             self.kind = kind
-        else:
-            self.kind = Signal.get_supported_kinds()[0]
-
 
     def previous_node(self):
-        return self.edge.node_a if self.direction == "in" else self.edge.node_b
+        return self.edge.node_a if self.direction == SignalDirection.IN else self.edge.node_b
 
     def next_node(self):
-        return self.edge.node_b if self.direction == "in" else self.edge.node_a
-
-    @staticmethod
-    def get_supported_functions():
-        return ["Einfahr_Signal", "Ausfahr_Signal", "Blocksignal", "andere"]
-
-    @staticmethod
-    def get_supported_kinds():
-        return ["Hauptsignal", "Mehrabschnittssignal", "Vorsignal", "Sperrsignal", "Hauptsperrsignal", "andere"]
+        return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
