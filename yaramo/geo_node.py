@@ -11,9 +11,10 @@ class DistanceFunction(Enum):
 
 class GeoNode(BaseElement):        
 
-    def __init__(self, x, y, **kwargs):
+    def __init__(self, x, y, distance_function: DistanceFunction=None, **kwargs):
         super().__init__(**kwargs)
         self.geo_point = GeoPoint(x,y)
+        self.distance_function = distance_function or DistanceFunction.Euclidean
 
     def __eucldian_distance(self, geo_node_b: 'GeoNode'):
         min_x = min(self.geo_point.x, geo_node_b.geo_point.x)
@@ -33,8 +34,8 @@ class GeoNode(BaseElement):
             )
         )
 
-    def get_distance_to_other_geo_node(self, geo_node_b: 'GeoNode', distance_function: DistanceFunction):
-        match distance_function:
+    def get_distance_to_other_geo_node(self, geo_node_b: 'GeoNode'):
+        match self.distance_function:
             case DistanceFunction.Euclidean:
                 return self.__eucldian_distance(geo_node_b)
             case DistanceFunction.Haversine:
