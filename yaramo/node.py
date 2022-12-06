@@ -1,6 +1,12 @@
+from enum import Enum
+import math
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
 
+class NodeConnectionDirection(Enum):
+    Spitze = 0
+    Links = 1
+    Rechts = 2
 
 class Node(BaseElement):
 
@@ -16,11 +22,11 @@ class Node(BaseElement):
         self.connected_on_head = node
         self.connected_nodes.append(node)
 
-    def set_connection_left(self, node):
+    def set_connection_left(self, node: 'Node'):
         self.connected_on_left = node
         self.connected_nodes.append(node)
 
-    def set_connection_right(self, node):
+    def set_connection_right(self, node: 'Node'):
         self.connected_on_right = node
         self.connected_nodes.append(node)
 
@@ -28,10 +34,29 @@ class Node(BaseElement):
         if source is None:
             return self.connected_nodes
 
-        if len(self.connected_nodes) == 1:  
+        if len(self.connected_nodes) == 1:
             return []
 
-        if source.uuid == self.connected_on_head.uuid: 
+        if source.uuid == self.connected_on_head.uuid:
             return [self.connected_on_left, self.connected_on_right]
         else:
             return [self.connected_on_head]
+
+    def get_anschluss_of_other(self, other: 'Node'):
+        #  Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node. Idea: We assume, the current node is a point
+        #  and we want to estimate the Anschluss of the other node.
+        if len(self.connected_nodes) != 3:
+            print(f"Try to get Anschluss of Ende (Node ID: {self.identifier})")
+            return None
+
+        # TODO allow for different metrics to estimate the anschluss of the other nodes
+        if any(self.connected_nodes, lambda x : x is None):
+            return None
+        
+        if other.uuid == self.connected_on_head.uuid:
+            return NodeConnectionDirection.Spitze
+        if other.uuid == self.connected_on_left.uuid:
+            return NodeConnectionDirection.Links
+        if other.uuid == self.connected_on_right.uuid:
+            return NodeConnectionDirection.Rechts
+        return None
