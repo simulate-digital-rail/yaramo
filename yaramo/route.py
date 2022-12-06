@@ -11,7 +11,7 @@ class Route(BaseElement):
         self.maximum_speed: int = maximum_speed
         self.edges: set[Edge] = set([start_signal.edge])
         self.start_signal: Signal = start_signal
-        self.end_signal: Signal = None
+        self.end_signal: Optional[Signal] = None
 
         self.edges.add(start_signal.edge)
 
