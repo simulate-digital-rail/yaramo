@@ -6,10 +6,10 @@ from yaramo.signal import Signal
 class Topology(object):
 
     def __init__(self):
-        self.nodes = dict[str, Node]
-        self.edges = dict[str, Edge]
-        self.signals = dict[str, Signal]
-        self.routes = list[Route]
+        self.nodes: dict[str, Node] = {}
+        self.edges: dict[str, Edge] = {}
+        self.signals: dict[str, Signal] = {}
+        self.routes: list[Route] = []
 
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
