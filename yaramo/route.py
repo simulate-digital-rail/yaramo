@@ -1,6 +1,6 @@
 from typing import Dict
 from yaramo.base_element import BaseElement
-from yaramo.edge import Edge
+from yaramo.model import Edge, Signal
 
 
 class Route(BaseElement):
