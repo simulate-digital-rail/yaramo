@@ -1,4 +1,4 @@
-from yaramo.signal import Signal
+from yaramo.signal import Signal, SignalDirection, SignalFunction
 from yaramo.node import Node
 from yaramo.geo_node import GeoNode
 from yaramo.edge import Edge
