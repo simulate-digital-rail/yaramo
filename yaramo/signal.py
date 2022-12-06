@@ -3,11 +3,7 @@ from enum import Enum
 from uuid import uuid4
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
-
-# Richtung
-# IN
-# GEGEN
-
+from yaramo.trip import Trip
 
 class SignalDirection(Enum):
     IN = 1
@@ -34,10 +30,15 @@ class Signal(BaseElement):
 
     def __init__(self, edge: Edge, distance_previous_node: float, direction: SignalDirection | str, function: SignalFunction | str, kind: SignalKind | str, side_distance: float = None,  **kwargs):
         super().__init__(**kwargs)
-        self.trip = None
+        self.trip: Trip = None
         self.edge = edge
         self.direction = SignalDirection.IN if direction == SignalDirection.IN or direction.lower() == SignalDirection.IN.name.lower() else SignalDirection.GEGEN
-        self.side_distance: float = side_distance or 3.950 if self.direction == SignalDirection.IN else -3.950
+        
+        if side_distance is not None:
+            self.side_distance = side_distance if self.direction == SignalDirection.IN else -side_distance
+        else:
+            self.side_distance = 3.950 if self.direction == SignalDirection.IN else -3.950
+
         self.distance_previous_node = distance_previous_node
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
