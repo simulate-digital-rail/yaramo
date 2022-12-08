@@ -6,13 +6,12 @@ from yaramo.node import Node
 
 class Edge(BaseElement):
 
-    def __init__(self, node_a: Node, node_b: Node, length: float=None, **kwargs):
+    def __init__(self, node_a: Node, node_b: Node, **kwargs):
         super().__init__(**kwargs)
         self.node_a = node_a
         self.node_b = node_b
         self.intermediate_geo_nodes: list[GeoNode] = []
         self.signals: list[Signal] = []
-        self.length = length
 
     def is_node_connected(self, other_node) -> bool:
         return self.node_a == other_node or self.node_b == other_node
@@ -22,10 +21,8 @@ class Edge(BaseElement):
             return self.node_b
         return self.node_a
 
-    def update_length(self):
-        self.length = self.__get_length()
-    
-    def __get_length(self) -> float:
+    @property
+    def length(self) -> float:
         if len(self.intermediate_geo_nodes) == 0:
             return self.node_a.geo_node.get_distance_to_other_geo_node(self.node_b.geo_node)
 

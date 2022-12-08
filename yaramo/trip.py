@@ -14,5 +14,5 @@ class Trip(BaseElement):
     def get_length(self):
         total_length = 0.0
         for edge in self.edges:
-            total_length = total_length + edge.length()
+            total_length = total_length + edge.length
         return total_length
