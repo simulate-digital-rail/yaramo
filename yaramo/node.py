@@ -9,6 +9,7 @@ class NodeConnectionDirection(Enum):
     Spitze = 0
     Links = 1
     Rechts = 2
+    Sonstige = 3
 
 
 class Node(BaseElement):
@@ -56,7 +57,10 @@ class Node(BaseElement):
         # TODO allow for different metrics to estimate the anschluss of the other nodes
         if any(self.connected_nodes, lambda x: x is None):
             self.calc_anschluss_of_all_nodes()
-
+        # In case of two points forming two edges, we should return "Links" AND "Rechts", 
+        # but only "sonstige" is defined as an alternative in the PlanPro definitions..
+        if other.uuid == self.left_node.uuid and other.uuid == self.right_node.uuid:
+            return NodeConnectionDirection.Sonstige
         if other.uuid == self.connected_on_head.uuid:
             return NodeConnectionDirection.Spitze
         if other.uuid == self.connected_on_left.uuid:
