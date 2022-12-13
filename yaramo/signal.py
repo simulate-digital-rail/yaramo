@@ -5,9 +5,13 @@ from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
 from yaramo.trip import Trip
 
+
 class SignalDirection(Enum):
     IN = 1
     GEGEN = 2
+
+    def __str__(self):
+        return self.name.lower()
 
 
 class SignalFunction(Enum):
@@ -15,6 +19,9 @@ class SignalFunction(Enum):
     Ausfahr_Signal = 1
     Block_Signal = 2
     andere = 3
+
+    def __str__(self):
+        return self.name
 
 
 class SignalKind(Enum):
@@ -24,6 +31,9 @@ class SignalKind(Enum):
     Sperrsignal = 3
     Hauptsperrsignal = 4
     andere = 5
+
+    def __str__(self):
+        return self.name
 
 
 class Signal(BaseElement):

@@ -48,10 +48,10 @@ class Edge(BaseElement):
         return None
 
     def get_signals_with_direction_in_order(self, direction) -> List["Signal"]:
-        from yaramo.signal import SignalDirection
+        from yaramo.signal import SignalDirection, SignalFunction
         result: list[Signal] = []
         for signal in self.signals:
-            if signal.direction == direction:
+            if signal.function in [SignalFunction.Einfahr_Signal, SignalFunction.Ausfahr_Signal, SignalFunction.Block_Signal] and signal.direction == direction:
                 result.append(signal)
         result.sort(key=lambda x: x.distance_previous_node, reverse=(direction == SignalDirection.GEGEN))
         return result

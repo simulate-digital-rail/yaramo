@@ -1,6 +1,6 @@
 from typing import Dict
 from yaramo.base_element import BaseElement
-from yaramo.model import Edge, Signal
+from yaramo.model import Edge, Signal, SignalDirection
 from typing import Optional
 
 
@@ -61,8 +61,7 @@ class Route(BaseElement):
         output_dict["start_signal"] = self.start_signal.uuid
         output_dict["edges"] = []
 
-        for i in range(0, len(self.edges)):
-            edge = self.edges[i]
+        for i, edge in enumerate(self.edges):
             from_d = 0.0
             to_d = 0.0
 
