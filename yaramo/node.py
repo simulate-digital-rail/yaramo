@@ -72,11 +72,11 @@ class Node(BaseElement):
 
         def get_arc_between_nodes(_node_a: 'Node', _node_b: 'Node'):
             _a = _node_a.geo_node.get_distance_to_other_geo_node(
-                self.geo_node, distance_function=self.distance_function)
+                self.geo_node)
             _b = self.geo_node.get_distance_to_other_geo_node(
-                _node_b.geo_node, distance_function=self.distance_function)
+                _node_b.geo_node)
             _c = _node_a.geo_node.get_distance_to_other_geo_node(
-                _node_b.geo_node, distance_function=self.distance_function)
+                _node_b.geo_node)
 
             return math.degrees(math.acos((_a * _a + _b * _b - _c * _c) / (2.0 * _a * _b)))
 
@@ -91,7 +91,7 @@ class Node(BaseElement):
                     if cur_arc < current_max_arc:
                         missing_index = sum(
                             range(len(self.connected_nodes))) - (i + j)
-                        self.tip_node = self.connected_nodes[missing_index]
+                        self.connected_on_head = self.connected_nodes[missing_index]
                         other_a = self.connected_nodes[i]
                         other_b = self.connected_nodes[j]
                         current_max_arc = cur_arc
@@ -109,6 +109,6 @@ class Node(BaseElement):
             (other_a_y < self_y and other_b_y < self_y) or
             (other_a_y >= self_y and other_b_y >= self_y)
         ):
-            self.left_node, self.right_node = other_a, other_b
+            self.connected_on_left, self.connected_on_right = other_a, other_b
         else:
-            self.left_node, self.right_node = other_a, other_b
+            self.connected_on_left, self.connected_on_right = other_a, other_b
