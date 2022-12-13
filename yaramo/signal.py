@@ -1,4 +1,4 @@
-
+from yaramo.additional_signal import AdditionalSignal
 from enum import Enum
 from uuid import uuid4
 from yaramo.base_element import BaseElement
@@ -42,7 +42,8 @@ class Signal(BaseElement):
         self.distance_previous_node = distance_previous_node
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
-
+        self.additional_signals = list[AdditionalSignal]
+        
         if isinstance(function, str):
             self.function = SignalFunction.__members__.get(function, SignalFunction.andere)
         elif isinstance(function, SignalFunction):
