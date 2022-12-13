@@ -2,7 +2,7 @@ from decimal import Decimal
 from enum import Enum
 import math
 from yaramo.base_element import BaseElement
-from yaramo.geo_node import DistanceFunction, GeoNode
+from yaramo.geo_node import GeoNode
 
 
 class NodeConnectionDirection(Enum):
@@ -13,14 +13,13 @@ class NodeConnectionDirection(Enum):
 
 class Node(BaseElement):
 
-    def __init__(self, distance_function: DistanceFunction = None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.connected_on_head = None
         self.connected_on_left = None
         self.connected_on_right = None
         self.connected_nodes: list['Node'] = []
         self.geo_node: GeoNode = None
-        self.distance_function = distance_function or DistanceFunction.Euclidean
 
     def set_connection_head(self, node: 'Node'):
         self.connected_on_head = node
