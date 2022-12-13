@@ -20,9 +20,7 @@ class GeoPoint(ABC, BaseElement):
     def get_distance_to_other_geo_point(self, geo_point_b: "GeoPoint"):
         pass
 
-class Wgs84GeoPoint('GeoPoint'):
-    def __init__(self) -> None:
-        super().__init__()
+class Wgs84GeoPoint(GeoPoint):
 
     def get_distance_to_other_geo_point(self, geo_point_b: "Wgs84GeoPoint"):
         assert type(self) == type(geo_point_b), "You cannot calculate the distance between a Wgs84GeoPoint and a DbrefGeoPoint!"
@@ -47,9 +45,7 @@ class Wgs84GeoPoint('GeoPoint'):
             )
         )
 
-class DbrefGeoPoint('GeoPoint'):
-    def __init__(self) -> None:
-        super().__init__()
+class DbrefGeoPoint(GeoPoint):
 
     def get_distance_to_other_geo_point(self, geo_point_b: "DbrefGeoPoint"):
         assert type(self) == type(geo_point_b), "You cannot calculate the distance between a DbrefGeoPoint and a Wgs84GeoPoint!"

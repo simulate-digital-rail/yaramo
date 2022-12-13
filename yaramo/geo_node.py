@@ -1,18 +1,32 @@
+from abc import ABC, abstractmethod
 from yaramo.base_element import BaseElement
-from yaramo.geo_point import DistanceFunction, GeoPoint
+from yaramo.geo_point import DbrefGeoPoint, Wgs84GeoPoint
 
 
-class GeoNode(BaseElement):        
+class GeoNode(ABC, BaseElement):        
 
-    def __init__(self, x, y, distance_function: DistanceFunction=None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.geo_point = GeoPoint(x,y)
-        self.distance_function = distance_function or DistanceFunction.Euclidean
 
-
+    @abstractmethod
     def get_distance_to_other_geo_node(self, geo_node_b: 'GeoNode'):
+        pass
+
+class Wgs84Point(GeoNode):
+
+    def __init__(self, x, y, **kwargs):
+        super().__init__(**kwargs)
+        self.geo_point = Wgs84GeoPoint(x,y)
+
+    def get_distance_to_other_geo_node(self, geo_node_b: 'Wgs84Point'):
         return self.geo_point.get_distance_to_other_geo_point(geo_node_b.geo_point)
 
+class DbrefPoint(GeoNode):
 
+    def __init__(self, x, y, **kwargs):
+        super().__init__(**kwargs)
+        self.geo_point = DbrefGeoPoint(x,y)
 
+    def get_distance_to_other_geo_node(self, geo_node_b: 'DbrefPoint'):
+        return self.geo_point.get_distance_to_other_geo_point(geo_node_b.geo_point)
 
