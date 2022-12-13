@@ -5,3 +5,4 @@ from yaramo.edge import Edge
 from yaramo.route import Route
 from yaramo.trip import Trip
 from yaramo.topology import Topology
+from yaramo.config import Config
