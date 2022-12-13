@@ -38,8 +38,11 @@ class Node(BaseElement):
         if source is None:
             return self.connected_nodes
 
-        if len(self.connected_nodes) == 1:
+        if len(self.connected_nodes) <= 1:
             return []
+
+        if self.connected_on_head is None:
+            self.calc_anschluss_of_all_nodes()
 
         if source.uuid == self.connected_on_head.uuid:
             return [self.connected_on_left, self.connected_on_right]
