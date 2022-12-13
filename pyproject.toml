@@ -8,6 +8,7 @@ packages = [{include = "yaramo"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+pyproj = "^3.4.1"
 
 
 [build-system]
