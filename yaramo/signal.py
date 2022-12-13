@@ -38,7 +38,7 @@ class SignalKind(Enum):
 
 class Signal(BaseElement):
 
-    def __init__(self, edge: Edge, distance_previous_node: float, direction: SignalDirection | str, function: SignalFunction | str, kind: SignalKind | str, side_distance: float = None,  **kwargs):
+    def __init__(self, edge: Edge, distance_edge: float, direction: SignalDirection | str, function: SignalFunction | str, kind: SignalKind | str, side_distance: float = None,  **kwargs):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
@@ -49,7 +49,7 @@ class Signal(BaseElement):
         else:
             self.side_distance = 3.950 if self.direction == SignalDirection.IN else -3.950
 
-        self.distance_previous_node = distance_previous_node
+        self.distance_edge = distance_edge
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
         self.additional_signals = list[AdditionalSignal]
@@ -69,3 +69,10 @@ class Signal(BaseElement):
 
     def next_node(self):
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
+    
+    @property
+    def distance_previous_node(self):
+        if self.direction == SignalDirection.IN:
+            return self.distance_edge
+        else:
+            return self.edge.length - self.distance_edge
