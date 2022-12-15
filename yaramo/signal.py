@@ -38,21 +38,24 @@ class SignalKind(Enum):
 
 class Signal(BaseElement):
 
-    def __init__(self, edge: Edge, distance_previous_node: float, direction: SignalDirection | str, function: SignalFunction | str, kind: SignalKind | str, side_distance: float = None,  **kwargs):
+    def __init__(self, edge: Edge, distance_edge: float, direction: SignalDirection | str, function: SignalFunction | str, kind: SignalKind | str, side_distance: float = None,  **kwargs):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
-        self.direction = SignalDirection.IN if direction == SignalDirection.IN or direction.lower() == SignalDirection.IN.name.lower() else SignalDirection.GEGEN
+        self.distance_edge = distance_edge
+        self.classification_number = "60"
+        self.control_member_uuid = str(uuid4())
+        self.additional_signals = list[AdditionalSignal]
         
+        if isinstance(direction, str):
+            self.direction = SignalDirection.__members__.get(direction, SignalDirection.IN)
+        elif isinstance(direction, SignalDirection):
+            self.direction = direction
+
         if side_distance is not None:
             self.side_distance = side_distance if self.direction == SignalDirection.IN else -side_distance
         else:
             self.side_distance = 3.950 if self.direction == SignalDirection.IN else -3.950
-
-        self.distance_previous_node = distance_previous_node
-        self.classification_number = "60"
-        self.control_member_uuid = str(uuid4())
-        self.additional_signals = list[AdditionalSignal]
         
         if isinstance(function, str):
             self.function = SignalFunction.__members__.get(function, SignalFunction.andere)
@@ -69,3 +72,10 @@ class Signal(BaseElement):
 
     def next_node(self):
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
+    
+    @property
+    def distance_previous_node(self):
+        if self.direction == SignalDirection.IN:
+            return self.distance_edge
+        else:
+            return self.edge.length - self.distance_edge

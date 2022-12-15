@@ -53,5 +53,5 @@ class Edge(BaseElement):
         for signal in self.signals:
             if signal.function in [SignalFunction.Einfahr_Signal, SignalFunction.Ausfahr_Signal, SignalFunction.Block_Signal] and signal.direction == direction:
                 result.append(signal)
-        result.sort(key=lambda x: x.distance_previous_node, reverse=(direction == SignalDirection.GEGEN))
+        result.sort(key=lambda x: x.distance_edge, reverse=(direction == SignalDirection.GEGEN))
         return result

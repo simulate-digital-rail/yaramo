@@ -67,19 +67,19 @@ class Route(BaseElement):
 
             if i == 0:
                 if self.start_signal.direction == SignalDirection.IN:
-                    from_d = self.start_signal.distance_previous_node
+                    from_d = self.start_signal.distance_edge
                     to_d = edge.length
                 else:
-                    from_d = self.start_signal.distance_previous_node
+                    from_d = self.start_signal.distance_edge
                     to_d = 0.0
                 output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(from_d), "to": float(to_d)})
             elif i == len(self.edges) - 1:
                 if self.end_signal.direction == SignalDirection.IN:
                     from_d = 0.0
-                    to_d = self.end_signal.distance_previous_node
+                    to_d = self.end_signal.distance_edge
                 else:
                     from_d = edge.length
-                    to_d = self.end_signal.distance_previous_node
+                    to_d = self.end_signal.distance_edge
                 output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(from_d), "to": float(to_d)})
                 pass
             else:
