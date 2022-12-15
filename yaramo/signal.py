@@ -42,17 +42,20 @@ class Signal(BaseElement):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
-        self.direction = SignalDirection.IN if direction == SignalDirection.IN or direction.lower() == SignalDirection.IN.name.lower() else SignalDirection.GEGEN
-        
-        if side_distance is not None:
-            self.side_distance = side_distance if self.direction == SignalDirection.IN else -side_distance
-        else:
-            self.side_distance = 3.950 if self.direction == SignalDirection.IN else -3.950
-
         self.distance_edge = distance_edge
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
         self.additional_signals = list[AdditionalSignal]
+        
+        if isinstance(direction, str):
+            self.direction = SignalDirection.__members__.get(direction, SignalDirection.IN)
+        elif isinstance(direction, SignalDirection):
+            self.direction = direction
+
+        if side_distance is not None:
+            self.side_distance = side_distance if self.direction == SignalDirection.IN else -side_distance
+        else:
+            self.side_distance = 3.950 if self.direction == SignalDirection.IN else -3.950
         
         if isinstance(function, str):
             self.function = SignalFunction.__members__.get(function, SignalFunction.andere)
