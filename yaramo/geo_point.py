@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from enum import Enum
 import math
 
+import pyproj
+
 from yaramo.base_element import BaseElement
+
 
 class GeoPoint(ABC, BaseElement):
     def __init__(
@@ -20,11 +22,20 @@ class GeoPoint(ABC, BaseElement):
     def get_distance_to_other_geo_point(self, geo_point_b: "GeoPoint"):
         pass
 
+    @abstractmethod
+    def to_wgs84(self):
+        pass
+
+    @abstractmethod
+    def to_dbref(self):
+        pass
+
+
 class Wgs84GeoPoint(GeoPoint):
 
     def get_distance_to_other_geo_point(self, geo_point_b: "Wgs84GeoPoint"):
         assert type(self) == type(geo_point_b), "You cannot calculate the distance between a Wgs84GeoPoint and a DbrefGeoPoint!"
-        return self.__haversine_distance(geo_point_b)
+        return self.__haversine_distance(geo_point_b) / 1000
 
     def __haversine_distance(self, geo_point_b: "GeoPoint"):
         pi_over_180 = Decimal(math.pi / 180)
@@ -45,6 +56,16 @@ class Wgs84GeoPoint(GeoPoint):
             )
         )
 
+    def to_wgs84(self):
+        return self
+
+    def to_dbref(self):
+        proj_wgs84 = pyproj.Proj(init="epsg:4326")
+        proj_gk4 = pyproj.Proj(init="epsg:31468")
+        x, y = pyproj.transform(proj_wgs84, proj_gk4, self.y, self.x)
+        return DbrefGeoPoint(x, y)
+
+
 class DbrefGeoPoint(GeoPoint):
 
     def get_distance_to_other_geo_point(self, geo_point_b: "DbrefGeoPoint"):
@@ -57,3 +78,9 @@ class DbrefGeoPoint(GeoPoint):
         max_x = max(self.x, geo_point_b.x)
         max_y = max(self.y, geo_point_b.y)
         return math.sqrt(math.pow(max_x - min_x, 2) + math.pow(max_y - min_y, 2))
+
+    def to_wgs84(self):
+        raise NotImplementedError
+
+    def to_dbref(self):
+        return self

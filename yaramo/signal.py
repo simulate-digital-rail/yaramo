@@ -48,7 +48,7 @@ class Signal(BaseElement):
         self.additional_signals = list[AdditionalSignal]
         
         if isinstance(direction, str):
-            self.direction = SignalDirection.__members__.get(direction, SignalDirection.IN)
+            self.direction = SignalDirection.GEGEN if direction == "gegen" else SignalDirection.IN
         elif isinstance(direction, SignalDirection):
             self.direction = direction
 
