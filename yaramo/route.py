@@ -62,6 +62,7 @@ class Route(BaseElement):
         nodes = []
 
         previous_node = self.start_signal.next_node()
+        nodes.append(None)
         nodes.append(previous_node)
 
         for edge in edges[1:]:
@@ -69,11 +70,12 @@ class Route(BaseElement):
             nodes.append(next_node)
             previous_node = next_node
 
-        for (node, next_node), edge in zip(zip(nodes, nodes[1:]), edges[1:]):
+        # We have to look back and ahead, as we have to figure out which branch of the node we traverse
+        for ((previous_node, node), next_node), edge in zip(zip(zip(nodes, nodes[1:]), nodes[2:]), edges[1:]):
             if edge.maximum_speed is not None and edge.maximum_speed < maximum_speed:
                 maximum_speed = edge.maximum_speed
             
-            node_speed = node.maximum_speed(next_node) 
+            node_speed = node.maximum_speed(previous_node, next_node) 
             if node_speed is not None and node_speed < maximum_speed:
                 maximum_speed = node_speed
         

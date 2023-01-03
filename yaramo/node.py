@@ -24,8 +24,8 @@ class Node(BaseElement):
         self.connected_nodes: list['Node'] = []
         self.geo_node: GeoNode = None
 
-    def maximum_speed(self, next_node):
-        if next_node == self.connected_on_left:
+    def maximum_speed(self, node_a: 'Node', node_b: 'Node'):
+        if node_a == self.connected_on_left or node_b == self.connected_on_left:
             return self.maximum_speed_on_left
         else:
             return self.maximum_speed_on_right
