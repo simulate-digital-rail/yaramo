@@ -9,8 +9,3 @@ class BaseElement(object):
 
     def __str__(self):
         return self.name or self.uuid
-
-class TrackElement(BaseElement):
-    def __init__(self, maximum_speed: int = None, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.maximum_speed = maximum_speed
