@@ -1,10 +1,10 @@
 from typing import List
-from yaramo.base_element import TrackElement
+from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
 from yaramo.node import Node
 
 
-class Edge(TrackElement):
+class Edge(BaseElement):
 
     def __init__(self, node_a: Node, node_b: Node, length: float=None, **kwargs):
         super().__init__(**kwargs)
@@ -13,6 +13,7 @@ class Edge(TrackElement):
         self.intermediate_geo_nodes: list[GeoNode] = []
         self.signals: list[Signal] = []
         self.length = length
+        self.maximum_speed: int = None
 
     def is_node_connected(self, other_node) -> bool:
         return self.node_a == other_node or self.node_b == other_node
