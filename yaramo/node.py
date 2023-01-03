@@ -25,11 +25,16 @@ class Node(BaseElement):
         self.geo_node: GeoNode = None
 
     def maximum_speed(self, node_a: 'Node', node_b: 'Node'):
+        """Return the maximum allowed speed for traversing this node, 
+        coming from node_a and going to node_b
+        """
         if node_a == self.connected_on_left or node_b == self.connected_on_left:
             return self.maximum_speed_on_left
-        else:
+        elif node_a == self.connected_on_right or node_b == self.connected_on_right:
             return self.maximum_speed_on_right
-
+        else:
+            return None
+            
     def set_connection_head(self, node: 'Node'):
         self.connected_on_head = node
         self.connected_nodes.append(node)
