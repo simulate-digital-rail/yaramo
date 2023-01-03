@@ -3,6 +3,8 @@ from yaramo.base_element import BaseElement
 from yaramo.model import Edge, Signal, SignalDirection
 from typing import Optional
 
+from yaramo.node import Node
+
 
 class Route(BaseElement):
 
@@ -55,6 +57,33 @@ class Route(BaseElement):
             new_obj.edges.append(edge)
         new_obj.end_signal = self.end_signal
         return new_obj
+
+    def update_maximum_speed(self):
+        edges = self.get_edges_in_order()
+        nodes: list[Node] = []
+
+        previous_node = self.start_signal.next_node()
+        nodes.append(None)
+        nodes.append(previous_node)
+
+        for edge in edges[1:]:
+            next_node = edge.node_a if edge.node_b == previous_node else edge.node_b
+            nodes.append(next_node)
+            previous_node = next_node
+
+        maximum_speed = min([edge.maximum_speed or float('inf') for edge in edges])
+
+        # We have to look back and ahead, as we have to figure out which branch of the node we traverse
+        for index, node in enumerate(nodes):
+            previous_node = nodes[index-1] if index > 0 else None
+            next_node = nodes[index+1] if index + 1 < len(nodes) else None
+            node_speed = None
+            if node is not None:
+                node_speed = node.maximum_speed(previous_node, next_node) 
+            if node_speed is not None and node_speed < maximum_speed:
+                maximum_speed = node_speed
+        
+        self.maximum_speed = maximum_speed
 
     def to_serializable(self) -> Dict:
         output_dict = dict()
