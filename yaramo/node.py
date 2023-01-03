@@ -1,7 +1,8 @@
 from decimal import Decimal
 from enum import Enum
 import math
-from yaramo.base_element import BaseElement
+from yaramo.geo_node import GeoNode
+from yaramo.base_element import TrackElement
 from yaramo.geo_node import GeoNode
 
 
@@ -11,7 +12,7 @@ class NodeConnectionDirection(Enum):
     Rechts = 2
 
 
-class Node(BaseElement):
+class Node(TrackElement):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

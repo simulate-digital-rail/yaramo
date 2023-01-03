@@ -1,10 +1,10 @@
 from typing import List
-from yaramo.base_element import BaseElement
+from yaramo.base_element import TrackElement
 from yaramo.geo_node import GeoNode
 from yaramo.node import Node
 
 
-class Edge(BaseElement):
+class Edge(TrackElement):
 
     def __init__(self, node_a: Node, node_b: Node, length: float=None, **kwargs):
         super().__init__(**kwargs)
