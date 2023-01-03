@@ -4,6 +4,8 @@ from yaramo.model import Edge, Signal, SignalDirection
 from typing import Optional
 from yaramo.node import Node
 
+from yaramo.node import Node
+
 
 class Route(BaseElement):
 
