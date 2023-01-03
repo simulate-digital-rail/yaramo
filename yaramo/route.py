@@ -2,7 +2,6 @@ from typing import Dict
 from yaramo.base_element import BaseElement
 from yaramo.model import Edge, Signal, SignalDirection
 from typing import Optional
-
 from yaramo.node import Node
 
 
