@@ -52,11 +52,10 @@ class Node(BaseElement):
         #  Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node. Idea: We assume, the current node is a point
         #  and we want to estimate the Anschluss of the other node.
         if len(self.connected_nodes) != 3:
-            print(f"Try to get Anschluss of Ende (Node ID: {self.identifier})")
-            return None
+            raise Exception(f"Try to get Anschluss of Ende (Node ID: {self.uuid})")
 
         # TODO allow for different metrics to estimate the anschluss of the other nodes
-        if any(self.connected_nodes, lambda x: x is None):
+        if not all([self.connected_on_left, self.connected_on_right, self.connected_on_head]):
             self.calc_anschluss_of_all_nodes()
 
         if other.uuid == self.connected_on_head.uuid:
