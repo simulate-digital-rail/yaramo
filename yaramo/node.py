@@ -2,7 +2,7 @@ from decimal import Decimal
 from enum import Enum
 import math
 from yaramo.geo_node import GeoNode
-from yaramo.base_element import TrackElement
+from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
 
 
@@ -12,15 +12,23 @@ class NodeConnectionDirection(Enum):
     Rechts = 2
 
 
-class Node(TrackElement):
+class Node(BaseElement):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.connected_on_head = None
         self.connected_on_left = None
         self.connected_on_right = None
+        self.maximum_speed_on_left = None
+        self.maximum_speed_on_right = None
         self.connected_nodes: list['Node'] = []
         self.geo_node: GeoNode = None
+
+    def maximum_speed(self, next_node):
+        if next_node == self.connected_on_left:
+            return self.maximum_speed_on_left
+        else:
+            return self.maximum_speed_on_right
 
     def set_connection_head(self, node: 'Node'):
         self.connected_on_head = node

@@ -3,8 +3,6 @@ from yaramo.base_element import BaseElement
 from yaramo.model import Edge, Signal, SignalDirection
 from typing import Optional
 
-from yaramo.point import Point
-
 
 class Route(BaseElement):
 
@@ -74,10 +72,10 @@ class Route(BaseElement):
         for (node, next_node), edge in zip(zip(nodes, nodes[1:]), edges[1:]):
             if edge.maximum_speed is not None and edge.maximum_speed < maximum_speed:
                 maximum_speed = edge.maximum_speed
-            if isinstance(node, Point) and node.through_node.uuid == next_node.uuid:
-                continue
-            if node.maximum_speed is not None and node.maximum_speed < maximum_speed:
-                maximum_speed = node.maximum_speed
+            
+            node_speed = node.maximum_speed(next_node) 
+            if node_speed is not None and node_speed < maximum_speed:
+                maximum_speed = node_speed
         
         self.maximum_speed = maximum_speed
 
