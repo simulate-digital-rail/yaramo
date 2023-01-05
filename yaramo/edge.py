@@ -58,19 +58,18 @@ class Edge(BaseElement):
         return result
 
     def to_serializable(self):
-        base = self.__dict__
-        sub = {
+        attributes = self.__dict__
+        references = {
             'node_a': self.node_a.uuid,
             'node_b': self.node_b.uuid,
             'intermediate_geo_nodes': [geo_node.uuid for geo_node in self.intermediate_geo_nodes],
             'signals': [signal.uuid for signal in self.signals],
             'length': self.length
         }
-        items = {}
-        for item in [self.node_a, self.node_b]  + self.intermediate_geo_nodes:
-            _item, _object = item.to_serializable()
-            items = {**items, item.uuid:_item, **_object }
+        objects = {}
+        for geo_node in self.intermediate_geo_nodes:
+            geo_node_object, serialized_geo_node = geo_node.to_serializable()
+            objects = {**objects, geo_node.uuid:geo_node_object, **serialized_geo_node}
 
-
-        return {**base, **sub}, items
+        return {**attributes, **references}, objects
 

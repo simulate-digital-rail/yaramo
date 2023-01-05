@@ -82,8 +82,8 @@ class Signal(BaseElement):
             return self.edge.length - self.distance_edge
 
     def to_serializable(self) -> Tuple[dict, dict]:
-        base, _ = super().to_serializable()
-        sub = {
+        attributes, _ = super().to_serializable()
+        references = {
             'trip': self.trip,
             'distance_edge': self.distance_edge,
             'classification_number': self.classification_number,
@@ -96,14 +96,11 @@ class Signal(BaseElement):
             'function': str(self.function),
             'kind': str(self.kind),
         }
-        trip_objects = {}
-        if self.trip:
-            trip, trip_object = self.trip.to_serializable()
-            trip_objects = {self.trip.uuid:trip, **trip_object}
-        signal_objects = {}
-        for additional_signal in self.additional_signals:
-            if additional_signal:
-                signal, signal_object = additional_signal.to_serializable()
-                signal_objects = {**signal_objects, **{additional_signal.uuid:signal, **signal_object}}
-        return {**base, **sub}, {**signal_objects, **trip_objects}
+        objects = {}
+        items = [self.trip] + self.additional_signals if self.trip else self.additional_signals
+        for item in items:
+            item_object, serialized_item = item.to_serializable()
+            objects = {**objects, item.uuid:item_object, **serialized_item}
+        
+        return {**attributes, **references}, objects
 

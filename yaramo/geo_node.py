@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from yaramo.base_element import BaseElement
-from yaramo.geo_point import DbrefGeoPoint, Wgs84GeoPoint
+from yaramo.geo_point import DbrefGeoPoint, GeoPoint, Wgs84GeoPoint
 
 
 class GeoNode(ABC, BaseElement):        
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.geo_point: GeoPoint = None
 
     @abstractmethod
     def get_distance_to_other_geo_node(self, geo_node_b: 'GeoNode'):
@@ -21,12 +22,12 @@ class GeoNode(ABC, BaseElement):
         pass
     
     def to_serializable(self):
-        base = self.__dict__
-        sub = {
+        attributes = self.__dict__
+        references = {
             'geo_point': self.geo_point.uuid,
         }        
-        point_serialized, _ = self.geo_point.to_serializable()
-        return ({**base, **sub}, {self.geo_point.uuid: point_serialized})
+        point_object, point_serialized = self.geo_point.to_serializable()
+        return {**attributes, **references}, {self.geo_point.uuid: point_object, **point_serialized}
 
 
 class Wgs84GeoNode(GeoNode):
