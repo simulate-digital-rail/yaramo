@@ -1,5 +1,6 @@
 
 import random
+from typing import Tuple
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
 
@@ -16,3 +17,6 @@ class Trip(BaseElement):
         for edge in self.edges:
             total_length = total_length + edge.length
         return total_length
+
+    def to_serializable(self) -> Tuple[dict, dict]:
+        return self.__dict__, {}

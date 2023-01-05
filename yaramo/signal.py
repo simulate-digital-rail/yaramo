@@ -1,3 +1,4 @@
+from typing import Tuple
 from yaramo.additional_signal import AdditionalSignal
 from enum import Enum
 from uuid import uuid4
@@ -45,7 +46,7 @@ class Signal(BaseElement):
         self.distance_edge = distance_edge
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
-        self.additional_signals = list[AdditionalSignal]
+        self.additional_signals: list[AdditionalSignal] = []
         
         if isinstance(direction, str):
             self.direction = SignalDirection.GEGEN if direction == "gegen" else SignalDirection.IN
@@ -79,3 +80,30 @@ class Signal(BaseElement):
             return self.distance_edge
         else:
             return self.edge.length - self.distance_edge
+
+    def to_serializable(self) -> Tuple[dict, dict]:
+        base, _ = super().to_serializable()
+        sub = {
+            'trip': self.trip,
+            'distance_edge': self.distance_edge,
+            'classification_number': self.classification_number,
+            'control_member_uuid': self.control_member_uuid,
+            'edge': self.edge.uuid if self.edge else None,
+            'trip':self.trip.uuid if self.trip else None,
+            'additional_signals': [signal.uuid for signal in self.additional_signals],
+            'direction': str(self.direction),
+            'side_distance': self.side_distance,
+            'function': str(self.function),
+            'kind': str(self.kind),
+        }
+        trip_objects = {}
+        if self.trip:
+            trip, trip_object = self.trip.to_serializable()
+            trip_objects = {self.trip.uuid:trip, **trip_object}
+        signal_objects = {}
+        for additional_signal in self.additional_signals:
+            if additional_signal:
+                signal, signal_object = additional_signal.to_serializable()
+                signal_objects = {**signal_objects, **{additional_signal.uuid:signal, **signal_object}}
+        return {**base, **sub}, {**signal_objects, **trip_objects}
+

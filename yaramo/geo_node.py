@@ -19,6 +19,14 @@ class GeoNode(ABC, BaseElement):
     @abstractmethod
     def to_dbref(self) -> 'DbrefGeoNode':
         pass
+    
+    def to_serializable(self):
+        base = self.__dict__
+        sub = {
+            'geo_point': self.geo_point.uuid,
+        }        
+        point_serialized, _ = self.geo_point.to_serializable()
+        return ({**base, **sub}, {self.geo_point.uuid: point_serialized})
 
 
 class Wgs84GeoNode(GeoNode):

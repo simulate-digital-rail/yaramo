@@ -1,9 +1,10 @@
+from yaramo.base_element import BaseElement
 from yaramo.node import Node
 from yaramo.edge import Edge
 from yaramo.route import Route
 from yaramo.signal import Signal
 
-class Topology(object):
+class Topology(BaseElement):
 
     def __init__(self):
         self.nodes: dict[str, Node] = {}
@@ -30,4 +31,29 @@ class Topology(object):
                edge.node_a.uuid == node_b.uuid and edge.node_b.uuid == node_a.uuid:
                 return edge
         return None
+
+    def to_serializable(self):
+        nodes = []
+        edges = []
+        signals = []
+        objects = {}
+        for node in self.nodes.values():
+            reference, serialized = node.to_serializable()
+            nodes.append(reference)
+            objects = {**objects, **serialized}
+        for edge in self.edges.values():
+            reference, serialized = edge.to_serializable()
+            edges.append(reference)
+            objects = {**objects, **serialized}
+        for signal in self.signals.values():
+            reference, serialized = signal.to_serializable()
+            signals.append(reference)
+            objects = {**objects, **serialized}
+
+        return {
+            'nodes': nodes,
+            'edges': edges,
+            'signals': signals,
+            'objects': objects
+        }
 

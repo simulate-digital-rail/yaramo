@@ -1,11 +1,15 @@
 
 from enum import Enum
-from typing import List
+from typing import List, Tuple
 from yaramo.base_element import BaseElement
 
 class AdditionalSignal(BaseElement):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+
+    def to_serializable(self) -> Tuple[dict, dict]:
+        base, _ = super().to_serializable()
+        return {**base, 'symbols': [str(symbol) for symbol in self.symbols]}, {}
 
 class AdditionalSignalZs1(AdditionalSignal):
     def __init__(self, symbols: List['AdditionalSignalSymbolZs1'], **kwargs) -> None:
