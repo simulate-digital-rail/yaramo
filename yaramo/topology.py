@@ -33,10 +33,10 @@ class Topology(BaseElement):
         return None
 
     def to_serializable(self):
-        nodes, edges, signals = [], [], []
+        nodes, edges, signals, routes = [], [], [], []
         objects = {}
 
-        for items, _list in [(list(self.signals.values()), signals), (list(self.nodes.values()), nodes), (list(self.edges.values()), edges)]:
+        for items, _list in [(list(self.signals.values()), signals), (list(self.nodes.values()), nodes), (list(self.edges.values()), edges), (self.routes, routes)]:
             for item in items:
                 reference, serialized = item.to_serializable()
                 _list.append(reference)
@@ -46,6 +46,7 @@ class Topology(BaseElement):
             'nodes': nodes,
             'edges': edges,
             'signals': signals,
+            'routes':routes,
             'objects': objects
         }
 
