@@ -63,8 +63,7 @@ class Edge(BaseElement):
             'node_a': self.node_a.uuid,
             'node_b': self.node_b.uuid,
             'intermediate_geo_nodes': [geo_node.uuid for geo_node in self.intermediate_geo_nodes],
-            'signals': [signal.uuid for signal in self.signals],
-            'length': self.length
+            'signals': [signal.uuid for signal in self.signals]
         }
         objects = {}
         for geo_node in self.intermediate_geo_nodes:

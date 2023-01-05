@@ -84,10 +84,6 @@ class Signal(BaseElement):
     def to_serializable(self) -> Tuple[dict, dict]:
         attributes, _ = super().to_serializable()
         references = {
-            'trip': self.trip,
-            'distance_edge': self.distance_edge,
-            'classification_number': self.classification_number,
-            'control_member_uuid': self.control_member_uuid,
             'edge': self.edge.uuid if self.edge else None,
             'trip':self.trip.uuid if self.trip else None,
             'additional_signals': [signal.uuid for signal in self.additional_signals],
