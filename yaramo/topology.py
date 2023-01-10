@@ -48,5 +48,5 @@ class Topology(BaseElement):
             'signals': signals,
             'routes':routes,
             'objects': objects
-        }
+        }, {}
 

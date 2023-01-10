@@ -17,4 +17,4 @@ class BaseElement(object):
         return self.__dict__, {}
 
     def to_json(self) -> str:
-        return json.dumps(self.to_serializable())
+        return json.dumps(self.to_serializable()[0])
