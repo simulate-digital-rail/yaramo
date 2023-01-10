@@ -3,6 +3,7 @@ from enum import Enum
 from typing import List, Tuple
 from yaramo.base_element import BaseElement
 
+
 class AdditionalSignal(BaseElement):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -18,10 +19,10 @@ class AdditionalSignalZs1(AdditionalSignal):
 
     def __str__ (self):
         return 'AdditionalSignalZs1(kind=Zs1' + ', symbols=' + str(self.symbols) + ')'
-
     
     class AdditionalSignalSymbolZs1(Enum):
         Zs1 = 0
+
 
 class AdditionalSignalZs2(AdditionalSignal):
     def __init__(self, symbols: List['AdditionalSignalSymbolZs2'], **kwargs) -> None:
@@ -31,7 +32,6 @@ class AdditionalSignalZs2(AdditionalSignal):
     def __str__ (self):
         return 'AdditionalSignalZs2(kind=Zs2' + ', symbols=' + str(self.symbols) + ')'
 
-    
     class AdditionalSignalSymbolZs2(Enum):
         A = 0
         B = 1
@@ -57,6 +57,18 @@ class AdditionalSignalZs2(AdditionalSignal):
         X = 21
         Z = 22
 
+
+class AdditionalSignalZs2v(AdditionalSignal):
+    AdditionalSignalSymbolZs2v = AdditionalSignalZs2.AdditionalSignalSymbolZs2
+
+    def __init__(self, symbols: List['AdditionalSignalSymbolZs2v'], **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.symbols = symbols
+
+    def __str__(self):
+        return 'AdditionalSignalZs2v(kind=Zs2v' + ', symbols=' + str(self.symbols) + ')'
+
+
 class AdditionalSignalZs3(AdditionalSignal):
     def __init__(self, symbols: List['AdditionalSignalSymbolZs3'], **kwargs) -> None:
         super().__init__(**kwargs)
@@ -66,6 +78,7 @@ class AdditionalSignalZs3(AdditionalSignal):
         return 'AdditionalSignalZs3(kind=Zs3' + ', symbols=' + str(self.symbols) + ')'
     
     class AdditionalSignalSymbolZs3(Enum):
+        OFF = 0
         ONE = 1
         TWO = 2
         THREE = 3
@@ -87,3 +100,13 @@ class AdditionalSignalZs3(AdditionalSignal):
         def from_number(number: int) -> 'AdditionalSignalZs3':
             return next(filter(lambda enum: enum.value == number, 'AdditionalSignalSymbolZs3'))
 
+
+class AdditionalSignalZs3v(AdditionalSignal):
+    AdditionalSignalSymbolZs3v = AdditionalSignalZs3.AdditionalSignalSymbolZs3
+
+    def __init__(self, symbols: List['AdditionalSignalSymbolZs3v'], **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.symbols = symbols
+
+    def __str__ (self):
+        return 'AdditionalSignalZs3v(kind=Zs3v' + ', symbols=' + str(self.symbols) + ')'
