@@ -124,3 +124,19 @@ class Node(BaseElement):
             self.connected_on_left, self.connected_on_right = other_a, other_b
         else:
             self.connected_on_left, self.connected_on_right = other_a, other_b
+
+    def to_serializable(self):
+        attributes = self.__dict__
+        references = {
+            'connected_on_head': self.connected_on_head.uuid if self.connected_on_head else None,
+            'connected_on_left': self.connected_on_left.uuid if self.connected_on_left else None,
+            'connected_on_right': self.connected_on_right.uuid if self.connected_on_right else None,
+            'connected_nodes': [node.uuid for node in self.connected_nodes],
+            'geo_node': self.geo_node.uuid if self.geo_node else None,
+        }
+        objects = {}
+        if self.geo_node:
+            geo_node, serialized_geo_node = self.geo_node.to_serializable()
+            objects = {**objects, self.geo_node.uuid:geo_node, **serialized_geo_node}
+
+        return {**attributes, **references}, objects
