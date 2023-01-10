@@ -9,3 +9,9 @@ All yaramo classes inherit from the **BaseElement** class.
 The general idea of yaramo is to act as the glue between different **importer** and **exporter** applications. This allows us to use different interfaces to generate or modify yaramo models and then export them for different use cases.
 
 See our [demo repository](https://github.com/simulate-digital-rail/demo) for some examples.
+
+## install
+```shell
+$ poetry add git+https://github.com/simulate-digital-rail/yaramo
+$ poetry install
+```
