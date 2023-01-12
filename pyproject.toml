@@ -2,7 +2,7 @@
 name = "yaramo"
 version = "0.1.0"
 description = "yaramo is a railway model focusing on interoperability between different existing planning formats."
-authors = [""OSM HPI <OSM@HPI>""]
+authors = ["OSM HPI <OSM@HPI>"]
 readme = "README.md"
 packages = [{include = "yaramo"}]
 

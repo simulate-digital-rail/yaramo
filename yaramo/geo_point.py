@@ -63,9 +63,8 @@ class Wgs84GeoPoint(GeoPoint):
         return self
 
     def to_dbref(self):
-        proj_wgs84 = pyproj.Proj(init="epsg:4326")
-        proj_gk4 = pyproj.Proj(init="epsg:31468")
-        x, y = pyproj.transform(proj_wgs84, proj_gk4, self.y, self.x)
+        transformer = pyproj.Transformer.from_crs("epsg:4326", "epsg:31468")
+        x, y = transformer.transform(self.y, self.x)
         return DbrefGeoPoint(x, y)
 
 
