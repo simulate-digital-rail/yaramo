@@ -72,7 +72,3 @@ class Signal(BaseElement):
 
     def next_node(self):
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
-    
-    @property
-    def distance_previous_node(self):
-        return self.distance_edge
