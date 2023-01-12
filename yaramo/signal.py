@@ -75,7 +75,4 @@ class Signal(BaseElement):
     
     @property
     def distance_previous_node(self):
-        if self.direction == SignalDirection.IN:
-            return self.distance_edge
-        else:
-            return self.edge.length - self.distance_edge
+        return self.distance_edge
