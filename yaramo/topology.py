@@ -4,9 +4,11 @@ from yaramo.edge import Edge
 from yaramo.route import Route
 from yaramo.signal import Signal
 
+
 class Topology(BaseElement):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.nodes: dict[str, Node] = {}
         self.edges: dict[str, Edge] = {}
         self.signals: dict[str, Signal] = {}
