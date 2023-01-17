@@ -51,7 +51,7 @@ class Route(BaseElement):
         return False
 
     def duplicate(self):
-        new_obj = Route(self.start_signal)
+        new_obj = Route(self.start_signal, maximum_speed=self.maximum_speed)
         new_obj.edges = []
         for edge in self.edges:
             new_obj.edges.append(edge)
