@@ -43,7 +43,7 @@ class Signal(BaseElement):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
-        self.distance_edge = distance_edge
+        self.distance_edge = distance_edge  # distance to edge.node_a in meters
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
         self.additional_signals: list[AdditionalSignal] = []
