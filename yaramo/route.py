@@ -51,7 +51,7 @@ class Route(BaseElement):
         return False
 
     def duplicate(self):
-        new_obj = Route(self.start_signal)
+        new_obj = Route(self.start_signal, maximum_speed=self.maximum_speed)
         new_obj.edges = []
         for edge in self.edges:
             new_obj.edges.append(edge)
@@ -86,33 +86,12 @@ class Route(BaseElement):
         self.maximum_speed = maximum_speed
 
     def to_serializable(self) -> Dict:
-        output_dict = dict()
-        output_dict["start_signal"] = self.start_signal.uuid
-        output_dict["edges"] = []
+        attributes = self.__dict__
+        references = {
+            'maximum_speed':self.maximum_speed,
+            'edges':[edge.uuid for edge in self.edges],
+            'start_signal':self.start_signal.uuid,
+            'end_signal':self.end_signal.uuid if self.end_signal else None,
+        }
 
-        for i, edge in enumerate(self.edges):
-            from_d = 0.0
-            to_d = 0.0
-
-            if i == 0:
-                if self.start_signal.direction == SignalDirection.IN:
-                    from_d = self.start_signal.distance_edge
-                    to_d = edge.length
-                else:
-                    from_d = self.start_signal.distance_edge
-                    to_d = 0.0
-                output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(from_d), "to": float(to_d)})
-            elif i == len(self.edges) - 1:
-                if self.end_signal.direction == SignalDirection.IN:
-                    from_d = 0.0
-                    to_d = self.end_signal.distance_edge
-                else:
-                    from_d = edge.length
-                    to_d = self.end_signal.distance_edge
-                output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(from_d), "to": float(to_d)})
-                pass
-            else:
-                output_dict["edges"].append({"edge_uuid": edge.uuid, "from": float(0), "to": float(edge.length)})
-
-        output_dict["end_signal"] = self.end_signal.uuid
-        return output_dict
+        return {**attributes, **references}, {}

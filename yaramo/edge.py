@@ -56,3 +56,19 @@ class Edge(BaseElement):
                 result.append(signal)
         result.sort(key=lambda x: x.distance_edge, reverse=(direction == SignalDirection.GEGEN))
         return result
+
+    def to_serializable(self):
+        attributes = self.__dict__
+        references = {
+            'node_a': self.node_a.uuid,
+            'node_b': self.node_b.uuid,
+            'intermediate_geo_nodes': [geo_node.uuid for geo_node in self.intermediate_geo_nodes],
+            'signals': [signal.uuid for signal in self.signals]
+        }
+        objects = {}
+        for geo_node in self.intermediate_geo_nodes:
+            geo_node_object, serialized_geo_node = geo_node.to_serializable()
+            objects = {**objects, geo_node.uuid:geo_node_object, **serialized_geo_node}
+
+        return {**attributes, **references}, objects
+
