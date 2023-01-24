@@ -1,6 +1,6 @@
+import math
 from abc import ABC, abstractmethod
 from decimal import Decimal
-import math
 
 import pyproj
 
@@ -8,12 +8,7 @@ from yaramo.base_element import BaseElement
 
 
 class GeoPoint(ABC, BaseElement):
-    def __init__(
-        self,
-        x,
-        y,
-        **kwargs
-    ):
+    def __init__(self, x, y, **kwargs):
         super().__init__(**kwargs)
         self.x = x
         self.y = y
@@ -21,7 +16,7 @@ class GeoPoint(ABC, BaseElement):
     @abstractmethod
     def get_distance_to_other_geo_point(self, geo_point_b: "GeoPoint"):
         pass
-    
+
     def to_serializable(self):
         return self.__dict__, {}
 
@@ -35,9 +30,10 @@ class GeoPoint(ABC, BaseElement):
 
 
 class Wgs84GeoPoint(GeoPoint):
-
     def get_distance_to_other_geo_point(self, geo_point_b: "Wgs84GeoPoint"):
-        assert type(self) == type(geo_point_b), "You cannot calculate the distance between a Wgs84GeoPoint and a DbrefGeoPoint!"
+        assert type(self) == type(
+            geo_point_b
+        ), "You cannot calculate the distance between a Wgs84GeoPoint and a DbrefGeoPoint!"
         return self.__haversine_distance(geo_point_b) / 1000
 
     def __haversine_distance(self, geo_point_b: "GeoPoint"):
@@ -52,9 +48,7 @@ class Wgs84GeoPoint(GeoPoint):
                     math.pow(math.sin((pi_over_180 * (geo_point_b.x - self.x)) / 2), 2)
                     + math.cos(pi_over_180 * self.x)
                     * math.cos(pi_over_180 * geo_point_b.x)
-                    * math.pow(
-                        math.sin((pi_over_180 * (geo_point_b.y - self.y)) / 2), 2
-                    )
+                    * math.pow(math.sin((pi_over_180 * (geo_point_b.y - self.y)) / 2), 2)
                 )
             )
         )
@@ -69,9 +63,10 @@ class Wgs84GeoPoint(GeoPoint):
 
 
 class DbrefGeoPoint(GeoPoint):
-
     def get_distance_to_other_geo_point(self, geo_point_b: "DbrefGeoPoint"):
-        assert type(self) == type(geo_point_b), "You cannot calculate the distance between a DbrefGeoPoint and a Wgs84GeoPoint!"
+        assert type(self) == type(
+            geo_point_b
+        ), "You cannot calculate the distance between a DbrefGeoPoint and a Wgs84GeoPoint!"
         return self.__eucldian_distance(geo_point_b)
 
     def __eucldian_distance(self, geo_point_b: "GeoPoint"):

@@ -1,12 +1,11 @@
-
 import random
 from typing import Tuple
+
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
 
 
 class Trip(BaseElement):
-
     def __init__(self, edges: list[Edge], **kwargs):
         super().__init__(**kwargs)
         self.name = self.name or random.randrange(1000, 10000)

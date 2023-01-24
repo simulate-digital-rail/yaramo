@@ -1,6 +1,6 @@
-
 from enum import Enum
 from typing import List, Tuple
+
 from yaramo.base_element import BaseElement
 
 
@@ -10,27 +10,28 @@ class AdditionalSignal(BaseElement):
 
     def to_serializable(self) -> Tuple[dict, dict]:
         base, _ = super().to_serializable()
-        return {**base, 'symbols': [str(symbol) for symbol in self.symbols]}, {}
+        return {**base, "symbols": [str(symbol) for symbol in self.symbols]}, {}
+
 
 class AdditionalSignalZs1(AdditionalSignal):
-    def __init__(self, symbols: List['AdditionalSignalSymbolZs1'], **kwargs) -> None:
+    def __init__(self, symbols: List["AdditionalSignalSymbolZs1"], **kwargs) -> None:
         super().__init__(**kwargs)
         self.symbols = symbols
 
-    def __str__ (self):
-        return 'AdditionalSignalZs1(kind=Zs1' + ', symbols=' + str(self.symbols) + ')'
-    
+    def __str__(self):
+        return "AdditionalSignalZs1(kind=Zs1" + ", symbols=" + str(self.symbols) + ")"
+
     class AdditionalSignalSymbolZs1(Enum):
         Zs1 = 0
 
 
 class AdditionalSignalZs2(AdditionalSignal):
-    def __init__(self, symbols: List['AdditionalSignalSymbolZs2'], **kwargs) -> None:
+    def __init__(self, symbols: List["AdditionalSignalSymbolZs2"], **kwargs) -> None:
         super().__init__(**kwargs)
         self.symbols = symbols
 
-    def __str__ (self):
-        return 'AdditionalSignalZs2(kind=Zs2' + ', symbols=' + str(self.symbols) + ')'
+    def __str__(self):
+        return "AdditionalSignalZs2(kind=Zs2" + ", symbols=" + str(self.symbols) + ")"
 
     class AdditionalSignalSymbolZs2(Enum):
         A = 0
@@ -61,22 +62,22 @@ class AdditionalSignalZs2(AdditionalSignal):
 class AdditionalSignalZs2v(AdditionalSignal):
     AdditionalSignalSymbolZs2v = AdditionalSignalZs2.AdditionalSignalSymbolZs2
 
-    def __init__(self, symbols: List['AdditionalSignalSymbolZs2v'], **kwargs) -> None:
+    def __init__(self, symbols: List["AdditionalSignalSymbolZs2v"], **kwargs) -> None:
         super().__init__(**kwargs)
         self.symbols = symbols
 
     def __str__(self):
-        return 'AdditionalSignalZs2v(kind=Zs2v' + ', symbols=' + str(self.symbols) + ')'
+        return "AdditionalSignalZs2v(kind=Zs2v" + ", symbols=" + str(self.symbols) + ")"
 
 
 class AdditionalSignalZs3(AdditionalSignal):
-    def __init__(self, symbols: List['AdditionalSignalSymbolZs3'], **kwargs) -> None:
+    def __init__(self, symbols: List["AdditionalSignalSymbolZs3"], **kwargs) -> None:
         super().__init__(**kwargs)
         self.symbols = symbols
 
-    def __str__ (self):
-        return 'AdditionalSignalZs3(kind=Zs3' + ', symbols=' + str(self.symbols) + ')'
-    
+    def __str__(self):
+        return "AdditionalSignalZs3(kind=Zs3" + ", symbols=" + str(self.symbols) + ")"
+
     class AdditionalSignalSymbolZs3(Enum):
         OFF = 0
         ONE = 1
@@ -97,16 +98,16 @@ class AdditionalSignalZs3(AdditionalSignal):
         SIXTEEN = 16
 
         @staticmethod
-        def from_number(number: int) -> 'AdditionalSignalZs3':
-            return next(filter(lambda enum: enum.value == number, 'AdditionalSignalSymbolZs3'))
+        def from_number(number: int) -> "AdditionalSignalZs3":
+            return next(filter(lambda enum: enum.value == number, "AdditionalSignalSymbolZs3"))
 
 
 class AdditionalSignalZs3v(AdditionalSignal):
     AdditionalSignalSymbolZs3v = AdditionalSignalZs3.AdditionalSignalSymbolZs3
 
-    def __init__(self, symbols: List['AdditionalSignalSymbolZs3v'], **kwargs) -> None:
+    def __init__(self, symbols: List["AdditionalSignalSymbolZs3v"], **kwargs) -> None:
         super().__init__(**kwargs)
         self.symbols = symbols
 
-    def __str__ (self):
-        return 'AdditionalSignalZs3v(kind=Zs3v' + ', symbols=' + str(self.symbols) + ')'
+    def __str__(self):
+        return "AdditionalSignalZs3v(kind=Zs3v" + ", symbols=" + str(self.symbols) + ")"

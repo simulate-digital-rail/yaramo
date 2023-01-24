@@ -1,7 +1,8 @@
-from typing import Tuple
-from yaramo.additional_signal import AdditionalSignal
 from enum import Enum
+from typing import Tuple
 from uuid import uuid4
+
+from yaramo.additional_signal import AdditionalSignal
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
 from yaramo.trip import Trip
@@ -38,8 +39,16 @@ class SignalKind(Enum):
 
 
 class Signal(BaseElement):
-
-    def __init__(self, edge: Edge, distance_edge: float, direction: SignalDirection | str, function: SignalFunction | str, kind: SignalKind | str, side_distance: float = None,  **kwargs):
+    def __init__(
+        self,
+        edge: Edge,
+        distance_edge: float,
+        direction: SignalDirection | str,
+        function: SignalFunction | str,
+        kind: SignalKind | str,
+        side_distance: float = None,
+        **kwargs
+    ):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
@@ -47,17 +56,19 @@ class Signal(BaseElement):
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
         self.additional_signals: list[AdditionalSignal] = []
-        
+
         if isinstance(direction, str):
             self.direction = SignalDirection.GEGEN if direction == "gegen" else SignalDirection.IN
         elif isinstance(direction, SignalDirection):
             self.direction = direction
 
         if side_distance is not None:
-            self.side_distance = side_distance if self.direction == SignalDirection.IN else -side_distance
+            self.side_distance = (
+                side_distance if self.direction == SignalDirection.IN else -side_distance
+            )
         else:
             self.side_distance = 3.950 if self.direction == SignalDirection.IN else -3.950
-        
+
         if isinstance(function, str):
             self.function = SignalFunction.__members__.get(function, SignalFunction.andere)
         elif isinstance(function, SignalFunction):
@@ -77,19 +88,18 @@ class Signal(BaseElement):
     def to_serializable(self) -> Tuple[dict, dict]:
         attributes, _ = super().to_serializable()
         references = {
-            'edge': self.edge.uuid if self.edge else None,
-            'trip':self.trip.uuid if self.trip else None,
-            'additional_signals': [signal.uuid for signal in self.additional_signals],
-            'direction': str(self.direction),
-            'side_distance': self.side_distance,
-            'function': str(self.function),
-            'kind': str(self.kind),
+            "edge": self.edge.uuid if self.edge else None,
+            "trip": self.trip.uuid if self.trip else None,
+            "additional_signals": [signal.uuid for signal in self.additional_signals],
+            "direction": str(self.direction),
+            "side_distance": self.side_distance,
+            "function": str(self.function),
+            "kind": str(self.kind),
         }
         objects = {}
         items = [self.trip] + self.additional_signals if self.trip else self.additional_signals
         for item in items:
             item_object, serialized_item = item.to_serializable()
-            objects = {**objects, item.uuid:item_object, **serialized_item}
+            objects = {**objects, item.uuid: item_object, **serialized_item}
 
         return {**attributes, **references}, objects
-
