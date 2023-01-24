@@ -43,7 +43,7 @@ class Signal(BaseElement):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
-        self.distance_edge = distance_edge
+        self.distance_edge = distance_edge  # distance to edge.node_a in meters
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
         self.additional_signals: list[AdditionalSignal] = []
@@ -73,13 +73,6 @@ class Signal(BaseElement):
 
     def next_node(self):
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
-    
-    @property
-    def distance_previous_node(self):
-        if self.direction == SignalDirection.IN:
-            return self.distance_edge
-        else:
-            return self.edge.length - self.distance_edge
 
     def to_serializable(self) -> Tuple[dict, dict]:
         attributes, _ = super().to_serializable()
@@ -97,6 +90,6 @@ class Signal(BaseElement):
         for item in items:
             item_object, serialized_item = item.to_serializable()
             objects = {**objects, item.uuid:item_object, **serialized_item}
-        
+
         return {**attributes, **references}, objects
 
