@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, List, Set
 from uuid import uuid4
 
 from yaramo.additional_signal import AdditionalSignal
@@ -38,6 +38,16 @@ class SignalKind(Enum):
         return self.name
 
 
+class SignalState(Enum):
+    hp0 = 0
+    hp1 = 1
+    hp2 = 2
+    ks1 = 3
+    ks2 = 4
+    sh1 = 5
+    sh2 = 6
+
+
 class Signal(BaseElement):
     def __init__(
         self,
@@ -47,6 +57,7 @@ class Signal(BaseElement):
         function: SignalFunction | str,
         kind: SignalKind | str,
         side_distance: float = None,
+        supported_states: Set[SignalState] = None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -56,6 +67,7 @@ class Signal(BaseElement):
         self.classification_number = "60"
         self.control_member_uuid = str(uuid4())
         self.additional_signals: list[AdditionalSignal] = []
+        self.supported_states: Set[SignalState] = supported_states if supported_states else set()
 
         if isinstance(direction, str):
             self.direction = SignalDirection.GEGEN if direction == "gegen" else SignalDirection.IN
