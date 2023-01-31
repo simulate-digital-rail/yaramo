@@ -119,6 +119,13 @@ class Node(BaseElement):
         else:
             self.connected_on_left, self.connected_on_right = other_a, other_b
 
+    def is_switch(self):
+        """
+        Returns true if this node is a switch.
+        A switch is defined as a `Node` with a 2 connected tracks
+        """
+        return len(self.connected_nodes) >= 2
+
     def to_serializable(self):
         attributes = self.__dict__
         references = {
