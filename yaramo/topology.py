@@ -11,7 +11,7 @@ class Topology(BaseElement):
         self.nodes: dict[str, Node] = {}
         self.edges: dict[str, Edge] = {}
         self.signals: dict[str, Signal] = {}
-        self.routes: list[Route] = []
+        self.routes: dict[str, Route] = {}
 
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
