@@ -58,13 +58,14 @@ class Signal(BaseElement):
         kind: SignalKind | str,
         side_distance: float = None,
         supported_states: Set[SignalState] = None,
+        classification_number: int = 60,
         **kwargs
     ):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
         self.distance_edge = distance_edge  # distance to edge.node_a in meters
-        self.classification_number = "60"
+        self.classification_number = classification_number
         self.control_member_uuid = str(uuid4())
         self.additional_signals: list[AdditionalSignal] = []
         self.supported_states: Set[SignalState] = supported_states if supported_states else set()
