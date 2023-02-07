@@ -58,7 +58,7 @@ class Signal(BaseElement):
         kind: SignalKind | str,
         side_distance: float = None,
         supported_states: Set[SignalState] = None,
-        classification_number: int = 60,
+        classification_number: str = "60",
         **kwargs
     ):
         super().__init__(**kwargs)
