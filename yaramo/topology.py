@@ -45,7 +45,7 @@ class Topology(BaseElement):
             (list(self.signals.values()), signals),
             (list(self.nodes.values()), nodes),
             (list(self.edges.values()), edges),
-            (self.routes, routes),
+            (list(self.routes.values()), routes),
         ]:
             for item in items:
                 reference, serialized = item.to_serializable()
