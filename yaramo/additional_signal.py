@@ -57,6 +57,7 @@ class AdditionalSignalZs2(AdditionalSignal):
         W = 20
         X = 21
         Z = 22
+        off = 23
 
 
 class AdditionalSignalZs2v(AdditionalSignal):

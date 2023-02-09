@@ -12,7 +12,7 @@ class NodeConnectionDirection(Enum):
 
 
 class Node(BaseElement):
-    def __init__(self, **kwargs):
+    def __init__(self, turnout_side=None, **kwargs):
         super().__init__(**kwargs)
         self.connected_on_head = None
         self.connected_on_left = None
@@ -21,6 +21,7 @@ class Node(BaseElement):
         self.maximum_speed_on_right = None
         self.connected_nodes: list["Node"] = []
         self.geo_node: GeoNode = None
+        self.turnout_side: str = turnout_side
 
     def maximum_speed(self, node_a: "Node", node_b: "Node"):
         """Return the maximum allowed speed for traversing this node,
