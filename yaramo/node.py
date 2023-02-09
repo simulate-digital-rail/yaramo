@@ -122,9 +122,9 @@ class Node(BaseElement):
     def is_switch(self):
         """
         Returns true if this node is a switch.
-        A switch is defined as a `Node` with a 2 connected tracks
+        A switch is a `Node` with at least 3 connected tracks (one incoming and two or more outgoing edges)
         """
-        return len(self.connected_nodes) >= 2
+        return len(self.connected_nodes) >= 3
 
     def to_serializable(self):
         attributes = self.__dict__
