@@ -4,7 +4,7 @@ from uuid import uuid4
 
 
 class BaseElement(object):
-    def __init__(self, uuid: str = None, name: str = None) -> None:
+    def __init__(self, uuid: str = None, name: str = None, **kwargs) -> None:
         self.uuid = uuid or str(uuid4())
         self.name = str(name) if name else None
 
