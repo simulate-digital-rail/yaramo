@@ -3,6 +3,7 @@ from yaramo.edge import Edge
 from yaramo.node import Node
 from yaramo.route import Route
 from yaramo.signal import Signal
+from yaramo.vacancy_section import VacancySection
 
 
 class Topology(BaseElement):
@@ -12,6 +13,7 @@ class Topology(BaseElement):
         self.edges: dict[str, Edge] = {}
         self.signals: dict[str, Signal] = {}
         self.routes: dict[str, Route] = {}
+        self.vacancy_sections: dict[str, VacancySection] = {}
 
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
@@ -24,6 +26,9 @@ class Topology(BaseElement):
 
     def add_route(self, route: Route):
         self.routes[route.uuid] = route
+
+    def add_vacancy_section(self, vacancy_section: VacancySection):
+        self.vacancy_sections[vacancy_section.uuid] = vacancy_section
 
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
         for edge_uuid in self.edges:
@@ -38,7 +43,7 @@ class Topology(BaseElement):
         return None
 
     def to_serializable(self):
-        nodes, edges, signals, routes = [], [], [], []
+        nodes, edges, signals, routes, vacancy_sections = [], [], [], [], []
         objects = {}
 
         for items, _list in [
@@ -46,6 +51,7 @@ class Topology(BaseElement):
             (list(self.nodes.values()), nodes),
             (list(self.edges.values()), edges),
             (list(self.routes.values()), routes),
+            (list(self.vacancy_sections.values()), vacancy_sections),
         ]:
             for item in items:
                 reference, serialized = item.to_serializable()
@@ -58,4 +64,5 @@ class Topology(BaseElement):
             "signals": signals,
             "routes": routes,
             "objects": objects,
+            "vacany_sections": vacancy_sections
         }, {}
