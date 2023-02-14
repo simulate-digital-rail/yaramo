@@ -1,12 +1,13 @@
-from typing import List
+from typing import List, Optional
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
 from yaramo.node import Node
+from yaramo.vacancy_section import VacancySection
 
 
 class Edge(BaseElement):
-    def __init__(self, node_a: Node, node_b: Node, length: float = None, **kwargs):
+    def __init__(self, node_a: Node, node_b: Node, vacancy_section: Optional[VacancySection], length: float = None, **kwargs):
         super().__init__(**kwargs)
         self.node_a = node_a
         self.node_b = node_b
@@ -14,6 +15,7 @@ class Edge(BaseElement):
         self.signals: list[Signal] = []
         self.length = length
         self.maximum_speed: int = None
+        self.vacancy_section = vacancy_section
 
     def is_node_connected(self, other_node) -> bool:
         return self.node_a == other_node or self.node_b == other_node

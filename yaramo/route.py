@@ -4,15 +4,17 @@ from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
 from yaramo.signal import Signal
 from yaramo.node import Node
+from yaramo.vacancy_section import VacancySection
 
 
 class Route(BaseElement):
-    def __init__(self, start_signal: Signal, maximum_speed: Optional[int] = None, **kwargs):
+    def __init__(self, start_signal: Signal, vacancy_sections: set[VacancySection], maximum_speed: Optional[int] = None, **kwargs):
         super().__init__(**kwargs)
         self.maximum_speed: int = maximum_speed
         self.edges: set[Edge] = set([start_signal.edge])
         self.start_signal: Signal = start_signal
         self.end_signal: Optional[Signal] = None
+        self.vacancy_sections: set[VacancySection] = vacancy_sections
 
         self.edges.add(start_signal.edge)
 
@@ -92,6 +94,7 @@ class Route(BaseElement):
             "edges": [edge.uuid for edge in self.edges],
             "start_signal": self.start_signal.uuid,
             "end_signal": self.end_signal.uuid if self.end_signal else None,
+            "vacancy_sections": self.vacancy_sections
         }
 
         return {**attributes, **references}, {}
