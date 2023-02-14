@@ -8,13 +8,13 @@ from yaramo.vacancy_section import VacancySection
 
 
 class Route(BaseElement):
-    def __init__(self, start_signal: Signal, vacancy_sections: set[VacancySection], maximum_speed: Optional[int] = None, **kwargs):
+    def __init__(self, start_signal: Signal, maximum_speed: Optional[int] = None, **kwargs):
         super().__init__(**kwargs)
         self.maximum_speed: int = maximum_speed
         self.edges: set[Edge] = set([start_signal.edge])
         self.start_signal: Signal = start_signal
         self.end_signal: Optional[Signal] = None
-        self.vacancy_sections: set[VacancySection] = vacancy_sections
+        self.vacancy_sections: set[VacancySection] = set([start_signal.edge.vacancy_section])
 
         self.edges.add(start_signal.edge)
 
