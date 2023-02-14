@@ -7,7 +7,7 @@ from yaramo.vacancy_section import VacancySection
 
 
 class Edge(BaseElement):
-    def __init__(self, node_a: Node, node_b: Node, vacancy_section: Optional[VacancySection], length: float = None, **kwargs):
+    def __init__(self, node_a: Node, node_b: Node, vacancy_section: Optional[VacancySection] = None, length: float = None, **kwargs):
         super().__init__(**kwargs)
         self.node_a = node_a
         self.node_b = node_b
