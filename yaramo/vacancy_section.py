@@ -3,6 +3,5 @@ from yaramo.edge import Edge
 
 
 class VacancySection(BaseElement):
-    def __init__(self, edges: list[Edge], **kwargs) -> None:
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.edges = edges
