@@ -68,7 +68,7 @@ class Edge(BaseElement):
         return total_length
 
     def get_direction_based_on_nodes(self, node_a: "Node", node_b: "Node") -> "SignalDirection":
-        """Returns the a direction according to whether the order of node_a and node_b is the same as in self
+        """Returns the direction according to whether the order of node_a and node_b is the same as in self
 
         Parameters
         ----------
