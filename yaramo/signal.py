@@ -9,6 +9,8 @@ from yaramo.trip import Trip
 
 
 class SignalDirection(Enum):
+    """The SignalDirection determines whether or not a Signal points in or against the direction of it's Edge."""
+
     IN = 1
     GEGEN = 2
 
@@ -17,6 +19,8 @@ class SignalDirection(Enum):
 
 
 class SignalFunction(Enum):
+    """The SignalFunction determines the function of a Signal."""
+
     Einfahr_Signal = 0
     Ausfahr_Signal = 1
     Block_Signal = 2
@@ -27,6 +31,7 @@ class SignalFunction(Enum):
 
 
 class SignalKind(Enum):
+    """The SignalFunction determines the type of a Signal."""
     Hauptsignal = 0
     Mehrabschnittssignal = 1
     Vorsignal = 2
@@ -39,6 +44,7 @@ class SignalKind(Enum):
 
 
 class SignalState(Enum):
+    """The SignalState determines a possible state of a Signal."""
     hp0 = 0
     hp1 = 1
     hp2 = 2
@@ -49,6 +55,14 @@ class SignalState(Enum):
 
 
 class Signal(BaseElement):
+    """A Signal is a track element associated with an edge. It has an application direction and
+    is characterized by it's function, kind, supported_states and associated additional_signals.
+    A Signal can have a side distance determining the orthogonal distance to the actual track an Edge symbolises.
+
+    Args:
+        BaseElement (_type_): _description_
+    """
+
     def __init__(
         self,
         edge: Edge,
@@ -61,10 +75,27 @@ class Signal(BaseElement):
         classification_number: str = "60",
         **kwargs
     ):
+        """
+        Parameters
+        ----------
+        distance_edge : float
+            The distance to edge.node_a in meters
+        side_distance : float
+            The orthogonal distance to the edge in meters (default is (-)3.950)
+        classification_number : str
+            The classification_number of the edge
+        control_member_uuid : str
+            The control_member_uuid of the edge
+        additional_signals: list[AdditionalSignal]
+            Additional_signals connected to that Signal
+        supported_states: Set[SignalState]
+            Different SignalStates a Signal can show
+        """
+
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
-        self.distance_edge = distance_edge  # distance to edge.node_a in meters
+        self.distance_edge = distance_edge
         self.classification_number = classification_number
         self.control_member_uuid = str(uuid4())
         self.additional_signals: list[AdditionalSignal] = []
@@ -93,12 +124,26 @@ class Signal(BaseElement):
             self.kind = kind
 
     def previous_node(self):
+        """Return the node connecting the Signal's edge which came before the Signal (with relative direction on the edge)."""
         return self.edge.node_a if self.direction == SignalDirection.IN else self.edge.node_b
 
     def next_node(self):
+        """Return the node connecting the Signal's edge which comes after the Signal (with relative direction on the edge)."""
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
 
     def to_serializable(self) -> Tuple[dict, dict]:
+        """Creates a two serializable dictionaries out of the edge object.
+
+        This creates a dictionary with immediately serializable attributes and
+        references (uuids) to attributes that are objects.
+        This creates a second dictionary where said objects are serialized (by deligation).
+
+        See the description in the BaseElement class.
+
+        Returns:
+            A serializable dictionary and a dictionary with serialized objects (AdditionalSignals and Trip).
+        """
+
         attributes, _ = super().to_serializable()
         references = {
             "edge": self.edge.uuid if self.edge else None,
