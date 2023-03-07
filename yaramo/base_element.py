@@ -12,7 +12,15 @@ class BaseElement(object):
         return self.name or self.uuid
 
     def to_serializable(self) -> Tuple[dict, dict]:
-        """Return a dictionary of members with references and a dictionary of referenced objects."""
+        """Returns a dictionary of members with references and a dictionary of referenced objects.
+        
+        
+        Serialization
+        -------------
+        The idea is to collect all attributes of an object that can be serialized immediately and
+        to deligate serialization of more complex objects (second dictionary).
+        """
+
         return self.__dict__, {}
 
     def to_json(self) -> str:
