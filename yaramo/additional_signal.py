@@ -5,10 +5,25 @@ from yaramo.base_element import BaseElement
 
 
 class AdditionalSignal(BaseElement):
+    """The baseclass for AddditionalSignals. Subclasses of AddditionalSignal can be referenced by Signals.
+
+    There are AdditionalSignalSymbols associated with each subclass of AdditionalSignal.
+    """
+
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
     def to_serializable(self) -> Tuple[dict, dict]:
+        """Creates a two serializable dictionaries out of the AdditionalSignal object.
+
+        This creates a dictionary with immediately serializable attributes.
+
+        See the description in the BaseElement class.
+
+        Returns:
+            A serializable dictionary of all attributes.
+        """
+
         base, _ = super().to_serializable()
         return {**base, "symbols": [str(symbol) for symbol in self.symbols]}, {}
 
