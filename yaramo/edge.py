@@ -123,7 +123,7 @@ class Edge(BaseElement):
         return result
 
     def to_serializable(self):
-        """Creates a two serializable dictionaries out of the edge object.
+        """Creates two serializable dictionaries out of the Edge object.
 
         This creates a dictionary with immediately serializable attributes and
         references (uuids) to attributes that are objects.

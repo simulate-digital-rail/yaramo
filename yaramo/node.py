@@ -12,7 +12,22 @@ class NodeConnectionDirection(Enum):
 
 
 class Node(BaseElement):
+    """This class is one of two Elements (Edge and Node) comprising the base of the yaramo Topology.
+
+    A Node can be connected to other Nodes on it's head, left and right connection.
+    There can be a GeoNode associated with a Node to add a geo-location.
+    """
+     
     def __init__(self, turnout_side=None, **kwargs):
+        """
+        Parameters
+        ----------
+        maximum_speed_on_left, maximum_speed_on_right: int
+            The allowed maximum speed going over that connection
+        turnout_side: str
+            The connection side (left or right) that branches away on the real track
+        """
+
         super().__init__(**kwargs)
         self.connected_on_head = None
         self.connected_on_left = None
@@ -27,6 +42,7 @@ class Node(BaseElement):
         """Return the maximum allowed speed for traversing this node,
         coming from node_a and going to node_b
         """
+
         if node_a == self.connected_on_left or node_b == self.connected_on_left:
             return self.maximum_speed_on_left
         elif node_a == self.connected_on_right or node_b == self.connected_on_right:
@@ -47,6 +63,7 @@ class Node(BaseElement):
         self.connected_nodes.append(node)
 
     def get_possible_followers(self, source):
+        """Returns the Nodes that could follow (head, left, right) when comming from a source Node connected to this Node."""
         if source is None:
             return self.connected_nodes
 
@@ -62,8 +79,11 @@ class Node(BaseElement):
             return [self.connected_on_head]
 
     def get_anschluss_of_other(self, other: "Node") -> NodeConnectionDirection:
-        #  Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node. Idea: We assume, the current node is a point
-        #  and we want to estimate the Anschluss of the other node.
+        """  Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
+         
+        Idea: We assume, the current node is a point and we want to estimate the Anschluss of the other node.
+        """
+
         if len(self.connected_nodes) != 3:
             raise Exception(f"Try to get Anschluss of Ende (Node ID: {self.uuid})")
 
@@ -80,6 +100,8 @@ class Node(BaseElement):
         return None
 
     def calc_anschluss_of_all_nodes(self):
+        """Calculates and sets the 'Anschluss' or connection side of the connected_nodes based on their geo-location."""
+
         def get_arc_between_nodes(_node_a: "Node", _node_b: "Node"):
             _a = _node_a.geo_node.get_distance_to_other_geo_node(self.geo_node)
             _b = self.geo_node.get_distance_to_other_geo_node(_node_b.geo_node)
@@ -121,6 +143,18 @@ class Node(BaseElement):
             self.connected_on_left, self.connected_on_right = other_a, other_b
 
     def to_serializable(self):
+        """Creates two serializable dictionaries out of the Node object.
+
+        This creates a dictionary with immediately serializable attributes and
+        references (uuids) to attributes that are objects.
+        This creates a second dictionary where said objects are serialized (by deligation).
+
+        See the description in the BaseElement class.
+
+        Returns:
+            A serializable dictionary and a dictionary with serialized objects (GeoNodes).
+        """
+        
         attributes = self.__dict__
         references = {
             "connected_on_head": self.connected_on_head.uuid if self.connected_on_head else None,

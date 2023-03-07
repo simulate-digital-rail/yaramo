@@ -132,7 +132,7 @@ class Signal(BaseElement):
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
 
     def to_serializable(self) -> Tuple[dict, dict]:
-        """Creates a two serializable dictionaries out of the edge object.
+        """Creates a two serializable dictionaries out of the Signal object.
 
         This creates a dictionary with immediately serializable attributes and
         references (uuids) to attributes that are objects.
