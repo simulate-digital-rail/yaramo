@@ -29,13 +29,7 @@ class GeoNode(ABC, BaseElement):
         pass
 
     def to_serializable(self):
-        """Creates two serializable dictionaries out of the GeoNode object.
-
-        This creates a dictionary with immediately serializable attributes and
-        references (uuids) to attributes that are objects.
-        This creates a second dictionary where said objects are serialized (by deligation).
-
-        See the description in the BaseElement class.
+        """See the description in the BaseElement class.
 
         Returns:
             A serializable dictionary and a dictionary with serialized objects (GeoPoints).

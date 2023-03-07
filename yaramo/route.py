@@ -105,10 +105,7 @@ class Route(BaseElement):
         self.maximum_speed = maximum_speed
 
     def to_serializable(self) -> Dict:
-        """Creates two serializable dictionaries out of the Route object.
-
-        This creates a dictionary with immediately serializable attributes.
-        See the description in the BaseElement class.
+        """See the description in the BaseElement class.
 
         Returns:
             A serializable dictionary with all attributes of the Route.

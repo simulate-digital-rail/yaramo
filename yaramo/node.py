@@ -15,6 +15,7 @@ class Node(BaseElement):
     """This class is one of two Elements (Edge and Node) comprising the base of the yaramo Topology.
 
     A Node can be connected to other Nodes on it's head, left and right connection.
+    We assume that there are only Nodes connected on all three or only one connection.
     There can be a GeoNode associated with a Node to add a geo-location.
     """
      
@@ -143,13 +144,7 @@ class Node(BaseElement):
             self.connected_on_left, self.connected_on_right = other_a, other_b
 
     def to_serializable(self):
-        """Creates two serializable dictionaries out of the Node object.
-
-        This creates a dictionary with immediately serializable attributes and
-        references (uuids) to attributes that are objects.
-        This creates a second dictionary where said objects are serialized (by deligation).
-
-        See the description in the BaseElement class.
+        """See the description in the BaseElement class.
 
         Returns:
             A serializable dictionary and a dictionary with serialized objects (GeoNodes).

@@ -14,11 +14,7 @@ class AdditionalSignal(BaseElement):
         super().__init__(**kwargs)
 
     def to_serializable(self) -> Tuple[dict, dict]:
-        """Creates two serializable dictionaries out of the AdditionalSignal object.
-
-        This creates a dictionary with immediately serializable attributes.
-
-        See the description in the BaseElement class.
+        """See the description in the BaseElement class.
 
         Returns:
             A serializable dictionary of all attributes.

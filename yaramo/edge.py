@@ -20,9 +20,9 @@ class Edge(BaseElement):
         Parameters
         ----------
         node_a : Node
-            The first Node connecting the Edge
+            The first Node of the Edge
         node_b : Node
-            The second Node connecting the Edge
+            The second Node of the Edge
         vacancy_section: Optional[VacancySection]
             A possible reference to a VacancySection the Edge belongs to (default is None)
         length: float
@@ -123,13 +123,7 @@ class Edge(BaseElement):
         return result
 
     def to_serializable(self):
-        """Creates two serializable dictionaries out of the Edge object.
-
-        This creates a dictionary with immediately serializable attributes and
-        references (uuids) to attributes that are objects.
-        This creates a second dictionary where said objects are serialized (by deligation).
-
-        See the description in the BaseElement class.
+        """See the description in the BaseElement class.
 
         Returns:
             A serializable dictionary and a dictionary with serialized objects (GeoNodes).

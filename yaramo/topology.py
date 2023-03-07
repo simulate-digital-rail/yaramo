@@ -48,12 +48,7 @@ class Topology(BaseElement):
         return None
 
     def to_serializable(self):
-        """Creates two serializable dictionaries out of the Topology object.
-
-        This creates a dictionary with immediately serializable attributes and
-        an empty dictionary to keep the same signature.
-
-        See the description in the BaseElement class.
+        """See the description in the BaseElement class.
 
         Returns:
             A serializable dictionary of all the objects belonging to the Topology.

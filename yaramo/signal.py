@@ -58,9 +58,6 @@ class Signal(BaseElement):
     """A Signal is a track element associated with an edge. It has an application direction and
     is characterized by it's function, kind, supported_states and associated additional_signals.
     A Signal can have a side distance determining the orthogonal distance to the actual track an Edge symbolises.
-
-    Args:
-        BaseElement (_type_): _description_
     """
 
     def __init__(
@@ -132,13 +129,7 @@ class Signal(BaseElement):
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
 
     def to_serializable(self) -> Tuple[dict, dict]:
-        """Creates a two serializable dictionaries out of the Signal object.
-
-        This creates a dictionary with immediately serializable attributes and
-        references (uuids) to attributes that are objects.
-        This creates a second dictionary where said objects are serialized (by deligation).
-
-        See the description in the BaseElement class.
+        """See the description in the BaseElement class.
 
         Returns:
             A serializable dictionary and a dictionary with serialized objects (AdditionalSignals and Trip).

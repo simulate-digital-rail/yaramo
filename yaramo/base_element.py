@@ -13,7 +13,9 @@ class BaseElement(object):
 
     def to_serializable(self) -> Tuple[dict, dict]:
         """Returns a dictionary of members with references and a dictionary of referenced objects.
-        
+
+        In subclasses this creates a dictionary with immediately serializable attributes and
+        references (uuids) to attributes that are objects and also a second dictionary where said objects are serialized (by deligation).
         
         Serialization
         -------------
