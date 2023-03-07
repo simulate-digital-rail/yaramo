@@ -8,7 +8,7 @@ from yaramo.vacancy_section import VacancySection
 
 
 class Route(BaseElement):
-    """A Route is a collection of edges defined by a start- and end signal.
+    """A Route is a collection of edges defined by a start and end signal.
     
     There are usally vacancy sections associated with a route.
     """
