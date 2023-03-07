@@ -10,7 +10,7 @@ from yaramo.base_element import BaseElement
 class GeoPoint(ABC, BaseElement):
     """This is the baseclass of specific GeoPoints that use different coordinate systems.
     
-    A GeoPoint is characterized by it's x- and y-coordinate.
+    A GeoPoint is characterized by it's x and y coordinates.
     """
 
     def __init__(self, x, y, **kwargs):
