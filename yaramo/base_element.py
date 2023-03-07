@@ -18,7 +18,7 @@ class BaseElement(object):
         Serialization
         -------------
         The idea is to collect all attributes of an object that can be serialized immediately and
-        to deligate serialization of more complex objects (second dictionary).
+        to delegate serialization of more complex objects (second dictionary).
         """
 
         return self.__dict__, {}
