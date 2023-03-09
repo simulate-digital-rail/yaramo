@@ -3,6 +3,7 @@ from enum import Enum
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
+from yaramo.geo_point import GeoPoint
 
 
 class NodeConnectionDirection(Enum):
@@ -86,6 +87,9 @@ class Node(BaseElement):
             _c = _node_a.geo_node.get_distance_to_other_geo_node(_node_b.geo_node)
 
             return math.degrees(math.acos((_a * _a + _b * _b - _c * _c) / (2.0 * _a * _b)))
+        
+        def is_above_line_between_points(head_point: GeoPoint, branching_point: GeoPoint, comparison_point: GeoPoint):
+            return ((branching_point.x - head_point.x)*(comparison_point.y - head_point.y) - (branching_point.y - head_point.y)*(comparison_point.x - head_point.x)) > 0
 
         current_max_arc = 361
         other_a: "Node" = None
@@ -103,22 +107,10 @@ class Node(BaseElement):
                         other_b = self.connected_nodes[j]
                         current_max_arc = cur_arc
 
-        other_a_x = other_a.geo_node.geo_point.x
-        other_a_y = other_a.geo_node.geo_point.y
-        other_b_x = other_b.geo_node.geo_point.x
-        other_b_y = other_b.geo_node.geo_point.y
-        self_x = self.geo_node.geo_point.x
-        self_y = self.geo_node.geo_point.y
-        # TODO: Replace this heuristic to determine which node is left and which is right with some suitable algorithm
-        if (
-            (other_a_x < self_x and other_b_x < self_x)
-            or (other_a_x >= self_x and other_b_x >= self_x)
-            or (other_a_y < self_y and other_b_y < self_y)
-            or (other_a_y >= self_y and other_b_y >= self_y)
-        ):
+        if (is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_a.geo_node.geo_point)):
             self.connected_on_left, self.connected_on_right = other_a, other_b
         else:
-            self.connected_on_left, self.connected_on_right = other_a, other_b
+            self.connected_on_right, self.connected_on_left = other_a, other_b
 
     def to_serializable(self):
         attributes = self.__dict__
