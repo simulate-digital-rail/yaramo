@@ -7,6 +7,11 @@ from yaramo.vacancy_section import VacancySection
 
 
 class Topology(BaseElement):
+    """The Topology is a collection of all track elements comprising that topology.
+    
+    Elements like Signals, Nodes, Edges, Routes and Vacancy Sections can be accessed by their uuid in their respective dictionary.
+    """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.nodes: dict[str, Node] = {}
@@ -43,6 +48,11 @@ class Topology(BaseElement):
         return None
 
     def to_serializable(self):
+        """See the description in the BaseElement class.
+
+        Returns:
+            A serializable dictionary of all the objects belonging to the Topology.
+        """
         nodes, edges, signals, routes, vacancy_sections = [], [], [], [], []
         objects = {}
 

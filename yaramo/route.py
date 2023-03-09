@@ -8,7 +8,21 @@ from yaramo.vacancy_section import VacancySection
 
 
 class Route(BaseElement):
+    """A Route is a collection of edges defined by a start and end signal.
+    
+    There are usally vacancy sections associated with a route.
+    """
+
     def __init__(self, start_signal: Signal, maximum_speed: Optional[int] = None, **kwargs):
+        """
+        Parameters
+        ----------
+        start_signal: Signal
+            The Signal at the start of a Route (the end_signal can/has to be set later)
+        maximum_speed: int
+            The maximum allowed speed going over the whole Route.
+        """
+        
         super().__init__(**kwargs)
         self.maximum_speed: int = maximum_speed
         self.edges: set[Edge] = set([start_signal.edge])
@@ -19,12 +33,14 @@ class Route(BaseElement):
         self.edges.add(start_signal.edge)
 
     def get_length(self):
+        """Returns the total length of the Route."""
         length_sum = 0.0
         for edge in self.edges:
             length_sum = length_sum + float(edge.length)
         return length_sum
 
     def get_edges_in_order(self):
+        """Returns all Edges comprising the Route in order starting at the start Signal Edge."""
         if self.end_signal is None:
             return None
 
@@ -61,6 +77,7 @@ class Route(BaseElement):
         return new_obj
 
     def update_maximum_speed(self):
+        """Calcualtes and sets the upadated speed of the route based on the Nodes' speeds."""
         edges = self.get_edges_in_order()
         nodes: list[Node] = []
 
@@ -88,6 +105,12 @@ class Route(BaseElement):
         self.maximum_speed = maximum_speed
 
     def to_serializable(self) -> Dict:
+        """See the description in the BaseElement class.
+
+        Returns:
+            A serializable dictionary with all attributes of the Route.
+        """
+                
         attributes = self.__dict__
         references = {
             "maximum_speed": self.maximum_speed,

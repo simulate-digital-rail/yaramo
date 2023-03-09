@@ -5,12 +5,19 @@ from yaramo.geo_point import DbrefGeoPoint, GeoPoint, Wgs84GeoPoint
 
 
 class GeoNode(ABC, BaseElement):
+    """This is the baseclass of specific GeoNodes that use different coordinate systems.
+    
+    A GeoNode refers to a GeoPoint as a means of location.
+    """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.geo_point: GeoPoint = None
 
     @abstractmethod
     def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
+        """Returns to distance to the given other GeoNode."""
+
         pass
 
     @abstractmethod
@@ -22,6 +29,11 @@ class GeoNode(ABC, BaseElement):
         pass
 
     def to_serializable(self):
+        """See the description in the BaseElement class.
+
+        Returns:
+            A serializable dictionary and a dictionary with serialized objects (GeoPoints).
+        """
         attributes = self.__dict__
         references = {
             "geo_point": self.geo_point.uuid,

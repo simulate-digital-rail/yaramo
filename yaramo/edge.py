@@ -7,7 +7,28 @@ from yaramo.vacancy_section import VacancySection
 
 
 class Edge(BaseElement):
+    """This class is one of two Elements (Edge and Node) comprising the base of the yaramo Topology.
+
+    An Edge is fundamentally defined by two Nodes (a and b). It does have a list of GeoNodes and a list of Signals
+    that may be on that Edge. An Edge can have a length set on construction, however if that is not the case, 
+    the length can be calculated by calling update_length(). This sets the length based on the GeoNodes referred to by node_a and node_b
+    as well as any intermediate_geo_nodes. The maximum_speed of an Edge cannot be set on construction but will generally be determined based on the connected Topology and Signals.
+    """
+
     def __init__(self, node_a: Node, node_b: Node, vacancy_section: Optional[VacancySection] = None, length: float = None, **kwargs):
+        """
+        Parameters
+        ----------
+        node_a : Node
+            The first Node of the Edge
+        node_b : Node
+            The second Node of the Edge
+        vacancy_section: Optional[VacancySection]
+            A possible reference to a VacancySection the Edge belongs to (default is None)
+        length: float
+            The length of the edge (default is None)
+        """
+
         super().__init__(**kwargs)
         self.node_a = node_a
         self.node_b = node_b
@@ -46,7 +67,22 @@ class Edge(BaseElement):
         )
         return total_length
 
-    def get_direction_based_on_nodes(self, node_a, node_b) -> "SignalDirection":
+    def get_direction_based_on_nodes(self, node_a: "Node", node_b: "Node") -> "SignalDirection":
+        """Returns the direction according to whether the order of node_a and node_b is the same as in self
+
+        Parameters
+        ----------
+        node_a : Node
+            The first Node to compare
+        node_b : Node
+            The second Node to compare
+
+        Returns
+        -------
+        SignalDirection
+            SignalDirection.IN or SignalDirection.GEGEN depending on the relative direction
+        """
+
         from yaramo.signal import SignalDirection
 
         if self.node_a.uuid == node_a.uuid and self.node_b.uuid == node_b.uuid:
@@ -55,7 +91,20 @@ class Edge(BaseElement):
             return SignalDirection.GEGEN
         return None
 
-    def get_signals_with_direction_in_order(self, direction) -> List["Signal"]:
+    def get_signals_with_direction_in_order(self, direction: "SignalDirection") -> List["Signal"]:
+        """Returns all the signals (with that direction) on that Edge ordered by the given direction
+
+        This only consideres Signals of SignalFunction type Einfahr_Signal, Ausfahr_Signal and Block_Signal that have the same direction as requested.
+        Parameters
+        ----------
+        direction : SignalDirection
+            The direction of collecting the signals (Starting at self.node_a is IN direction)
+
+        Returns
+        -------
+        List["Signal"]
+        """
+
         from yaramo.signal import SignalDirection, SignalFunction
 
         result: list[Signal] = []
@@ -74,6 +123,12 @@ class Edge(BaseElement):
         return result
 
     def to_serializable(self):
+        """See the description in the BaseElement class.
+
+        Returns:
+            A serializable dictionary and a dictionary with serialized objects (GeoNodes).
+        """
+
         attributes = self.__dict__
         references = {
             "node_a": self.node_a.uuid,
