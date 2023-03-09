@@ -117,8 +117,8 @@ class Node(BaseElement):
                 self.connected_on_left, self.connected_on_right = other_a, other_b
             else:
                 self.connected_on_right, self.connected_on_left = other_a, other_b
-        # If they're both above or below that line we make the node that branches further away,
-        # the left or right node depending on the side they're on (left if both above)
+        # If they're both above or below that line, we make the node that branches further away the left or right node,
+        # depending on the side they're on (left if both above)
         else:
             arc_a = get_arc_between_nodes(self.connected_on_head, other_a)
             arc_b = get_arc_between_nodes(self.connected_on_head, other_b)
