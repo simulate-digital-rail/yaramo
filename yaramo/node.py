@@ -3,6 +3,7 @@ from enum import Enum
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
+from yaramo.geo_point import GeoPoint
 
 
 class NodeConnectionDirection(Enum):
@@ -110,6 +111,9 @@ class Node(BaseElement):
 
             return math.degrees(math.acos((_a * _a + _b * _b - _c * _c) / (2.0 * _a * _b)))
 
+        def is_above_line_between_points(head_point: GeoPoint, branching_point: GeoPoint, comparison_point: GeoPoint):
+            return ((branching_point.x - head_point.x)*(comparison_point.y - head_point.y) - (branching_point.y - head_point.y)*(comparison_point.x - head_point.x)) > 0
+
         current_max_arc = 361
         other_a: "Node" = None
         other_b: "Node" = None
@@ -126,22 +130,26 @@ class Node(BaseElement):
                         other_b = self.connected_nodes[j]
                         current_max_arc = cur_arc
 
-        other_a_x = other_a.geo_node.geo_point.x
-        other_a_y = other_a.geo_node.geo_point.y
-        other_b_x = other_b.geo_node.geo_point.x
-        other_b_y = other_b.geo_node.geo_point.y
-        self_x = self.geo_node.geo_point.x
-        self_y = self.geo_node.geo_point.y
-        # TODO: Replace this heuristic to determine which node is left and which is right with some suitable algorithm
-        if (
-            (other_a_x < self_x and other_b_x < self_x)
-            or (other_a_x >= self_x and other_b_x >= self_x)
-            or (other_a_y < self_y and other_b_y < self_y)
-            or (other_a_y >= self_y and other_b_y >= self_y)
-        ):
-            self.connected_on_left, self.connected_on_right = other_a, other_b
+        # Check on which side of the line between the head connection and this node the other nodes are
+        side_a = is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_a.geo_node.geo_point)
+        side_b = is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_b.geo_node.geo_point)
+
+        # If they're on two separate sides we know which is left and right
+        if(side_a != side_b):
+            if (side_a):
+                self.connected_on_left, self.connected_on_right = other_a, other_b
+            else:
+                self.connected_on_right, self.connected_on_left = other_a, other_b
+        # If they're both above or below that line, we make the node that branches further away the left or right node,
+        # depending on the side they're on (left if both above)
         else:
-            self.connected_on_left, self.connected_on_right = other_a, other_b
+            arc_a = get_arc_between_nodes(self.connected_on_head, other_a)
+            arc_b = get_arc_between_nodes(self.connected_on_head, other_b)
+            if(arc_a > arc_b):
+                self.connected_on_right, self.connected_on_left = (other_a, other_b) if side_a else (other_b, other_a)
+            else:
+                self.connected_on_left, self.connected_on_right = (other_a, other_b) if side_a else (other_b, other_a)
+
 
     def to_serializable(self):
         """See the description in the BaseElement class.
