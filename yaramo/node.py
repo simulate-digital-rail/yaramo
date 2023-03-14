@@ -151,6 +151,13 @@ class Node(BaseElement):
                 self.connected_on_left, self.connected_on_right = (other_a, other_b) if side_a else (other_b, other_a)
 
 
+    def is_switch(self):
+        """
+        Returns true if this node is a switch.
+        A switch is a `Node` with at least 3 connected tracks (one incoming and two or more outgoing edges)
+        """
+        return len(self.connected_nodes) >= 3
+
     def to_serializable(self):
         """See the description in the BaseElement class.
 
