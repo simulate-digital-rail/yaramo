@@ -81,6 +81,15 @@ class Node(BaseElement):
         self.connected_edge_on_right = edge
         self.connected_edges.append(edge)
 
+    def remove_edge_to_node(self, node: "Node"):
+        """Removes the edge to the given node and removes the node from the connected_nodes list."""
+        edge = self.get_edge_to_node(node)
+        self.connected_edges.remove(edge)
+
+    def get_edge_to_node(self, node):
+        """Returns the edge to the given neighbor node."""
+        self.connected_edges.filter(lambda edge: edge.get_opposite_node(self).uuid == node.uuid)
+
     def get_possible_followers(self, source):
         """Returns the Nodes that could follow (head, left, right) when comming from a source Node connected to this Node."""
         if source is None:
