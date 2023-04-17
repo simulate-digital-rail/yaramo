@@ -151,7 +151,9 @@ class Node(BaseElement):
                     )
                     if cur_arc < current_max_arc:
                         missing_index = sum(range(len(self.connected_nodes))) - (i + j)
-                        self.connected_on_head = self.connected_nodes[missing_index]
+                        self.connected_edge_on_head = self.get_edge_to_node(
+                            self.connected_nodes[missing_index]
+                        )
                         other_a = self.connected_nodes[i]
                         other_b = self.connected_nodes[j]
                         current_max_arc = cur_arc
@@ -161,21 +163,32 @@ class Node(BaseElement):
         side_b = is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_b.geo_node.geo_point)
 
         # If they're on two separate sides we know which is left and right
-        if(side_a != side_b):
-            if (side_a):
-                self.connected_on_left, self.connected_on_right = other_a, other_b
+        if side_a != side_b:
+            if side_a:
+                self.connected_edge_on_left = self.get_edge_to_node(other_a)
+                self.connected_edge_on_right = self.get_edge_to_node(other_b)
             else:
-                self.connected_on_right, self.connected_on_left = other_a, other_b
+                self.connected_edge_on_left = self.get_edge_to_node(other_b)
+                self.connected_edge_on_right = self.get_edge_to_node(other_a)
         # If they're both above or below that line, we make the node that branches further away the left or right node,
         # depending on the side they're on (left if both above)
         else:
             arc_a = get_arc_between_nodes(self.connected_on_head, other_a)
             arc_b = get_arc_between_nodes(self.connected_on_head, other_b)
-            if(arc_a > arc_b):
-                self.connected_on_right, self.connected_on_left = (other_a, other_b) if side_a else (other_b, other_a)
+            if arc_a > arc_b:
+                self.connected_edge_on_left = (
+                    self.get_edge_to_node(other_a) if side_a else self.get_edge_to_node(other_b)
+                )
+                self.connected_edge_on_right = (
+                    self.get_edge_to_node(other_b) if side_a else self.get_edge_to_node(other_a)
+                )
             else:
-                self.connected_on_left, self.connected_on_right = (other_a, other_b) if side_a else (other_b, other_a)
-
+                self.connected_edge_on_left = (
+                    self.get_edge_to_node(other_a) if side_a else self.get_edge_to_node(other_b)
+                )
+                self.connected_edge_on_right = (
+                    self.get_edge_to_node(other_b) if side_a else self.get_edge_to_node(other_a)
+                )
 
     def to_serializable(self):
         """See the description in the BaseElement class.
