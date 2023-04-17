@@ -36,7 +36,7 @@ class Node(BaseElement):
         self.connected_on_right = None
         self.maximum_speed_on_left = None
         self.maximum_speed_on_right = None
-        self.connected_nodes: list["Node"] = []
+        self.connected_edges: list["Edge"] = []
         self.geo_node: GeoNode = None
         self.turnout_side: str = turnout_side
 
@@ -52,9 +52,9 @@ class Node(BaseElement):
         else:
             return None
 
-    def set_connection_head(self, node: "Node"):
-        self.connected_on_head = node
-        self.connected_nodes.append(node)
+    @property
+    def connected_nodes(self):
+        return [edge.get_opposite_node(self) for edge in self.connected_edges]
 
     def set_connection_left(self, node: "Node"):
         self.connected_on_left = node
