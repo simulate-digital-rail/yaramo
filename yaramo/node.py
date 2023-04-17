@@ -31,9 +31,9 @@ class Node(BaseElement):
         """
 
         super().__init__(**kwargs)
-        self.connected_on_head = None
-        self.connected_on_left = None
-        self.connected_on_right = None
+        self.connected_edge_on_head = None
+        self.connected_edge_on_right = None
+        self.connected_edge_on_left = None
         self.maximum_speed_on_left = None
         self.maximum_speed_on_right = None
         self.connected_edges: list["Edge"] = []
@@ -56,13 +56,30 @@ class Node(BaseElement):
     def connected_nodes(self):
         return [edge.get_opposite_node(self) for edge in self.connected_edges]
 
-    def set_connection_left(self, node: "Node"):
-        self.connected_on_left = node
-        self.connected_nodes.append(node)
+    @property
+    def connected_on_head(self):
+        return self.connected_edge_on_head.get_opposite_node(self)
 
-    def set_connection_right(self, node: "Node"):
-        self.connected_on_right = node
-        self.connected_nodes.append(node)
+    @property
+    def connected_on_left(self):
+        return self.connected_edge_on_left.get_opposite_node(self)
+
+    @property
+    def connected_on_right(self):
+        return self.connected_edge_on_right.get_opposite_node(self)
+
+    def set_connection_head_edge(self, edge: "Edge"):
+        self.connected_edge_on_head = edge
+        self.connected_edges.append(edge)
+
+    def set_connection_left_edge(self, edge: "Edge"):
+
+        self.connected_edge_on_left = edge
+        self.connected_edges.append(edge)
+
+    def set_connection_right_edge(self, edge: "Edge"):
+        self.connected_edge_on_right = edge
+        self.connected_edges.append(edge)
 
     def get_possible_followers(self, source):
         """Returns the Nodes that could follow (head, left, right) when comming from a source Node connected to this Node."""
