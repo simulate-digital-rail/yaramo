@@ -58,14 +58,20 @@ class Node(BaseElement):
 
     @property
     def connected_on_head(self):
+        if self.connected_edge_on_head is None:
+            return None
         return self.connected_edge_on_head.get_opposite_node(self)
 
     @property
     def connected_on_left(self):
+        if self.connected_edge_on_left is None:
+            return None
         return self.connected_edge_on_left.get_opposite_node(self)
 
     @property
     def connected_on_right(self):
+        if self.connected_edge_on_right is None:
+            return None
         return self.connected_edge_on_right.get_opposite_node(self)
 
     def set_connection_head_edge(self, edge: "Edge"):
