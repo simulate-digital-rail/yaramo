@@ -177,10 +177,10 @@ class Node(BaseElement):
             arc_b = get_arc_between_nodes(self.connected_on_head, other_b)
             if arc_a > arc_b:
                 self.connected_edge_on_left = (
-                    self.get_edge_to_node(other_a) if side_a else self.get_edge_to_node(other_b)
+                    self.get_edge_to_node(other_b) if side_a else self.get_edge_to_node(other_a)
                 )
                 self.connected_edge_on_right = (
-                    self.get_edge_to_node(other_b) if side_a else self.get_edge_to_node(other_a)
+                    self.get_edge_to_node(other_a) if side_a else self.get_edge_to_node(other_b)
                 )
             else:
                 self.connected_edge_on_left = (
