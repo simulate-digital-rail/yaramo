@@ -94,7 +94,7 @@ class Node(BaseElement):
 
     def get_edge_to_node(self, node):
         """Returns the edge to the given neighbor node."""
-        next(edge for edge in self.connected_edges if edge.get_opposite_node(self) == node)
+        return next(edge for edge in self.connected_edges if edge.get_opposite_node(self) == node)
 
     def get_possible_followers(self, source):
         """Returns the Nodes that could follow (head, left, right) when comming from a source Node connected to this Node."""
