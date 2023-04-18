@@ -153,13 +153,13 @@ class Edge(BaseElement):
         GeoNode
             The next GeoNode
         """
-
+        if len(self.intermediate_geo_nodes) < 2:
+            return self.get_opposite_node(node).geo_node
         if self.node_a.uuid == node.uuid:
             return self.intermediate_geo_nodes[1]
         if self.node_b.uuid == node.uuid:
             return self.intermediate_geo_nodes[-2]
-        else:
-            return None
+        return None
 
     def to_serializable(self):
         """See the description in the BaseElement class.

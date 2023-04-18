@@ -137,9 +137,11 @@ class Node(BaseElement):
         """Calculates and sets the 'Anschluss' or connection side of the connected_nodes based on their geo-location."""
 
         def get_arc_between_nodes(_node_a: "Node", _node_b: "Node"):
-            _a = _node_a.geo_node.get_distance_to_other_geo_node(self.geo_node)
-            _b = self.geo_node.get_distance_to_other_geo_node(_node_b.geo_node)
-            _c = _node_a.geo_node.get_distance_to_other_geo_node(_node_b.geo_node)
+            _neighbor_to_a = self.get_edge_to_node(_node_a).get_next_geo_node(self)
+            _neighbor_to_b = self.get_edge_to_node(_node_b).get_next_geo_node(self)
+            _a = _neighbor_to_a.get_distance_to_other_geo_node(self.geo_node)
+            _b = self.geo_node.get_distance_to_other_geo_node(_neighbor_to_b)
+            _c = _neighbor_to_a.get_distance_to_other_geo_node(_neighbor_to_b)
 
             return math.degrees(math.acos((_a * _a + _b * _b - _c * _c) / (2.0 * _a * _b)))
 
@@ -164,9 +166,20 @@ class Node(BaseElement):
                         other_b = self.connected_nodes[j]
                         current_max_arc = cur_arc
 
+        _neighbor_to_head = self.connected_edge_on_head.get_next_geo_node(self)
+        _neighbor_to_a = self.get_edge_to_node(other_a).get_next_geo_node(self)
+        _neighbor_to_b = self.get_edge_to_node(other_b).get_next_geo_node(self)
         # Check on which side of the line between the head connection and this node the other nodes are
-        side_a = is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_a.geo_node.geo_point)
-        side_b = is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_b.geo_node.geo_point)
+        side_a = is_above_line_between_points(
+            _neighbor_to_head.geo_point,
+            self.geo_node.geo_point,
+            _neighbor_to_a.geo_point,
+        )
+        side_b = is_above_line_between_points(
+            _neighbor_to_head.geo_point,
+            self.geo_node.geo_point,
+            _neighbor_to_b.geo_node.geo_point,
+        )
 
         # If they're on two separate sides we know which is left and right
         if side_a != side_b:
