@@ -178,7 +178,7 @@ class Node(BaseElement):
         side_b = is_above_line_between_points(
             _neighbor_to_head.geo_point,
             self.geo_node.geo_point,
-            _neighbor_to_b.geo_node.geo_point,
+            _neighbor_to_b.geo_point,
         )
 
         # If they're on two separate sides we know which is left and right
