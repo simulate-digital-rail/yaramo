@@ -1,5 +1,6 @@
 import math
 from enum import Enum
+from typing import List
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
@@ -112,10 +113,27 @@ class Node(BaseElement):
         else:
             return [self.connected_on_head]
 
-    def get_anschluss_of_other(self, other: "Node") -> NodeConnectionDirection:
-        """  Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
+    def get_anschluss_for_edge(self, edge: "Edge") -> NodeConnectionDirection:
+        """Gets the Anschluss (Links, Rechts, Spitze) of the edge on the current node.
+
+        :return: The node connection
+        """
+
+        if self.connected_edge_on_head == edge:
+            return NodeConnectionDirection.Spitze
+        if self.connected_edge_on_left == edge:
+            return NodeConnectionDirection.Links
+        if self.connected_edge_on_right == edge:
+            return NodeConnectionDirection.Rechts
+
+        return None
+
+    def get_anschluss_of_other(self, other: "Node") -> List[NodeConnectionDirection]:
+        """Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
          
         Idea: We assume, the current node is a point and we want to estimate the Anschluss of the other node.
+
+        :return: A node might be connected to the same node via two or more connections. So we return a list of connections.
         """
 
         if len(self.connected_nodes) != 3:
@@ -125,13 +143,19 @@ class Node(BaseElement):
         if not all([self.connected_on_left, self.connected_on_right, self.connected_on_head]):
             self.calc_anschluss_of_all_nodes()
 
+        result = []
+
         if other.uuid == self.connected_on_head.uuid:
-            return NodeConnectionDirection.Spitze
+            result.append(NodeConnectionDirection.Spitze)
         if other.uuid == self.connected_on_left.uuid:
-            return NodeConnectionDirection.Links
+            result.append(NodeConnectionDirection.Links)
         if other.uuid == self.connected_on_right.uuid:
-            return NodeConnectionDirection.Rechts
-        return None
+            result.append(NodeConnectionDirection.Rechts)
+        
+        if len(result) == 0:
+            return None
+
+        return result
 
     def calc_anschluss_of_all_nodes(self):
         """Calculates and sets the 'Anschluss' or connection side of the connected_nodes based on their geo-location."""
