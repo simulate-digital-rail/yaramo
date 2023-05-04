@@ -80,7 +80,6 @@ class Node(BaseElement):
         self.connected_edges.append(edge)
 
     def set_connection_left_edge(self, edge: "Edge"):
-
         self.connected_edge_on_left = edge
         self.connected_edges.append(edge)
 
@@ -119,12 +118,20 @@ class Node(BaseElement):
         :return: The node connection
         """
 
+        if self.connected_edge_on_head is None:
+            self.calc_anschluss_of_all_nodes()
+
+        if edge not in self.connected_edges:
+            print(edge.to_serializable(), self.to_serializable())
+
         if self.connected_edge_on_head == edge:
             return NodeConnectionDirection.Spitze
         if self.connected_edge_on_left == edge:
             return NodeConnectionDirection.Links
         if self.connected_edge_on_right == edge:
             return NodeConnectionDirection.Rechts
+        
+        print("Crashing now!", (edge.uuid, edge.name), [(x.uuid, x.name) for x in self.connected_edges], [(x.uuid, x.name) for x in (self.connected_edge_on_head, self.connected_edge_on_left, self.connected_edge_on_right)])
 
         return None
 
@@ -191,8 +198,8 @@ class Node(BaseElement):
                         current_max_arc = cur_arc
 
         _neighbor_to_head = self.connected_edge_on_head.get_next_geo_node(self)
-        _neighbor_to_a = self.get_edge_to_node(other_a).get_next_geo_node(self)
-        _neighbor_to_b = self.get_edge_to_node(other_b).get_next_geo_node(self)
+        _neighbor_to_a = self.get_edge_to_node(other_a).get_next_geo_node(self) ## <-+ what happens if other_a == other_b
+        _neighbor_to_b = self.get_edge_to_node(other_b).get_next_geo_node(self) ## <-+
         # Check on which side of the line between the head connection and this node the other nodes are
         side_a = is_above_line_between_points(
             _neighbor_to_head.geo_point,
@@ -242,10 +249,14 @@ class Node(BaseElement):
         
         attributes = self.__dict__
         references = {
+            "connected_edge_on_head": self.connected_edge_on_head.uuid if self.connected_edge_on_head else None,
+            "connected_edge_on_left": self.connected_edge_on_left.uuid if self.connected_edge_on_left else None,
+            "connected_edge_on_right": self.connected_edge_on_right.uuid if self.connected_edge_on_right else None,
             "connected_on_head": self.connected_on_head.uuid if self.connected_on_head else None,
             "connected_on_left": self.connected_on_left.uuid if self.connected_on_left else None,
             "connected_on_right": self.connected_on_right.uuid if self.connected_on_right else None,
             "connected_nodes": [node.uuid for node in self.connected_nodes],
+            "connected_edges": [edge.uuid for edge in self.connected_edges],
             "geo_node": self.geo_node.uuid if self.geo_node else None,
         }
         objects = {}
