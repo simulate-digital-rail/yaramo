@@ -121,9 +121,6 @@ class Node(BaseElement):
         if self.connected_edge_on_head is None:
             self.calc_anschluss_of_all_nodes()
 
-        if edge not in self.connected_edges:
-            print(edge.to_serializable(), self.to_serializable())
-
         if self.connected_edge_on_head == edge:
             return NodeConnectionDirection.Spitze
         if self.connected_edge_on_left == edge:
@@ -131,8 +128,6 @@ class Node(BaseElement):
         if self.connected_edge_on_right == edge:
             return NodeConnectionDirection.Rechts
         
-        print("Crashing now!", (edge.uuid, edge.name), [(x.uuid, x.name) for x in self.connected_edges], [(x.uuid, x.name) for x in (self.connected_edge_on_head, self.connected_edge_on_left, self.connected_edge_on_right)])
-
         return None
 
     def get_anschluss_of_other(self, other: "Node") -> List[NodeConnectionDirection]:
@@ -167,9 +162,9 @@ class Node(BaseElement):
     def calc_anschluss_of_all_nodes(self):
         """Calculates and sets the 'Anschluss' or connection side of the connected_nodes based on their geo-location."""
 
-        def get_arc_between_nodes(_node_a: "Node", _node_b: "Node"):
-            _neighbor_to_a = self.get_edge_to_node(_node_a).get_next_geo_node(self)
-            _neighbor_to_b = self.get_edge_to_node(_node_b).get_next_geo_node(self)
+        def get_arc_between_edges(_edge_a: "Edge", _edge_b: "Edge"):
+            _neighbor_to_a = _edge_a.get_next_geo_node(self)
+            _neighbor_to_b = _edge_b.get_next_geo_node(self)
             _a = _neighbor_to_a.get_distance_to_other_geo_node(self.geo_node)
             _b = self.geo_node.get_distance_to_other_geo_node(_neighbor_to_b)
             _c = _neighbor_to_a.get_distance_to_other_geo_node(_neighbor_to_b)
@@ -180,26 +175,24 @@ class Node(BaseElement):
             return ((branching_point.x - head_point.x)*(comparison_point.y - head_point.y) - (branching_point.y - head_point.y)*(comparison_point.x - head_point.x)) > 0
 
         current_max_arc = 361
-        other_a: "Node" = None
-        other_b: "Node" = None
-        for i in range(len(self.connected_nodes)):
-            for j in range(len(self.connected_nodes)):
+        other_a: "Edge" = None
+        other_b: "Edge" = None
+        for i in range(len(self.connected_edges)):
+            for j in range(len(self.connected_edges)):
                 if i != j:
-                    cur_arc = get_arc_between_nodes(
-                        self.connected_nodes[i], self.connected_nodes[j]
+                    cur_arc = get_arc_between_edges(
+                        self.connected_edges[i], self.connected_edges[j]
                     )
                     if cur_arc < current_max_arc:
-                        missing_index = sum(range(len(self.connected_nodes))) - (i + j)
-                        self.connected_edge_on_head = self.get_edge_to_node(
-                            self.connected_nodes[missing_index]
-                        )
-                        other_a = self.connected_nodes[i]
-                        other_b = self.connected_nodes[j]
+                        missing_index = sum(range(len(self.connected_edges))) - (i + j)
+                        self.connected_edge_on_head = self.connected_edges[missing_index]
+                        other_a = self.connected_edges[i]
+                        other_b = self.connected_edges[j]
                         current_max_arc = cur_arc
 
         _neighbor_to_head = self.connected_edge_on_head.get_next_geo_node(self)
-        _neighbor_to_a = self.get_edge_to_node(other_a).get_next_geo_node(self) ## <-+ what happens if other_a == other_b
-        _neighbor_to_b = self.get_edge_to_node(other_b).get_next_geo_node(self) ## <-+
+        _neighbor_to_a = other_a.get_next_geo_node(self) ## <-+ what happens if other_a == other_b
+        _neighbor_to_b = other_b.get_next_geo_node(self) ## <-+
         # Check on which side of the line between the head connection and this node the other nodes are
         side_a = is_above_line_between_points(
             _neighbor_to_head.geo_point,
@@ -215,29 +208,29 @@ class Node(BaseElement):
         # If they're on two separate sides we know which is left and right
         if side_a != side_b:
             if side_a:
-                self.connected_edge_on_left = self.get_edge_to_node(other_a)
-                self.connected_edge_on_right = self.get_edge_to_node(other_b)
+                self.connected_edge_on_left = other_a
+                self.connected_edge_on_right = other_b
             else:
-                self.connected_edge_on_left = self.get_edge_to_node(other_b)
-                self.connected_edge_on_right = self.get_edge_to_node(other_a)
+                self.connected_edge_on_left = other_b
+                self.connected_edge_on_right = other_a
         # If they're both above or below that line, we make the node that branches further away the left or right node,
         # depending on the side they're on (left if both above)
         else:
-            arc_a = get_arc_between_nodes(self.connected_on_head, other_a)
-            arc_b = get_arc_between_nodes(self.connected_on_head, other_b)
+            arc_a = get_arc_between_edges(self.connected_edge_on_head, other_a)
+            arc_b = get_arc_between_edges(self.connected_edge_on_head, other_b)
             if arc_a > arc_b:
                 self.connected_edge_on_left = (
-                    self.get_edge_to_node(other_b) if side_a else self.get_edge_to_node(other_a)
+                    other_b if side_a else other_a
                 )
                 self.connected_edge_on_right = (
-                    self.get_edge_to_node(other_a) if side_a else self.get_edge_to_node(other_b)
+                    other_a if side_a else other_b
                 )
             else:
                 self.connected_edge_on_left = (
-                    self.get_edge_to_node(other_a) if side_a else self.get_edge_to_node(other_b)
+                    other_a if side_a else other_b
                 )
                 self.connected_edge_on_right = (
-                    self.get_edge_to_node(other_b) if side_a else self.get_edge_to_node(other_a)
+                    other_b if side_a else other_a
                 )
 
     def to_serializable(self):
