@@ -66,6 +66,15 @@ class Edge(BaseElement):
             self.node_b.geo_node
         )
         return total_length
+    
+    def get_direction_based_on_start_node(self, start: "Node") -> "SignalDirection":
+        from yaramo.signal import SignalDirection
+
+        if self.node_a.uuid == start.uuid:
+            return SignalDirection.IN
+        elif self.node_b.uuid == start.uuid:
+            return SignalDirection.GEGEN
+        return None
 
     def get_direction_based_on_nodes(self, node_a: "Node", node_b: "Node") -> "SignalDirection":
         """Returns the direction according to whether the order of node_a and node_b is the same as in self

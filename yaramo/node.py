@@ -60,17 +60,23 @@ class Node(BaseElement):
     @property
     def connected_on_head(self):
         if self.connected_edge_on_head is None:
+            self.calc_anschluss_of_all_edges()
+        if self.connected_edge_on_head is None:
             return None
         return self.connected_edge_on_head.get_opposite_node(self)
 
     @property
     def connected_on_left(self):
+        if self.connected_edge_on_head is None:
+            self.calc_anschluss_of_all_edges()
         if self.connected_edge_on_left is None:
             return None
         return self.connected_edge_on_left.get_opposite_node(self)
 
     @property
     def connected_on_right(self):
+        if self.connected_edge_on_head is None:
+            self.calc_anschluss_of_all_edges()
         if self.connected_edge_on_right is None:
             return None
         return self.connected_edge_on_right.get_opposite_node(self)
@@ -96,21 +102,21 @@ class Node(BaseElement):
         """Returns the edge to the given neighbor node."""
         return next(edge for edge in self.connected_edges if edge.get_opposite_node(self) == node)
 
-    def get_possible_followers(self, source):
-        """Returns the Nodes that could follow (head, left, right) when comming from a source Node connected to this Node."""
+    def get_possible_followers(self, source: "Edge") -> List["Edge"]:
+        """Returns the `Edge`s that could follow (head, left, right) when comming from a source `Edge` connected to this `Node`."""
         if source is None:
-            return self.connected_nodes
+            return self.connected_edges
 
-        if len(self.connected_nodes) <= 1:
+        if len(self.connected_edges) <= 1:
             return []
 
-        if self.connected_on_head is None:
-            self.calc_anschluss_of_all_nodes()
+        if self.connected_edge_on_head is None:
+            self.calc_anschluss_of_all_edges()
 
-        if source.uuid == self.connected_on_head.uuid:
-            return [self.connected_on_left, self.connected_on_right]
-        else:
-            return [self.connected_on_head]
+        if source == self.connected_edge_on_head:
+            return [self.connected_edge_on_left, self.connected_edge_on_right]
+        return [self.connected_edge_on_head]
+
 
     def get_anschluss_for_edge(self, edge: "Edge") -> NodeConnectionDirection:
         """Gets the Anschluss (Links, Rechts, Spitze) of the edge on the current node.
@@ -119,7 +125,7 @@ class Node(BaseElement):
         """
 
         if self.connected_edge_on_head is None:
-            self.calc_anschluss_of_all_nodes()
+            self.calc_anschluss_of_all_edges()
 
         if self.connected_edge_on_head == edge:
             return NodeConnectionDirection.Spitze
@@ -143,7 +149,7 @@ class Node(BaseElement):
 
         # TODO allow for different metrics to estimate the anschluss of the other nodes
         if not all([self.connected_on_left, self.connected_on_right, self.connected_on_head]):
-            self.calc_anschluss_of_all_nodes()
+            self.calc_anschluss_of_all_edges()
 
         result = []
 
@@ -159,8 +165,8 @@ class Node(BaseElement):
 
         return result
 
-    def calc_anschluss_of_all_nodes(self):
-        """Calculates and sets the 'Anschluss' or connection side of the connected_nodes based on their geo-location."""
+    def calc_anschluss_of_all_edges(self):
+        """Calculates and sets the 'Anschluss' or connection side of the connected_edges based on their geo-location."""
 
         def get_arc_between_edges(_edge_a: "Edge", _edge_b: "Edge"):
             _neighbor_to_a = _edge_a.get_next_geo_node(self)
