@@ -51,10 +51,9 @@ class Route(BaseElement):
         while previous_edge is not self.end_signal.edge:
             next_edge = None
             for edge in self.edges:
-                if edge.is_node_connected(next_node) and not edge.is_node_connected(
-                    previous_edge.get_other_node(next_node)
-                ):
+                if edge.is_node_connected(next_node) and not edge == previous_edge:
                     next_edge = edge
+                    break
 
             edges_in_order.append(next_edge)
             next_node = next_edge.get_other_node(next_node)
