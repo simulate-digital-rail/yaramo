@@ -145,7 +145,7 @@ class Signal(BaseElement):
             "function": str(self.function),
             "kind": str(self.kind),
         }
-        objects = {}
+        objects = dict()
         items = [self.trip] + self.additional_signals if self.trip else self.additional_signals
         for item in items:
             item_object, serialized_item = item.to_serializable()

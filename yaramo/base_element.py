@@ -2,6 +2,8 @@ import json
 from typing import Tuple
 from uuid import uuid4
 
+from yaramo.utils import CustomJSONEncoder
+
 
 class BaseElement(object):
     def __init__(self, uuid: str = None, name: str = None, **kwargs) -> None:
@@ -26,4 +28,4 @@ class BaseElement(object):
         return self.__dict__, {}
 
     def to_json(self) -> str:
-        return json.dumps(self.to_serializable()[0])
+        return json.dumps(self.to_serializable()[0], cls=CustomJSONEncoder)

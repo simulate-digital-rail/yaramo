@@ -166,7 +166,7 @@ class Node(BaseElement):
             "connected_nodes": [node.uuid for node in self.connected_nodes],
             "geo_node": self.geo_node.uuid if self.geo_node else None,
         }
-        objects = {}
+        objects = dict()
         if self.geo_node:
             geo_node, serialized_geo_node = self.geo_node.to_serializable()
             objects = {**objects, self.geo_node.uuid: geo_node, **serialized_geo_node}
