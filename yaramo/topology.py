@@ -2,6 +2,7 @@ import json
 
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
+from yaramo.geo_node import Wgs84GeoNode
 from yaramo.node import Node
 from yaramo.route import Route
 from yaramo.signal import Signal
@@ -92,10 +93,11 @@ class Topology(BaseElement):
             node_b = topology.nodes[edge["node_b"]]
             node_a.connected_nodes.append(node_b)
             node_b.connected_nodes.append(node_a)
+            geo_node_strings = [obj["objects"][geo_node_uuid] for geo_node_uuid in edge["intermediate_geo_nodes"] if geo_node_uuid in obj["objects"]]
             topology.add_edge(Edge(**{
                 **edge, "node_a": node_a, "node_b": node_b,
                 "signals": [topology.signals[signal_uuid] for signal_uuid in edge["signals"]],
-                "intermediate_geo_nodes": [obj["objects"][geo_node_uuid] for geo_node_uuid in edge["intermediate_geo_nodes"] if geo_node_uuid in obj["objects"]],
+                "intermediate_geo_nodes": [Wgs84GeoNode(obj["objects"][geo_node["geo_point"]]["x"], obj["objects"][geo_node["geo_point"]]["y"], name=geo_node["name"], uuid=geo_node["uuid"]) for geo_node in geo_node_strings]
             }))
         for signal in obj["signals"]:
             topology.signals[signal["uuid"]].edge = topology.edges[signal["edge"]]

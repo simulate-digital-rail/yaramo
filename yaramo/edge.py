@@ -16,7 +16,7 @@ class Edge(BaseElement):
     """
 
     def __init__(self, node_a: Node, node_b: Node, vacancy_section: Optional[VacancySection] = None, length: float = None,
-                 intermediate_geo_nodes=None, **kwargs):
+                 intermediate_geo_nodes: List[GeoNode]=None, signals: list["Signal"]=None, maximum_speed: int=None, **kwargs):
         """
         Parameters
         ----------
@@ -34,10 +34,9 @@ class Edge(BaseElement):
         self.intermediate_geo_nodes = intermediate_geo_nodes or []
         self.node_a = node_a
         self.node_b = node_b
-        self.intermediate_geo_nodes: list[GeoNode] = []
-        self.signals: list[Signal] = []
+        self.signals = signals or []
         self.length = length
-        self.maximum_speed: int = None
+        self.maximum_speed = maximum_speed
         self.vacancy_section = vacancy_section
 
     def is_node_connected(self, other_node) -> bool:
