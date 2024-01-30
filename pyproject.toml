@@ -7,8 +7,8 @@ readme = "README.md"
 packages = [{include = "yaramo"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pyproj = "^3.4.1"
+python = "^3.9"
+pyproj = "^3.6.1"
 
 
 [tool.poetry.group.dev.dependencies]
