@@ -140,6 +140,7 @@ class Signal(BaseElement):
             "edge": self.edge.uuid if self.edge else None,
             "trip": self.trip.uuid if self.trip else None,
             "additional_signals": [signal.uuid for signal in self.additional_signals],
+            "supported_states": [str(state) for state in self.supported_states],
             "direction": str(self.direction),
             "side_distance": self.side_distance,
             "function": str(self.function),
