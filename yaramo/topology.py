@@ -1,5 +1,8 @@
+import simplejson as json
+
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
+from yaramo.geo_node import Wgs84GeoNode
 from yaramo.node import Node
 from yaramo.route import Route
 from yaramo.signal import Signal
@@ -39,10 +42,10 @@ class Topology(BaseElement):
         for edge_uuid in self.edges:
             edge = self.edges[edge_uuid]
             if (
-                edge.node_a.uuid == node_a.uuid
-                and edge.node_b.uuid == node_b.uuid
-                or edge.node_a.uuid == node_b.uuid
-                and edge.node_b.uuid == node_a.uuid
+                    edge.node_a.uuid == node_a.uuid
+                    and edge.node_b.uuid == node_b.uuid
+                    or edge.node_a.uuid == node_b.uuid
+                    and edge.node_b.uuid == node_a.uuid
             ):
                 return edge
         return None
@@ -54,7 +57,7 @@ class Topology(BaseElement):
             A serializable dictionary of all the objects belonging to the Topology.
         """
         nodes, edges, signals, routes, vacancy_sections = [], [], [], [], []
-        objects = {}
+        objects = dict()
 
         for items, _list in [
             (list(self.signals.values()), signals),
@@ -76,3 +79,31 @@ class Topology(BaseElement):
             "objects": objects,
             "vacany_sections": vacancy_sections
         }, {}
+
+    @classmethod
+    def from_json(cls, json_str: str):
+        obj = json.loads(json_str)
+        topology = cls()
+        for node in obj["nodes"]:
+            geo_node = obj["objects"][node["geo_node"]]
+            topology.add_node(Node(**{**node,
+                                      "geo_node": Wgs84GeoNode(obj["objects"][geo_node["geo_point"]]["x"],
+                                                               obj["objects"][geo_node["geo_point"]]["y"],
+                                                               name=geo_node["name"], uuid=geo_node["uuid"]),
+                                      }))
+        for signal in obj["signals"]:
+            topology.add_signal(Signal(**signal))
+        for edge in obj["edges"]:
+            node_a = topology.nodes[edge["node_a"]]
+            node_b = topology.nodes[edge["node_b"]]
+            node_a.connected_nodes.append(node_b)
+            node_b.connected_nodes.append(node_a)
+            geo_node_strings = [obj["objects"][geo_node_uuid] for geo_node_uuid in edge["intermediate_geo_nodes"] if geo_node_uuid in obj["objects"]]
+            topology.add_edge(Edge(**{
+                **edge, "node_a": node_a, "node_b": node_b,
+                "signals": [topology.signals[signal_uuid] for signal_uuid in edge["signals"]],
+                "intermediate_geo_nodes": [Wgs84GeoNode(obj["objects"][geo_node["geo_point"]]["x"], obj["objects"][geo_node["geo_point"]]["y"], name=geo_node["name"], uuid=geo_node["uuid"]) for geo_node in geo_node_strings]
+            }))
+        for signal in obj["signals"]:
+            topology.signals[signal["uuid"]].edge = topology.edges[signal["edge"]]
+        return topology

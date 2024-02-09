@@ -1,4 +1,4 @@
-import json
+import simplejson as json
 from typing import Tuple
 from uuid import uuid4
 
@@ -26,4 +26,4 @@ class BaseElement(object):
         return self.__dict__, {}
 
     def to_json(self) -> str:
-        return json.dumps(self.to_serializable()[0])
+        return json.dumps(self.to_serializable()[0], iterable_as_array=True)

@@ -15,7 +15,8 @@ class Edge(BaseElement):
     as well as any intermediate_geo_nodes. The maximum_speed of an Edge cannot be set on construction but will generally be determined based on the connected Topology and Signals.
     """
 
-    def __init__(self, node_a: Node, node_b: Node, vacancy_section: Optional[VacancySection] = None, length: float = None, **kwargs):
+    def __init__(self, node_a: Node, node_b: Node, vacancy_section: Optional[VacancySection] = None, length: float = None,
+                 intermediate_geo_nodes: List[GeoNode]=None, signals: list["Signal"]=None, maximum_speed: int=None, **kwargs):
         """
         Parameters
         ----------
@@ -30,12 +31,12 @@ class Edge(BaseElement):
         """
 
         super().__init__(**kwargs)
+        self.intermediate_geo_nodes = intermediate_geo_nodes or []
         self.node_a = node_a
         self.node_b = node_b
-        self.intermediate_geo_nodes: list[GeoNode] = []
-        self.signals: list[Signal] = []
+        self.signals = signals or []
         self.length = length
-        self.maximum_speed: int = None
+        self.maximum_speed = maximum_speed
         self.vacancy_section = vacancy_section
 
     def is_node_connected(self, other_node) -> bool:
@@ -136,7 +137,7 @@ class Edge(BaseElement):
             "intermediate_geo_nodes": [geo_node.uuid for geo_node in self.intermediate_geo_nodes],
             "signals": [signal.uuid for signal in self.signals],
         }
-        objects = {}
+        objects = dict()
         for geo_node in self.intermediate_geo_nodes:
             geo_node_object, serialized_geo_node = geo_node.to_serializable()
             objects = {**objects, geo_node.uuid: geo_node_object, **serialized_geo_node}
