@@ -102,10 +102,3 @@ class Topology(BaseElement):
         for signal in obj["signals"]:
             topology.signals[signal["uuid"]].edge = topology.edges[signal["edge"]]
         return topology
-
-
-if __name__ == "__main__":
-    with open("../test.json", "r") as f:
-        json_str = f.read()
-    topology = Topology.from_json(json_str)
-    print(topology.to_json())
