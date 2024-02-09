@@ -37,7 +37,7 @@ class Node(BaseElement):
         self.maximum_speed_on_left = None
         self.maximum_speed_on_right = None
         self.connected_nodes: list["Node"] = []
-        self.geo_node: GeoNode = None
+        self.geo_node: GeoNode = kwargs.get("geo_node", None)
         self.turnout_side: str = turnout_side
 
     def maximum_speed(self, node_a: "Node", node_b: "Node"):
