@@ -16,7 +16,7 @@ class BaseElement(object):
 
         In subclasses this creates a dictionary with immediately serializable attributes and
         references (uuids) to attributes that are objects and also a second dictionary where said objects are serialized (by deligation).
-        
+
         Serialization
         -------------
         The idea is to collect all attributes of an object that can be serialized immediately and

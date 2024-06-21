@@ -6,7 +6,7 @@ from yaramo.geo_point import DbrefGeoPoint, GeoPoint, Wgs84GeoPoint
 
 class GeoNode(ABC, BaseElement):
     """This is the baseclass of specific GeoNodes that use different coordinate systems.
-    
+
     A GeoNode refers to a GeoPoint as a means of location.
     """
 

@@ -19,7 +19,7 @@ class Node(BaseElement):
     We assume that there are only Nodes connected on all three or only one connection.
     There can be a GeoNode associated with a Node to add a geo-location.
     """
-     
+
     def __init__(self, turnout_side=None, **kwargs):
         """
         Parameters
@@ -81,8 +81,8 @@ class Node(BaseElement):
             return [self.connected_on_head]
 
     def get_anschluss_of_other(self, other: "Node") -> NodeConnectionDirection:
-        """  Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
-         
+        """Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
+
         Idea: We assume, the current node is a point and we want to estimate the Anschluss of the other node.
         """
 
@@ -111,8 +111,13 @@ class Node(BaseElement):
 
             return math.degrees(math.acos((_a * _a + _b * _b - _c * _c) / (2.0 * _a * _b)))
 
-        def is_above_line_between_points(head_point: GeoPoint, branching_point: GeoPoint, comparison_point: GeoPoint):
-            return ((branching_point.x - head_point.x)*(comparison_point.y - head_point.y) - (branching_point.y - head_point.y)*(comparison_point.x - head_point.x)) > 0
+        def is_above_line_between_points(
+            head_point: GeoPoint, branching_point: GeoPoint, comparison_point: GeoPoint
+        ):
+            return (
+                (branching_point.x - head_point.x) * (comparison_point.y - head_point.y)
+                - (branching_point.y - head_point.y) * (comparison_point.x - head_point.x)
+            ) > 0
 
         current_max_arc = 361
         other_a: "Node" = None
@@ -131,12 +136,20 @@ class Node(BaseElement):
                         current_max_arc = cur_arc
 
         # Check on which side of the line between the head connection and this node the other nodes are
-        side_a = is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_a.geo_node.geo_point)
-        side_b = is_above_line_between_points(self.connected_on_head.geo_node.geo_point, self.geo_node.geo_point, other_b.geo_node.geo_point)
+        side_a = is_above_line_between_points(
+            self.connected_on_head.geo_node.geo_point,
+            self.geo_node.geo_point,
+            other_a.geo_node.geo_point,
+        )
+        side_b = is_above_line_between_points(
+            self.connected_on_head.geo_node.geo_point,
+            self.geo_node.geo_point,
+            other_b.geo_node.geo_point,
+        )
 
         # If they're on two separate sides we know which is left and right
-        if(side_a != side_b):
-            if (side_a):
+        if side_a != side_b:
+            if side_a:
                 self.connected_on_left, self.connected_on_right = other_a, other_b
             else:
                 self.connected_on_right, self.connected_on_left = other_a, other_b
@@ -145,11 +158,14 @@ class Node(BaseElement):
         else:
             arc_a = get_arc_between_nodes(self.connected_on_head, other_a)
             arc_b = get_arc_between_nodes(self.connected_on_head, other_b)
-            if(arc_a > arc_b):
-                self.connected_on_right, self.connected_on_left = (other_a, other_b) if side_a else (other_b, other_a)
+            if arc_a > arc_b:
+                self.connected_on_right, self.connected_on_left = (
+                    (other_a, other_b) if side_a else (other_b, other_a)
+                )
             else:
-                self.connected_on_left, self.connected_on_right = (other_a, other_b) if side_a else (other_b, other_a)
-
+                self.connected_on_left, self.connected_on_right = (
+                    (other_a, other_b) if side_a else (other_b, other_a)
+                )
 
     def to_serializable(self):
         """See the description in the BaseElement class.
@@ -157,7 +173,7 @@ class Node(BaseElement):
         Returns:
             A serializable dictionary and a dictionary with serialized objects (GeoNodes).
         """
-        
+
         attributes = self.__dict__
         references = {
             "connected_on_head": self.connected_on_head.uuid if self.connected_on_head else None,

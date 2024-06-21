@@ -1,4 +1,5 @@
-from yaramo.model import Topology, Node, Edge
+from yaramo.model import Edge, Node, Topology
+
 
 def test_get_edge_by_nodes():
     topology = Topology()

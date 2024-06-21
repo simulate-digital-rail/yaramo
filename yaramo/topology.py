@@ -8,7 +8,7 @@ from yaramo.vacancy_section import VacancySection
 
 class Topology(BaseElement):
     """The Topology is a collection of all track elements comprising that topology.
-    
+
     Elements like Signals, Nodes, Edges, Routes and Vacancy Sections can be accessed by their uuid in their respective dictionary.
     """
 
@@ -74,5 +74,5 @@ class Topology(BaseElement):
             "signals": signals,
             "routes": routes,
             "objects": objects,
-            "vacany_sections": vacancy_sections
+            "vacany_sections": vacancy_sections,
         }, {}
