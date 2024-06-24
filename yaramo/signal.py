@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Tuple, List, Set
+from typing import List, Set, Tuple
 from uuid import uuid4
 
 from yaramo.additional_signal import AdditionalSignal
@@ -32,6 +32,7 @@ class SignalFunction(Enum):
 
 class SignalKind(Enum):
     """The SignalFunction determines the type of a Signal."""
+
     Hauptsignal = 0
     Mehrabschnittssignal = 1
     Vorsignal = 2
@@ -45,6 +46,7 @@ class SignalKind(Enum):
 
 class SignalState(Enum):
     """The SignalState determines a possible state of a Signal."""
+
     hp0 = 0
     hp1 = 1
     hp2 = 2

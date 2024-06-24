@@ -11,7 +11,7 @@ from yaramo.vacancy_section import VacancySection
 
 class Topology(BaseElement):
     """The Topology is a collection of all track elements comprising that topology.
-    
+
     Elements like Signals, Nodes, Edges, Routes and Vacancy Sections can be accessed by their uuid in their respective dictionary.
     """
 
@@ -42,10 +42,10 @@ class Topology(BaseElement):
         for edge_uuid in self.edges:
             edge = self.edges[edge_uuid]
             if (
-                    edge.node_a.uuid == node_a.uuid
-                    and edge.node_b.uuid == node_b.uuid
-                    or edge.node_a.uuid == node_b.uuid
-                    and edge.node_b.uuid == node_a.uuid
+                edge.node_a.uuid == node_a.uuid
+                and edge.node_b.uuid == node_b.uuid
+                or edge.node_a.uuid == node_b.uuid
+                and edge.node_b.uuid == node_a.uuid
             ):
                 return edge
         return None
@@ -77,7 +77,7 @@ class Topology(BaseElement):
             "signals": signals,
             "routes": routes,
             "objects": objects,
-            "vacany_sections": vacancy_sections
+            "vacany_sections": vacancy_sections,
         }, {}
 
     @classmethod
@@ -86,11 +86,19 @@ class Topology(BaseElement):
         topology = cls()
         for node in obj["nodes"]:
             geo_node = obj["objects"][node["geo_node"]]
-            topology.add_node(Node(**{**node,
-                                      "geo_node": Wgs84GeoNode(obj["objects"][geo_node["geo_point"]]["x"],
-                                                               obj["objects"][geo_node["geo_point"]]["y"],
-                                                               name=geo_node["name"], uuid=geo_node["uuid"]),
-                                      }))
+            topology.add_node(
+                Node(
+                    **{
+                        **node,
+                        "geo_node": Wgs84GeoNode(
+                            obj["objects"][geo_node["geo_point"]]["x"],
+                            obj["objects"][geo_node["geo_point"]]["y"],
+                            name=geo_node["name"],
+                            uuid=geo_node["uuid"],
+                        ),
+                    }
+                )
+            )
         for signal in obj["signals"]:
             topology.add_signal(Signal(**signal))
         for edge in obj["edges"]:
@@ -98,12 +106,32 @@ class Topology(BaseElement):
             node_b = topology.nodes[edge["node_b"]]
             node_a.connected_nodes.append(node_b)
             node_b.connected_nodes.append(node_a)
-            geo_node_strings = [obj["objects"][geo_node_uuid] for geo_node_uuid in edge["intermediate_geo_nodes"] if geo_node_uuid in obj["objects"]]
-            topology.add_edge(Edge(**{
-                **edge, "node_a": node_a, "node_b": node_b,
-                "signals": [topology.signals[signal_uuid] for signal_uuid in edge["signals"]],
-                "intermediate_geo_nodes": [Wgs84GeoNode(obj["objects"][geo_node["geo_point"]]["x"], obj["objects"][geo_node["geo_point"]]["y"], name=geo_node["name"], uuid=geo_node["uuid"]) for geo_node in geo_node_strings]
-            }))
+            geo_node_strings = [
+                obj["objects"][geo_node_uuid]
+                for geo_node_uuid in edge["intermediate_geo_nodes"]
+                if geo_node_uuid in obj["objects"]
+            ]
+            topology.add_edge(
+                Edge(
+                    **{
+                        **edge,
+                        "node_a": node_a,
+                        "node_b": node_b,
+                        "signals": [
+                            topology.signals[signal_uuid] for signal_uuid in edge["signals"]
+                        ],
+                        "intermediate_geo_nodes": [
+                            Wgs84GeoNode(
+                                obj["objects"][geo_node["geo_point"]]["x"],
+                                obj["objects"][geo_node["geo_point"]]["y"],
+                                name=geo_node["name"],
+                                uuid=geo_node["uuid"],
+                            )
+                            for geo_node in geo_node_strings
+                        ],
+                    }
+                )
+            )
         for signal in obj["signals"]:
             topology.signals[signal["uuid"]].edge = topology.edges[signal["edge"]]
         return topology
