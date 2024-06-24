@@ -85,20 +85,19 @@ class Topology(BaseElement):
         obj = json.loads(json_str)
         topology = cls()
         for node in obj["nodes"]:
-            geo_node = obj["objects"][node["geo_node"]]
-            topology.add_node(
-                Node(
-                    **{
-                        **node,
-                        "geo_node": Wgs84GeoNode(
+            node_obj = Node(**node)
+            topology.add_node(node_obj)
+            if "geo_node" in node and node["geo_node"] is not None:
+                geo_node = obj["objects"][node["geo_node"]]
+                geo_node_obj = Wgs84GeoNode(
                             obj["objects"][geo_node["geo_point"]]["x"],
                             obj["objects"][geo_node["geo_point"]]["y"],
                             name=geo_node["name"],
                             uuid=geo_node["uuid"],
-                        ),
-                    }
-                )
-            )
+                        )
+                node_obj.geo_node = geo_node_obj
+
+
         for signal in obj["signals"]:
             topology.add_signal(Signal(**signal))
         for edge in obj["edges"]:
