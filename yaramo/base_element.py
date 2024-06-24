@@ -1,6 +1,7 @@
-import simplejson as json
 from typing import Tuple
 from uuid import uuid4
+
+import simplejson as json
 
 
 class BaseElement(object):
