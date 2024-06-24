@@ -142,12 +142,13 @@ class Signal(BaseElement):
             "edge": self.edge.uuid if self.edge else None,
             "trip": self.trip.uuid if self.trip else None,
             "additional_signals": [signal.uuid for signal in self.additional_signals],
+            "supported_states": [str(state) for state in self.supported_states],
             "direction": str(self.direction),
             "side_distance": self.side_distance,
             "function": str(self.function),
             "kind": str(self.kind),
         }
-        objects = {}
+        objects = dict()
         items = [self.trip] + self.additional_signals if self.trip else self.additional_signals
         for item in items:
             item_object, serialized_item = item.to_serializable()

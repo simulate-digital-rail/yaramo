@@ -42,7 +42,7 @@ class Wgs84GeoPoint(GeoPoint):
         return self.__haversine_distance(geo_point_b) / 1000
 
     def __haversine_distance(self, geo_point_b: "GeoPoint"):
-        pi_over_180 = Decimal(math.pi / 180)
+        pi_over_180 = float(math.pi / 180)
         return (
             2
             * 6371000
