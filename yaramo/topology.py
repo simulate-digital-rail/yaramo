@@ -50,6 +50,12 @@ class Topology(BaseElement):
                 return edge
         return None
 
+    def get_route_by_signal_names(self, start_signal_name, end_signal_name):
+        for route_uuid in self.routes:
+            route = self.routes[route_uuid]
+            if route.start_signal.name == start_signal_name and route.end_signal.name == end_signal_name:
+                return route
+
     def to_serializable(self):
         """See the description in the BaseElement class.
 
