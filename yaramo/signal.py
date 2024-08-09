@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Set, Tuple
+from typing import Set, Tuple
 from uuid import uuid4
 
 from yaramo.additional_signal import AdditionalSignal

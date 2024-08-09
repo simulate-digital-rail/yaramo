@@ -23,7 +23,6 @@ class PlanningState(Enum):
     gleichgestellt = 8
     sonstige = 9
 
-
     def __str__(self):
         return self.name
 

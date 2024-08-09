@@ -18,8 +18,6 @@ class GeoNode(ABC, BaseElement):
     def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
         """Returns to distance to the given other GeoNode."""
 
-        pass
-
     @abstractmethod
     def to_wgs84(self) -> "Wgs84GeoNode":
         pass
