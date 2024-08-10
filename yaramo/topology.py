@@ -109,7 +109,7 @@ class Topology(BaseElement):
     def from_json(cls, json_str: str):
         obj = json.loads(json_str)
         topology = cls()
-        topology.current_status = obj.get("current_status", PlanningState.erstellt)
+        topology.current_status = PlanningState(obj.get("current_status", PlanningState.erstellt))
         topology.status_information = obj.get("status_information", defaultdict(dict))
         for node in obj["nodes"]:
             node_obj = Node(**node)
