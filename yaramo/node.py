@@ -107,6 +107,8 @@ class Node(BaseElement):
         """Calculates and sets the 'Anschluss' or connection side of
         the connected_nodes based on their geo location."""
 
+        almost_zero = sys.float_info.epsilon
+
         def get_rad_between_nodes(node_a: GeoPoint,
                                   node_b: GeoPoint) -> float:
             """
@@ -125,15 +127,22 @@ class Node(BaseElement):
 
             left_angle_abs = get_rad_between_nodes(self, left)
             left_angle_rel = left_angle_abs - head_angle_abs
-            if cos(left_angle_rel) <= sys.float_info.epsilon:
+            if cos(left_angle_rel) <= almost_zero:
                 # left turn more than (or almost) 90°
                 continue
 
             right_angle_abs = get_rad_between_nodes(self, right)
             right_angle_rel = right_angle_abs- head_angle_abs
-            if cos(right_angle_rel) <= sys.float_info.epsilon:
-                # left turn more than (or almost) 90°
+            if cos(right_angle_rel) <= almost_zero:
+                # right turn more than (or almost) 90°
                 continue
+
+            if cos(left_angle_abs - right_angle_abs) <= almost_zero:
+                # turn from left to right less than (or almost) 90°
+                raise Exception(
+                    f"Node {self} has three connected nodes but "
+                    "geometrically, it does not look like a switch."
+                )
 
             if sin(left_angle_rel) < sin(right_angle_rel):
                 # Left and right mixed up. Although the permutations do
