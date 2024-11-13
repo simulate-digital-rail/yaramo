@@ -1,5 +1,7 @@
-import math
 from enum import Enum
+from itertools import permutations
+from math import sin, cos, atan2
+import sys
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
@@ -102,70 +104,47 @@ class Node(BaseElement):
         return None
 
     def calc_anschluss_of_all_nodes(self):
-        """Calculates and sets the 'Anschluss' or connection side of the connected_nodes based on their geo-location."""
+        """Calculates and sets the 'Anschluss' or connection side of
+        the connected_nodes based on their geo location."""
 
-        def get_arc_between_nodes(_node_a: "Node", _node_b: "Node"):
-            _a = _node_a.geo_node.get_distance_to_other_geo_node(self.geo_node)
-            _b = self.geo_node.get_distance_to_other_geo_node(_node_b.geo_node)
-            _c = _node_a.geo_node.get_distance_to_other_geo_node(_node_b.geo_node)
+        def get_rad_between_nodes(node_a: GeoPoint,
+                                  node_b: GeoPoint) -> float:
+            """
+            Returns the angle of an (maybe imaginary) line between
+            :param:`node_a` and :param:`node_b`.
+            """
+            point_a = node_a.geo_node.geo_point
+            point_b = node_b.geo_node.geo_point
+            return atan2(point_b.y - point_a.y, point_b.x - point_a.x)
 
-            return math.degrees(math.acos((_a * _a + _b * _b - _c * _c) / (2.0 * _a * _b)))
+        # Determine which node is head, left, and right by trying the
+        # permutations and checking for plausibility.
+        for head, left, right in permutations(self.connected_nodes):
 
-        def is_above_line_between_points(
-            head_point: GeoPoint, branching_point: GeoPoint, comparison_point: GeoPoint
-        ):
-            return (
-                (branching_point.x - head_point.x) * (comparison_point.y - head_point.y)
-                - (branching_point.y - head_point.y) * (comparison_point.x - head_point.x)
-            ) > 0
+            head_angle_abs = get_rad_between_nodes(head, self)
 
-        current_max_arc = 361
-        other_a: "Node" = None
-        other_b: "Node" = None
-        for i in range(len(self.connected_nodes)):
-            for j in range(len(self.connected_nodes)):
-                if i != j:
-                    cur_arc = get_arc_between_nodes(
-                        self.connected_nodes[i], self.connected_nodes[j]
-                    )
-                    if cur_arc < current_max_arc:
-                        missing_index = sum(range(len(self.connected_nodes))) - (i + j)
-                        self.connected_on_head = self.connected_nodes[missing_index]
-                        other_a = self.connected_nodes[i]
-                        other_b = self.connected_nodes[j]
-                        current_max_arc = cur_arc
+            left_angle_abs = get_rad_between_nodes(self, left)
+            left_angle_rel = left_angle_abs - head_angle_abs
+            if cos(left_angle_rel) <= sys.float_info.epsilon:
+                # left turn more than (or almost) 90°
+                continue
 
-        # Check on which side of the line between the head connection and this node the other nodes are
-        side_a = is_above_line_between_points(
-            self.connected_on_head.geo_node.geo_point,
-            self.geo_node.geo_point,
-            other_a.geo_node.geo_point,
-        )
-        side_b = is_above_line_between_points(
-            self.connected_on_head.geo_node.geo_point,
-            self.geo_node.geo_point,
-            other_b.geo_node.geo_point,
-        )
+            right_angle_abs = get_rad_between_nodes(self, right)
+            right_angle_rel = right_angle_abs- head_angle_abs
+            if cos(right_angle_rel) <= sys.float_info.epsilon:
+                # left turn more than (or almost) 90°
+                continue
 
-        # If they're on two separate sides we know which is left and right
-        if side_a != side_b:
-            if side_a:
-                self.connected_on_left, self.connected_on_right = other_a, other_b
-            else:
-                self.connected_on_right, self.connected_on_left = other_a, other_b
-        # If they're both above or below that line, we make the node that branches further away the left or right node,
-        # depending on the side they're on (left if both above)
-        else:
-            arc_a = get_arc_between_nodes(self.connected_on_head, other_a)
-            arc_b = get_arc_between_nodes(self.connected_on_head, other_b)
-            if arc_a > arc_b:
-                self.connected_on_right, self.connected_on_left = (
-                    (other_a, other_b) if side_a else (other_b, other_a)
-                )
-            else:
-                self.connected_on_left, self.connected_on_right = (
-                    (other_a, other_b) if side_a else (other_b, other_a)
-                )
+            if sin(left_angle_rel) < sin(right_angle_rel):
+                # Left and right mixed up. Although the permutations do
+                # contain the correct combination, fixing this right
+                # away potentially saves cycles:
+                left, right = right, left
+
+            self.connected_on_head = head
+            self.connected_on_left = left
+            self.connected_on_right = right
+            break
 
     def to_serializable(self):
         """See the description in the BaseElement class.
