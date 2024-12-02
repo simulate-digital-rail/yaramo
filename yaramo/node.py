@@ -1,7 +1,7 @@
+import sys
 from enum import Enum
 from itertools import permutations
-from math import sin, cos, atan2
-import sys
+from math import atan2, cos, sin
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
