@@ -1,7 +1,7 @@
+import sys
 from enum import Enum
 from itertools import permutations
-from math import sin, cos, atan2
-import sys
+from math import atan2, cos, sin
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
@@ -109,8 +109,7 @@ class Node(BaseElement):
 
         almost_zero = sys.float_info.epsilon
 
-        def get_rad_between_nodes(node_a: GeoPoint,
-                                  node_b: GeoPoint) -> float:
+        def get_rad_between_nodes(node_a: GeoPoint, node_b: GeoPoint) -> float:
             """
             Returns the angle of an (maybe imaginary) line between
             :param:`node_a` and :param:`node_b`.
@@ -132,7 +131,7 @@ class Node(BaseElement):
                 continue
 
             right_angle_abs = get_rad_between_nodes(self, right)
-            right_angle_rel = right_angle_abs- head_angle_abs
+            right_angle_rel = right_angle_abs - head_angle_abs
             if cos(right_angle_rel) <= almost_zero:
                 # right turn more than (or almost) 90°
                 continue
