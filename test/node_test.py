@@ -9,76 +9,74 @@ def create_node(x, y):
 
 
 def coords_str(node: Node):
-    return f'({node.geo_node.geo_point.x}, {node.geo_node.geo_point.y})'
+    return f"({node.geo_node.geo_point.x}, {node.geo_node.geo_point.y})"
 
 
 def test_anschluss():
     base_scenarios = [
         # Base scenarios are defined in "grids", so look at them like
         # looking at a layout (h=head, s=switch, l=left, r=right).
-
-        ( # north to south
+        (  # north to south
             (" h "),
             (" s "),
             ("   "),
             ("r l"),
         ),
-        ( # northeast to southwest:
+        (  # northeast to southwest:
             ("   h"),
             ("  s "),
             ("    "),
             ("rl  "),
         ),
-        ( # east to west:
+        (  # east to west:
             ("r   "),
             ("  sh"),
             ("l   "),
         ),
-        ( # southeast to northwest:
+        (  # southeast to northwest:
             ("lr  "),
             ("    "),
             ("  s "),
             ("   h"),
         ),
-        ( # south to north:
+        (  # south to north:
             ("l r"),
             ("   "),
             (" s "),
             (" h "),
         ),
-        ( # southwest to northeast:
+        (  # southwest to northeast:
             ("  lr"),
             ("    "),
             (" s  "),
             ("h   "),
         ),
-        ( # west to east:
+        (  # west to east:
             ("   l"),
             ("hs  "),
             ("   r"),
         ),
-        ( # northwest to southeast:
+        (  # northwest to southeast:
             ("h   "),
             (" s  "),
             ("    "),
             ("  rl"),
         ),
-        ( # curved north to south:
+        (  # curved north to south:
             ("h  "),
             ("s  "),
             ("   "),
             (" rl"),
         ),
-        ( # curved east to west:
+        (  # curved east to west:
             ("r   "),
             ("l   "),
             ("  sh"),
         ),
-        ( # branch east to west
+        (  # branch east to west
             ("r  "),
             ("lsh"),
         ),
-
     ]
 
     # base scenarios will be "moved around" by some offsets:
@@ -112,10 +110,14 @@ def test_anschluss():
 
             print(
                 "scenario:",
-                "\n  head  ", coords_str(head),
-                "\n  switch", coords_str(switch),
-                "\n  left  ", coords_str(left),
-                "\n  right ", coords_str(right)
+                "\n  head  ",
+                coords_str(head),
+                "\n  switch",
+                coords_str(switch),
+                "\n  left  ",
+                coords_str(left),
+                "\n  right ",
+                coords_str(right),
             )
 
             # connect all nodes to the switch
@@ -125,9 +127,12 @@ def test_anschluss():
             switch.calc_anschluss_of_all_nodes()
 
             # assert ``calc_anschluss_of_all_nodes`` did what it should
-            assert switch.connected_on_head == head, 'head node ' \
-                f'{coords_str(switch.connected_on_head)} incorrect'
-            assert switch.connected_on_left == left, 'left node ' \
-                f'{coords_str(switch.connected_on_left)} incorrect'
-            assert switch.connected_on_right == right, 'right node ' \
-                f'{coords_str(switch.connected_on_right)} incorrect'
+            assert switch.connected_on_head == head, (
+                "head node " f"{coords_str(switch.connected_on_head)} incorrect"
+            )
+            assert switch.connected_on_left == left, (
+                "left node " f"{coords_str(switch.connected_on_left)} incorrect"
+            )
+            assert switch.connected_on_right == right, (
+                "right node " f"{coords_str(switch.connected_on_right)} incorrect"
+            )
