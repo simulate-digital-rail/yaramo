@@ -107,8 +107,7 @@ class Node(BaseElement):
         """Calculates and sets the 'Anschluss' or connection side of
         the connected_nodes based on their geo location."""
 
-        def get_rad_between_nodes(node_a: GeoPoint,
-                                  node_b: GeoPoint) -> float:
+        def get_rad_between_nodes(node_a: GeoPoint, node_b: GeoPoint) -> float:
             """
             Returns the angle of an (maybe imaginary) line between
             :param:`node_a` and :param:`node_b`.
@@ -130,7 +129,7 @@ class Node(BaseElement):
                 continue
 
             right_angle_abs = get_rad_between_nodes(self, right)
-            right_angle_rel = right_angle_abs- head_angle_abs
+            right_angle_rel = right_angle_abs - head_angle_abs
             if cos(right_angle_rel) <= sys.float_info.epsilon:
                 # left turn more than (or almost) 90°
                 continue
