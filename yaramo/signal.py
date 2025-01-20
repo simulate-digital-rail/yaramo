@@ -24,7 +24,10 @@ class SignalFunction(Enum):
     Einfahr_Signal = 0
     Ausfahr_Signal = 1
     Block_Signal = 2
-    andere = 3
+    Vorsignal_Vorsignalwiederholer = 3
+    Zwischen_Signal = 4
+    Nicht_Definiert = 98
+    andere = 99
 
     def __str__(self):
         return self.name
@@ -38,7 +41,18 @@ class SignalKind(Enum):
     Vorsignal = 2
     Sperrsignal = 3
     Hauptsperrsignal = 4
-    andere = 5
+    Vorsignalwiederholer = 5
+    andere = 99
+
+    def __str__(self):
+        return self.name
+
+
+class SignalSystem(Enum):
+    """The SignalFunction determines the system of a Signal."""
+
+    Ks = 0
+    andere = 1
 
     def __str__(self):
         return self.name
@@ -54,6 +68,18 @@ class SignalState(Enum):
     ks2 = 4
     sh1 = 5
     sh2 = 6
+    ne2 = 7
+    zs1 = 8
+    zs2 = 9
+    zs2v = 10
+    zs3 = 11
+    zs3v = 12
+    zlo = 13
+    lf7 = 14
+    ra10 = 15
+    ra12 = 16
+    ms_ws_rt_ws = 17
+    ms_ge_d = 18
 
 
 class Signal(BaseElement):
@@ -69,6 +95,7 @@ class Signal(BaseElement):
         direction: SignalDirection | str,
         function: SignalFunction | str,
         kind: SignalKind | str,
+        system: SignalSystem | str = None,
         side_distance: float = None,
         supported_states: Set[SignalState] = None,
         classification_number: str = "60",
@@ -121,6 +148,12 @@ class Signal(BaseElement):
             self.kind = SignalKind.__members__.get(kind, SignalKind.andere)
         elif isinstance(kind, SignalKind):
             self.kind = kind
+
+        if system is not None:
+            if isinstance(system, str):
+                self.system = SignalSystem.__members__.get(system, SignalSystem.andere)
+            elif isinstance(system, SignalSystem):
+                self.system = system
 
     def previous_node(self):
         """Return the node connecting the Signal's edge which came before the Signal (with relative direction on the edge)."""
