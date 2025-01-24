@@ -1,7 +1,7 @@
+import logging
 from enum import Enum
 from typing import List, Set, Tuple
 from uuid import uuid4
-import logging
 
 from yaramo.additional_signal import AdditionalSignal
 from yaramo.base_element import BaseElement
