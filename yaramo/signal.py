@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List, Set, Tuple
 from uuid import uuid4
+import logging
 
 from yaramo.additional_signal import AdditionalSignal
 from yaramo.base_element import BaseElement
@@ -26,6 +27,9 @@ class SignalFunction(Enum):
     Block_Signal = 2
     Vorsignal_Vorsignalwiederholer = 3
     Zwischen_Signal = 4
+    # Not real signals: signal.kind == SignalKind.FikitivesSignal
+    Zug_Ziel_Strecke = 80
+    Rangier_Start_Ziel_ohne_Signal = 81
     Nicht_Definiert = 98
     andere = 99
 
@@ -42,6 +46,7 @@ class SignalKind(Enum):
     Sperrsignal = 3
     Hauptsperrsignal = 4
     Vorsignalwiederholer = 5
+    FiktivesSignal = 98
     andere = 99
 
     def __str__(self):
@@ -52,7 +57,7 @@ class SignalSystem(Enum):
     """The SignalFunction determines the system of a Signal."""
 
     Ks = 0
-    andere = 1
+    andere = 99
 
     def __str__(self):
         return self.name
@@ -66,20 +71,36 @@ class SignalState(Enum):
     hp2 = 2
     ks1 = 3
     ks2 = 4
-    sh1 = 5
-    sh2 = 6
-    ne2 = 7
-    zs1 = 8
-    zs2 = 9
-    zs2v = 10
-    zs3 = 11
-    zs3v = 12
-    zlo = 13
-    lf7 = 14
-    ra10 = 15
-    ra12 = 16
-    ms_ws_rt_ws = 17
-    ms_ge_d = 18
+    sh0 = 5
+    sh1 = 6
+    sh2 = 7
+    ne2 = 8
+    zs1 = 9
+    zs2 = 10
+    zs2v = 11
+    zs3 = 12
+    zs3v = 13
+    zlo = 14
+    lf7 = 15
+    ra10 = 16
+    ra12 = 17
+    ms_ws_rt_ws = 18
+    ms_ge_d = 19
+
+    @classmethod
+    def get_state_by_string(cls, state_string: str):
+        states = dict([(e.name, e) for e in SignalState])
+        state_string_trimmed = state_string.lower().replace(" ","")
+        if state_string_trimmed in states:
+            return states[state_string_trimmed]
+        if state_string == "Mastschild weiß-rot-weiß":
+            return SignalState.ms_ws_rt_ws
+        if state_string == "gelbes Dreieck mit Spitze nach unten":
+            return SignalState.ms_ge_d
+        if state_string == "verkuerzter Abstand des Bremswegs, weißes Zusatzlicht über Signallicht":
+            return SignalState.zlo
+        logging.warning(f"The Signal State with the string {state_string} does not exists. Return None instead")
+        return None
 
 
 class Signal(BaseElement):
