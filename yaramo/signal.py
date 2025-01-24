@@ -90,7 +90,7 @@ class SignalState(Enum):
     @classmethod
     def get_state_by_string(cls, state_string: str):
         states = dict([(e.name, e) for e in SignalState])
-        state_string_trimmed = state_string.lower().replace(" ","")
+        state_string_trimmed = state_string.lower().replace(" ", "")
         if state_string_trimmed in states:
             return states[state_string_trimmed]
         if state_string == "Mastschild weiß-rot-weiß":
@@ -99,7 +99,9 @@ class SignalState(Enum):
             return SignalState.ms_ge_d
         if state_string == "verkuerzter Abstand des Bremswegs, weißes Zusatzlicht über Signallicht":
             return SignalState.zlo
-        logging.warning(f"The Signal State with the string {state_string} does not exists. Return None instead")
+        logging.warning(
+            f"The Signal State with the string {state_string} does not exists. Return None instead"
+        )
         return None
 
 
@@ -120,7 +122,7 @@ class Signal(BaseElement):
         side_distance: float = None,
         supported_states: Set[SignalState] = None,
         classification_number: str = "60",
-        **kwargs
+        **kwargs,
     ):
         """
         Parameters
