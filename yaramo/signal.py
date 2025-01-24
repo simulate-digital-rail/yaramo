@@ -116,7 +116,7 @@ class Signal(BaseElement):
         direction: SignalDirection | str,
         function: SignalFunction | str,
         kind: SignalKind | str,
-        system: SignalSystem | str = None,
+        system: SignalSystem | str = SignalSystem.andere,
         side_distance: float = None,
         supported_states: Set[SignalState] = None,
         classification_number: str = "60",
@@ -170,11 +170,10 @@ class Signal(BaseElement):
         elif isinstance(kind, SignalKind):
             self.kind = kind
 
-        if system is not None:
-            if isinstance(system, str):
-                self.system = SignalSystem.__members__.get(system, SignalSystem.andere)
-            elif isinstance(system, SignalSystem):
-                self.system = system
+        if isinstance(system, str):
+            self.system = SignalSystem.__members__.get(system, SignalSystem.andere)
+        elif isinstance(system, SignalSystem):
+            self.system = system
 
     def previous_node(self):
         """Return the node connecting the Signal's edge which came before the Signal (with relative direction on the edge)."""
