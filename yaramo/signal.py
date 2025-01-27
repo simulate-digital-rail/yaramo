@@ -1,6 +1,6 @@
 import logging
-from enum import Enum
-from typing import List, Set, Tuple
+from enum import Enum, auto
+from typing import Set, Tuple
 from uuid import uuid4
 
 from yaramo.additional_signal import AdditionalSignal
@@ -10,7 +10,8 @@ from yaramo.trip import Trip
 
 
 class SignalDirection(Enum):
-    """The SignalDirection determines whether or not a Signal points in or against the direction of it's Edge."""
+    """The SignalDirection determines whether or not a Signal points in or
+    against the direction of it's Edge."""
 
     IN = 1
     GEGEN = 2
@@ -22,42 +23,42 @@ class SignalDirection(Enum):
 class SignalFunction(Enum):
     """The SignalFunction determines the function of a Signal."""
 
-    Einfahr_Signal = 0
-    Ausfahr_Signal = 1
-    Block_Signal = 2
-    Vorsignal_Vorsignalwiederholer = 3
-    Zwischen_Signal = 4
+    Einfahr_Signal = auto()
+    Ausfahr_Signal = auto()
+    Block_Signal = auto()
+    Vorsignal_Vorsignalwiederholer = auto()
+    Zwischen_Signal = auto()
     # Not real signals: signal.kind == SignalKind.FikitivesSignal
-    Zug_Ziel_Strecke = 80
-    Rangier_Start_Ziel_ohne_Signal = 81
-    Nicht_Definiert = 98
-    andere = 99
+    Zug_Ziel_Strecke = auto()
+    Rangier_Start_Ziel_ohne_Signal = auto()
+    Nicht_Definiert = auto()
+    andere = auto()
 
     def __str__(self):
         return self.name
 
 
 class SignalKind(Enum):
-    """The SignalFunction determines the type of a Signal."""
+    """The SignalKind determines the type of a Signal."""
 
-    Hauptsignal = 0
-    Mehrabschnittssignal = 1
-    Vorsignal = 2
-    Sperrsignal = 3
-    Hauptsperrsignal = 4
-    Vorsignalwiederholer = 5
-    FiktivesSignal = 98
-    andere = 99
+    Hauptsignal = auto()
+    Mehrabschnittssignal = auto()
+    Vorsignal = auto()
+    Sperrsignal = auto()
+    Hauptsperrsignal = auto()
+    Vorsignalwiederholer = auto()
+    FiktivesSignal = auto()
+    andere = auto()
 
     def __str__(self):
         return self.name
 
 
 class SignalSystem(Enum):
-    """The SignalFunction determines the system of a Signal."""
+    """The SignalSystem determines the system of a Signal."""
 
-    Ks = 0
-    andere = 99
+    Ks = auto()
+    andere = auto()
 
     def __str__(self):
         return self.name
@@ -66,39 +67,42 @@ class SignalSystem(Enum):
 class SignalState(Enum):
     """The SignalState determines a possible state of a Signal."""
 
-    hp0 = 0
-    hp1 = 1
-    hp2 = 2
-    ks1 = 3
-    ks2 = 4
-    sh0 = 5
-    sh1 = 6
-    sh2 = 7
-    ne2 = 8
-    zs1 = 9
-    zs2 = 10
-    zs2v = 11
-    zs3 = 12
-    zs3v = 13
-    zlo = 14
-    lf7 = 15
-    ra10 = 16
-    ra12 = 17
-    ms_ws_rt_ws = 18
-    ms_ge_d = 19
+    HP0 = auto()
+    HP1 = auto()
+    HP2 = auto()
+    KS1 = auto()
+    KS2 = auto()
+    SH0 = auto()
+    SH1 = auto()
+    SH2 = auto()
+    NE2 = auto()
+    ZS1 = auto()
+    ZS2 = auto()
+    ZS2V = auto()
+    ZS3 = auto()
+    ZS3V = auto()
+    ZLO = auto()
+    LF7 = auto()
+    RA10 = auto()
+    RA12 = auto()
+    MS_WS_RT_WS = auto()
+    MS_GE_D = auto()
 
     @classmethod
     def get_state_by_string(cls, state_string: str):
-        states = dict([(e.name, e) for e in SignalState])
-        state_string_trimmed = state_string.lower().replace(" ", "")
-        if state_string_trimmed in states:
-            return states[state_string_trimmed]
+        """Returns the state that represents the state string
+        :param state_string: the signal state as a string
+        :return: The SignalState of the string
+        """
+        state_string_trimmed = state_string.upper().replace(" ", "")
+        if state_string_trimmed in SignalState.__members__:
+            return SignalState.__members__[state_string_trimmed]
         if state_string == "Mastschild weiß-rot-weiß":
-            return SignalState.ms_ws_rt_ws
+            return SignalState.MS_WS_RT_WS
         if state_string == "gelbes Dreieck mit Spitze nach unten":
-            return SignalState.ms_ge_d
+            return SignalState.MS_GE_D
         if state_string == "verkuerzter Abstand des Bremswegs, weißes Zusatzlicht über Signallicht":
-            return SignalState.zlo
+            return SignalState.ZLO
         logging.warning(
             f"The Signal State with the string {state_string} does not exists. Return None instead"
         )
@@ -108,7 +112,8 @@ class SignalState(Enum):
 class Signal(BaseElement):
     """A Signal is a track element associated with an edge. It has an application direction and
     is characterized by it's function, kind, supported_states and associated additional_signals.
-    A Signal can have a side distance determining the orthogonal distance to the actual track an Edge symbolises.
+    A Signal can have a side distance determining the orthogonal distance to the actual track
+    an Edge symbolises.
     """
 
     def __init__(
@@ -178,18 +183,21 @@ class Signal(BaseElement):
             self.system = system
 
     def previous_node(self):
-        """Return the node connecting the Signal's edge which came before the Signal (with relative direction on the edge)."""
+        """Return the node connecting the Signal's edge which came before the Signal
+        (with relative direction on the edge)."""
         return self.edge.node_a if self.direction == SignalDirection.IN else self.edge.node_b
 
     def next_node(self):
-        """Return the node connecting the Signal's edge which comes after the Signal (with relative direction on the edge)."""
+        """Return the node connecting the Signal's edge which comes after the Signal
+        (with relative direction on the edge)."""
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
 
     def to_serializable(self) -> Tuple[dict, dict]:
         """See the description in the BaseElement class.
 
         Returns:
-            A serializable dictionary and a dictionary with serialized objects (AdditionalSignals and Trip).
+            A serializable dictionary and a dictionary with serialized objects
+            (AdditionalSignals and Trip).
         """
 
         attributes, _ = super().to_serializable()
@@ -203,7 +211,7 @@ class Signal(BaseElement):
             "function": str(self.function),
             "kind": str(self.kind),
         }
-        objects = dict()
+        objects = {}
         items = [self.trip] + self.additional_signals if self.trip else self.additional_signals
         for item in items:
             item_object, serialized_item = item.to_serializable()
