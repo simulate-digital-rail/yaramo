@@ -1,5 +1,6 @@
-import simplejson as json
 from datetime import datetime
+
+import simplejson as json
 
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
