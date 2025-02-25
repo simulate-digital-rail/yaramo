@@ -1,6 +1,7 @@
-import json
 from typing import Tuple
 from uuid import uuid4
+
+import simplejson as json
 
 
 class BaseElement(object):
@@ -16,7 +17,7 @@ class BaseElement(object):
 
         In subclasses this creates a dictionary with immediately serializable attributes and
         references (uuids) to attributes that are objects and also a second dictionary where said objects are serialized (by deligation).
-        
+
         Serialization
         -------------
         The idea is to collect all attributes of an object that can be serialized immediately and
@@ -26,4 +27,4 @@ class BaseElement(object):
         return self.__dict__, {}
 
     def to_json(self) -> str:
-        return json.dumps(self.to_serializable()[0])
+        return json.dumps(self.to_serializable()[0], iterable_as_array=True)

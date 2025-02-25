@@ -1,5 +1,7 @@
-import math
+import sys
 from enum import Enum
+from itertools import permutations
+from math import atan2, cos, sin
 from typing import List
 
 from yaramo.base_element import BaseElement
@@ -20,7 +22,7 @@ class Node(BaseElement):
     We assume that there are only Nodes connected on all three or only one connection.
     There can be a GeoNode associated with a Node to add a geo-location.
     """
-     
+
     def __init__(self, turnout_side=None, **kwargs):
         """
         Parameters
@@ -38,7 +40,7 @@ class Node(BaseElement):
         self.maximum_speed_on_left = None
         self.maximum_speed_on_right = None
         self.connected_edges: list["Edge"] = []
-        self.geo_node: GeoNode = None
+        self.geo_node: GeoNode = kwargs.get("geo_node", None)
         self.turnout_side: str = turnout_side
 
     def maximum_speed(self, node_a: "Node", node_b: "Node"):
@@ -117,127 +119,74 @@ class Node(BaseElement):
             return [self.connected_edge_on_left, self.connected_edge_on_right]
         return [self.connected_edge_on_head]
 
-
     def get_anschluss_for_edge(self, edge: "Edge") -> NodeConnectionDirection:
-        """Gets the Anschluss (Links, Rechts, Spitze) of the edge on the current node.
-
-        :return: The node connection
-        """
-
-        if self.connected_edge_on_head is None:
-            self.calc_anschluss_of_all_edges()
-
-        if self.connected_edge_on_head == edge:
-            return NodeConnectionDirection.Spitze
-        if self.connected_edge_on_left == edge:
-            return NodeConnectionDirection.Links
-        if self.connected_edge_on_right == edge:
-            return NodeConnectionDirection.Rechts
-        
-        return None
-
-    def get_anschluss_of_other(self, other: "Node") -> List[NodeConnectionDirection]:
         """Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
-         
         Idea: We assume, the current node is a point and we want to estimate the Anschluss of the other node.
 
         :return: A node might be connected to the same node via two or more connections. So we return a list of connections.
         """
 
-        if len(self.connected_nodes) != 3:
+        if len(self.connected_edges) != 3:
             raise Exception(f"Try to get Anschluss of Ende (Node ID: {self.uuid})")
 
         # TODO allow for different metrics to estimate the anschluss of the other nodes
         if not all([self.connected_on_left, self.connected_on_right, self.connected_on_head]):
             self.calc_anschluss_of_all_edges()
 
-        result = []
-
-        if other.uuid == self.connected_on_head.uuid:
-            result.append(NodeConnectionDirection.Spitze)
-        if other.uuid == self.connected_on_left.uuid:
-            result.append(NodeConnectionDirection.Links)
-        if other.uuid == self.connected_on_right.uuid:
-            result.append(NodeConnectionDirection.Rechts)
-        
-        if len(result) == 0:
-            return None
-
-        return result
+        if edge.uuid == self.connected_edge_on_head.uuid:
+            return NodeConnectionDirection.Spitze
+        if edge.uuid == self.connected_edge_on_left.uuid:
+            return NodeConnectionDirection.Links
+        if edge.uuid == self.connected_edge_on_right.uuid:
+            return NodeConnectionDirection.Rechts
+        return None
 
     def calc_anschluss_of_all_edges(self):
-        """Calculates and sets the 'Anschluss' or connection side of the connected_edges based on their geo-location."""
+        """Calculates and sets the 'Anschluss' or connection side of
+        the connected_nodes based on their geo location."""
 
-        def get_arc_between_edges(_edge_a: "Edge", _edge_b: "Edge"):
-            _neighbor_to_a = _edge_a.get_next_geo_node(self)
-            _neighbor_to_b = _edge_b.get_next_geo_node(self)
-            _a = _neighbor_to_a.get_distance_to_other_geo_node(self.geo_node)
-            _b = self.geo_node.get_distance_to_other_geo_node(_neighbor_to_b)
-            _c = _neighbor_to_a.get_distance_to_other_geo_node(_neighbor_to_b)
+        if len(self.connected_edges) == 1:
+            self.connected_edge_on_head = self.connected_edges[0]
+            return
 
-            return math.degrees(math.acos((_a * _a + _b * _b - _c * _c) / (2.0 * _a * _b)))
+        def get_arc_between_geo_nodes(geo_node_a: "GeoNode", geo_node_b: "GeoNode") -> float:
+            """
+            Returns the angle of an (maybe imaginary) line between
+            :param:`node_a` and :param:`node_b`.
+            """
+            point_a = geo_node_a.geo_point
+            point_b = geo_node_b.geo_point
+            return atan2(point_b.y - point_a.y, point_b.x - point_a.x)
 
-        def is_above_line_between_points(head_point: GeoPoint, branching_point: GeoPoint, comparison_point: GeoPoint):
-            return ((branching_point.x - head_point.x)*(comparison_point.y - head_point.y) - (branching_point.y - head_point.y)*(comparison_point.x - head_point.x)) > 0
+        # Determine which node is head, left, and right by trying the
+        # permutations and checking for plausibility.
+        for head, left, right in permutations(self.connected_edges):
 
-        current_max_arc = 361
-        other_a: "Edge" = None
-        other_b: "Edge" = None
-        for i in range(len(self.connected_edges)):
-            for j in range(len(self.connected_edges)):
-                if i != j:
-                    cur_arc = get_arc_between_edges(
-                        self.connected_edges[i], self.connected_edges[j]
-                    )
-                    if cur_arc < current_max_arc:
-                        missing_index = sum(range(len(self.connected_edges))) - (i + j)
-                        self.connected_edge_on_head = self.connected_edges[missing_index]
-                        other_a = self.connected_edges[i]
-                        other_b = self.connected_edges[j]
-                        current_max_arc = cur_arc
+            head_angle_abs = get_arc_between_geo_nodes(head.get_next_geo_node(self), self.geo_node)
+            left_angle_abs = get_arc_between_geo_nodes(self.geo_node, left.get_next_geo_node(self))
+            left_angle_rel = left_angle_abs - head_angle_abs
+            if cos(left_angle_rel) <= sys.float_info.epsilon:
+                # left turn more than (or almost) 90°
+                continue
 
-        _neighbor_to_head = self.connected_edge_on_head.get_next_geo_node(self)
-        _neighbor_to_a = other_a.get_next_geo_node(self) ## <-+ what happens if other_a == other_b
-        _neighbor_to_b = other_b.get_next_geo_node(self) ## <-+
-        # Check on which side of the line between the head connection and this node the other nodes are
-        side_a = is_above_line_between_points(
-            _neighbor_to_head.geo_point,
-            self.geo_node.geo_point,
-            _neighbor_to_a.geo_point,
-        )
-        side_b = is_above_line_between_points(
-            _neighbor_to_head.geo_point,
-            self.geo_node.geo_point,
-            _neighbor_to_b.geo_point,
-        )
+            right_angle_abs = get_arc_between_geo_nodes(
+                self.geo_node, right.get_next_geo_node(self)
+            )
+            right_angle_rel = right_angle_abs - head_angle_abs
+            if cos(right_angle_rel) <= sys.float_info.epsilon:
+                # left turn more than (or almost) 90°
+                continue
 
-        # If they're on two separate sides we know which is left and right
-        if side_a != side_b:
-            if side_a:
-                self.connected_edge_on_left = other_a
-                self.connected_edge_on_right = other_b
-            else:
-                self.connected_edge_on_left = other_b
-                self.connected_edge_on_right = other_a
-        # If they're both above or below that line, we make the node that branches further away the left or right node,
-        # depending on the side they're on (left if both above)
-        else:
-            arc_a = get_arc_between_edges(self.connected_edge_on_head, other_a)
-            arc_b = get_arc_between_edges(self.connected_edge_on_head, other_b)
-            if arc_a > arc_b:
-                self.connected_edge_on_left = (
-                    other_b if side_a else other_a
-                )
-                self.connected_edge_on_right = (
-                    other_a if side_a else other_b
-                )
-            else:
-                self.connected_edge_on_left = (
-                    other_a if side_a else other_b
-                )
-                self.connected_edge_on_right = (
-                    other_b if side_a else other_a
-                )
+            if sin(left_angle_rel) < sin(right_angle_rel):
+                # Left and right mixed up. Although the permutations do
+                # contain the correct combination, fixing this right
+                # away potentially saves cycles:
+                left, right = right, left
+
+            self.connected_edge_on_head = head
+            self.connected_edge_on_left = left
+            self.connected_edge_on_right = right
+            break
 
     def to_serializable(self):
         """See the description in the BaseElement class.
@@ -245,12 +194,18 @@ class Node(BaseElement):
         Returns:
             A serializable dictionary and a dictionary with serialized objects (GeoNodes).
         """
-        
+
         attributes = self.__dict__
         references = {
-            "connected_edge_on_head": self.connected_edge_on_head.uuid if self.connected_edge_on_head else None,
-            "connected_edge_on_left": self.connected_edge_on_left.uuid if self.connected_edge_on_left else None,
-            "connected_edge_on_right": self.connected_edge_on_right.uuid if self.connected_edge_on_right else None,
+            "connected_edge_on_head": self.connected_edge_on_head.uuid
+            if self.connected_edge_on_head
+            else None,
+            "connected_edge_on_left": self.connected_edge_on_left.uuid
+            if self.connected_edge_on_left
+            else None,
+            "connected_edge_on_right": self.connected_edge_on_right.uuid
+            if self.connected_edge_on_right
+            else None,
             "connected_on_head": self.connected_on_head.uuid if self.connected_on_head else None,
             "connected_on_left": self.connected_on_left.uuid if self.connected_on_left else None,
             "connected_on_right": self.connected_on_right.uuid if self.connected_on_right else None,
@@ -258,7 +213,7 @@ class Node(BaseElement):
             "connected_edges": [edge.uuid for edge in self.connected_edges],
             "geo_node": self.geo_node.uuid if self.geo_node else None,
         }
-        objects = {}
+        objects = dict()
         if self.geo_node:
             geo_node, serialized_geo_node = self.geo_node.to_serializable()
             objects = {**objects, self.geo_node.uuid: geo_node, **serialized_geo_node}

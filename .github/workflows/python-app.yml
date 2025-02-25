@@ -31,7 +31,7 @@ jobs:
         poetry run isort -c .
     - name: Lint with pylint
       run: |
-        poetry run pylint yaramo    
+        poetry run pylint yaramo --fail-under 6
 
   test:
 

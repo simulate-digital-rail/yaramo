@@ -1,14 +1,15 @@
 [tool.poetry]
 name = "yaramo"
-version = "0.1.0"
+version = "1.0"
 description = "yaramo is a railway model focusing on interoperability between different existing planning formats."
-authors = ["OSM HPI <OSM@HPI>"]
+authors = ["OSM at HPI <arne.boockmeyer@hpi.de>"]
 readme = "README.md"
 packages = [{include = "yaramo"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pyproj = "^3.4.1"
+python = "^3.11"
+pyproj = "^3.6.1"
+simplejson = "^3.19.2"
 
 
 [tool.poetry.group.dev.dependencies]
