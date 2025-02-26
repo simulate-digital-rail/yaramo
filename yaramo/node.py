@@ -84,15 +84,18 @@ class Node(BaseElement):
 
     def set_connection_head_edge(self, edge: "Edge"):
         self.connected_edge_on_head = edge
-        self.connected_edges.append(edge)
+        if edge not in self.connected_edges:
+            self.connected_edges.append(edge)
 
     def set_connection_left_edge(self, edge: "Edge"):
         self.connected_edge_on_left = edge
-        self.connected_edges.append(edge)
+        if edge not in self.connected_edges:
+            self.connected_edges.append(edge)
 
     def set_connection_right_edge(self, edge: "Edge"):
         self.connected_edge_on_right = edge
-        self.connected_edges.append(edge)
+        if edge not in self.connected_edges:
+            self.connected_edges.append(edge)
 
     def remove_edge(self, edge: "Edge"):
         self.connected_edges.remove(edge)
