@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import simplejson as json
+from typing import List
 
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
@@ -31,17 +32,37 @@ class Topology(BaseElement):
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
 
+    def add_nodes(self, nodes: List[Node]):
+        for node in nodes:
+            self.add_node(node)
+
     def add_edge(self, edge: Edge):
         self.edges[edge.uuid] = edge
+
+    def add_edges(self, edges: List[Edge]):
+        for edge in edges:
+            self.add_edge(edge)
 
     def add_signal(self, signal: Signal):
         self.signals[signal.uuid] = signal
 
+    def add_signals(self, signals: List[Signal]):
+        for signal in signals:
+            self.add_signal(signal)
+
     def add_route(self, route: Route):
         self.routes[route.uuid] = route
 
+    def add_routes(self, routes: List[Route]):
+        for route in routes:
+            self.add_route(route)
+
     def add_vacancy_section(self, vacancy_section: VacancySection):
         self.vacancy_sections[vacancy_section.uuid] = vacancy_section
+
+    def add_vavancy_sections(self, vacancy_sections: List[VacancySection]):
+        for vacancy_section in vacancy_sections:
+            self.add_vacancy_section(vacancy_section)
 
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
         for edge_uuid in self.edges:
