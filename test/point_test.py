@@ -5,6 +5,8 @@ from yaramo.geo_node import DbrefGeoNode
 from yaramo.node import Node
 from yaramo.topology import Topology
 
+from .helper import create_node
+
 
 @pytest.fixture
 def straight_track():
@@ -27,28 +29,19 @@ def straight_track():
 
 
 @pytest.fixture
-def switch():
-    node1 = Node()
-    switch = Node()
-    node2 = Node()
-    node3 = Node()
+def point():
+    node1 = create_node(0, 10)
+    point = create_node(50, 10)
+    node2 = create_node(100, 10)
+    node3 = create_node(100, 20)
 
-    node1.geo_node = DbrefGeoNode(0, 10)
-    switch.geo_node = DbrefGeoNode(50, 10)
-    node2.geo_node = DbrefGeoNode(100, 10)
-    node3.geo_node = DbrefGeoNode(100, 20)
-
-    edge1 = Edge(node1, switch, length=50)
-    edge2 = Edge(switch, node2, length=50)
-    edge3 = Edge(switch, node3, length=50)
-
-    switch.connected_nodes.append(node1)
-    node2.connected_nodes.append(switch)
-    node3.connected_nodes.append(switch)
+    edge1 = Edge(node1, point, length=50)
+    edge2 = Edge(point, node2, length=50)
+    edge3 = Edge(point, node3, length=50)
 
     topology = Topology()
     topology.add_node(node1)
-    topology.add_node(switch)
+    topology.add_node(point)
     topology.add_node(node2)
     topology.add_node(node3)
     topology.add_edge(edge1)
@@ -60,28 +53,28 @@ def switch():
 
 if __name__ == "__main__":
     straight_track()
-    switch()
+    point()
 
 
-def test_detect_switch(switch):
-    topology = switch
+def test_detect_switch(point):
+    topology = point
 
-    switch_count = 0
+    point_count = 0
 
     for node in topology.nodes.values():
         if node.is_point():
-            switch_count += 1
+            point_count += 1
 
-    assert switch_count == 1
+    assert point_count == 1
 
 
 def test_dont_detect_straight(straight_track):
     topology = straight_track
 
-    switch_count = 0
+    point_count = 0
 
     for node in topology.nodes.values():
         if node.is_point():
-            switch_count += 1
+            point_count += 1
 
-    assert switch_count == 0
+    assert point_count == 0

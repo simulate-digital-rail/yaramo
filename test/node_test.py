@@ -1,14 +1,8 @@
 from itertools import product
 
-from yaramo.model import Edge, Node, Wgs84GeoNode
+from yaramo.model import Node
 
-
-def create_node(x, y):
-    return Node(geo_node=Wgs84GeoNode(x, y))
-
-
-def create_edge(node_a, node_b):
-    return Edge(node_a, node_b)
+from .helper import create_edge, create_node
 
 
 def coords_str(node: Node):

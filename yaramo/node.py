@@ -213,15 +213,15 @@ class Node(BaseElement):
 
         attributes = self.__dict__
         references = {
-            "connected_edge_on_head": self.connected_edge_on_head.uuid
-            if self.connected_edge_on_head
-            else None,
-            "connected_edge_on_left": self.connected_edge_on_left.uuid
-            if self.connected_edge_on_left
-            else None,
-            "connected_edge_on_right": self.connected_edge_on_right.uuid
-            if self.connected_edge_on_right
-            else None,
+            "connected_edge_on_head": (
+                self.connected_edge_on_head.uuid if self.connected_edge_on_head else None
+            ),
+            "connected_edge_on_left": (
+                self.connected_edge_on_left.uuid if self.connected_edge_on_left else None
+            ),
+            "connected_edge_on_right": (
+                self.connected_edge_on_right.uuid if self.connected_edge_on_right else None
+            ),
             "connected_on_head": self.connected_on_head.uuid if self.connected_on_head else None,
             "connected_on_left": self.connected_on_left.uuid if self.connected_on_left else None,
             "connected_on_right": self.connected_on_right.uuid if self.connected_on_right else None,
