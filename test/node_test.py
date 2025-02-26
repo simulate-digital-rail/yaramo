@@ -12,7 +12,7 @@ def create_edge(node_a, node_b):
 
 
 def coords_str(node: Node):
-    return f"({node.geo_node.geo_point.x}, {node.geo_node.geo_point.y})"
+    return f"({node.geo_node.x}, {node.geo_node.y})"
 
 
 def test_anschluss():

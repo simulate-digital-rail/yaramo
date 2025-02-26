@@ -6,7 +6,6 @@ from typing import List
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
-from yaramo.geo_point import GeoPoint
 
 
 class EdgeConnectionDirection(Enum):
@@ -154,9 +153,7 @@ class Node(BaseElement):
             Returns the angle of an (maybe imaginary) line between
             :param:`node_a` and :param:`node_b`.
             """
-            point_a = geo_node_a.geo_point
-            point_b = geo_node_b.geo_point
-            return atan2(point_b.y - point_a.y, point_b.x - point_a.x)
+            return atan2(geo_node_b.y - geo_node_a.y, geo_node_b.x - geo_node_a.x)
 
         # Determine which node is head, left, and right by trying the
         # permutations and checking for plausibility.
