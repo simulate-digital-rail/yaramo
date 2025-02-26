@@ -1,7 +1,6 @@
 import pytest
 
 from yaramo.edge import Edge
-from yaramo.geo_node import DbrefGeoNode
 from yaramo.node import Node
 from yaramo.topology import Topology
 

@@ -1,4 +1,4 @@
-from helper import create_edge, create_geo_node, create_node
+from .helper import create_edge, create_geo_node, create_node
 
 from yaramo.model import Edge, Node, Topology
 
