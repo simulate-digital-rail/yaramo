@@ -94,10 +94,19 @@ class Node(BaseElement):
         self.connected_edge_on_right = edge
         self.connected_edges.append(edge)
 
+    def remove_edge(self, edge: "Edge"):
+        self.connected_edges.remove(edge)
+        if self.connected_edge_on_head == edge:
+            self.connected_edge_on_head = None
+        if self.connected_edge_on_left == edge:
+            self.connected_edge_on_left = None
+        if self.connected_edge_on_right == edge:
+            self.connected_edge_on_right = None
+
     def remove_edge_to_node(self, node: "Node"):
         """Removes the edge to the given node and removes the node from the connected_nodes list."""
         edge = self.get_edge_to_node(node)
-        self.connected_edges.remove(edge)
+        self.remove_edge(edge)
 
     def get_edge_to_node(self, node):
         """Returns the edge to the given neighbor node."""
