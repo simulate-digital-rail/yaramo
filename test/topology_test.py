@@ -1,6 +1,6 @@
-from .helper import create_edge, create_geo_node, create_node
-
 from yaramo.model import Edge, Node, Topology
+
+from .helper import create_edge, create_geo_node, create_node
 
 
 def test_get_edge_by_nodes():
