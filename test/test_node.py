@@ -1,23 +1,20 @@
+import pytest
+
 from yaramo.edge import Edge
 from yaramo.geo_node import DbrefGeoNode
 from yaramo.node import Node
 from yaramo.topology import Topology
 
-import pytest
 
 @pytest.fixture
 def straight_track():
+    # Note that this kind of topology shouldn't exist
     node1 = Node()
     node2 = Node()
     node3 = Node()
 
     edge1 = Edge(node1, node2, length=100)
     edge2 = Edge(node2, node3, length=100)
-
-    node1.set_connection_head(node2)
-    node2.set_connection_head(node3)
-    node2.connected_nodes.append(node1)
-    node3.connected_nodes.append(node2)
 
     topology = Topology()
     topology.add_node(node1)
@@ -45,10 +42,6 @@ def switch():
     edge2 = Edge(switch, node2, length=50)
     edge3 = Edge(switch, node3, length=50)
 
-    node1.set_connection_head(switch)
-    switch.set_connection_head(node2)
-    switch.set_connection_left(node3)
-
     switch.connected_nodes.append(node1)
     node2.connected_nodes.append(switch)
     node3.connected_nodes.append(switch)
@@ -70,14 +63,13 @@ if __name__ == "__main__":
     switch()
 
 
-
 def test_detect_switch(switch):
     topology = switch
 
     switch_count = 0
 
     for node in topology.nodes.values():
-        if node.is_switch():
+        if node.is_point():
             switch_count += 1
 
     assert switch_count == 1
@@ -89,7 +81,7 @@ def test_dont_detect_straight(straight_track):
     switch_count = 0
 
     for node in topology.nodes.values():
-        if node.is_switch():
+        if node.is_point():
             switch_count += 1
 
     assert switch_count == 0

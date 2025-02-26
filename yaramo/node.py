@@ -188,12 +188,12 @@ class Node(BaseElement):
             self.connected_edge_on_right = right
             break
 
-    def is_switch(self):
+    def is_point(self):
         """
-        Returns true if this node is a switch.
-        A switch is a `Node` with at least 3 connected tracks (one incoming and two or more outgoing edges)
+        Returns true if this node is a point.
+        A point is a `Node` with at least 3 connected tracks (yaramo only supports three edges at the moment)
         """
-        return len(self.connected_nodes) >= 3
+        return len(self.connected_edges) >= 3
 
     def to_serializable(self):
         """See the description in the BaseElement class.
