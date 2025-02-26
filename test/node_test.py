@@ -1,11 +1,14 @@
 from itertools import product
 
-from yaramo.geo_node import Wgs84GeoNode
-from yaramo.node import Node
+from yaramo.model import Edge, Node, Wgs84GeoNode
 
 
 def create_node(x, y):
     return Node(geo_node=Wgs84GeoNode(x, y))
+
+
+def create_edge(node_a, node_b):
+    return Edge(node_a, node_b)
 
 
 def coords_str(node: Node):
@@ -103,10 +106,14 @@ def test_anschluss():
 
         # apply offsets to base scenario, set up nodes and actually test
         for offset_x, offset_y in product(offsets, repeat=2):
-            head = create_node(hx + offset_x, hy + offset_y)
             switch = create_node(sx + offset_x, sy + offset_y)
+
+            head = create_node(hx + offset_x, hy + offset_y)
+            create_edge(switch, head)
             left = create_node(lx + offset_x, ly + offset_y)
+            create_edge(switch, left)
             right = create_node(rx + offset_x, ry + offset_y)
+            create_edge(switch, right)
 
             print(
                 "scenario:",
@@ -120,11 +127,8 @@ def test_anschluss():
                 coords_str(right),
             )
 
-            # connect all nodes to the switch
-            switch.connected_nodes.extend((head, left, right))
-
             # finally call the procedure we want to test here
-            switch.calc_anschluss_of_all_nodes()
+            switch.calc_anschluss_of_all_edges()
 
             # assert ``calc_anschluss_of_all_nodes`` did what it should
             assert switch.connected_on_head == head, (
