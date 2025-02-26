@@ -9,7 +9,7 @@ from yaramo.geo_node import GeoNode
 from yaramo.geo_point import GeoPoint
 
 
-class NodeConnectionDirection(Enum):
+class EdgeConnectionDirection(Enum):
     Spitze = 0
     Links = 1
     Rechts = 2
@@ -119,7 +119,7 @@ class Node(BaseElement):
             return [self.connected_edge_on_left, self.connected_edge_on_right]
         return [self.connected_edge_on_head]
 
-    def get_anschluss_for_edge(self, edge: "Edge") -> NodeConnectionDirection:
+    def get_anschluss_for_edge(self, edge: "Edge") -> EdgeConnectionDirection:
         """Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
         Idea: We assume, the current node is a point and we want to estimate the Anschluss of the other node.
 
@@ -134,11 +134,11 @@ class Node(BaseElement):
             self.calc_anschluss_of_all_edges()
 
         if edge.uuid == self.connected_edge_on_head.uuid:
-            return NodeConnectionDirection.Spitze
+            return EdgeConnectionDirection.Spitze
         if edge.uuid == self.connected_edge_on_left.uuid:
-            return NodeConnectionDirection.Links
+            return EdgeConnectionDirection.Links
         if edge.uuid == self.connected_edge_on_right.uuid:
-            return NodeConnectionDirection.Rechts
+            return EdgeConnectionDirection.Rechts
         return None
 
     def calc_anschluss_of_all_edges(self):
