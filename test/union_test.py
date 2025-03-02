@@ -14,7 +14,7 @@ from yaramo.model import (
 from yaramo.operations import Union
 
 
-def test_union():
+def test_simple_union():
     topology_a = Topology()
     node_a1 = Node()
     node_a2 = Node()
@@ -267,3 +267,5 @@ def test_transitive_union_test():
     assert len(topology_abc.edges) == (
         len(topology_ab.edges) + len(topology_c.edges) - 2 + 1
     )  # Minus Union Edges + 1 new Edge
+
+# TODO test with intermediate geo nodes on union edge

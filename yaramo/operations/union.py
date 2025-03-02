@@ -4,7 +4,6 @@ from ..model import Node, Topology
 
 
 class Union:
-
     @staticmethod
     def union(
         topology_a: Topology, topology_b: Topology, node_matching: Dict[Node, Node]
