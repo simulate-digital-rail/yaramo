@@ -1,16 +1,26 @@
-from ..model import Topology, Node
 from typing import Dict, List
+
+from ..model import Node, Topology
 
 
 class Union:
 
     @staticmethod
-    def union(topology_a: Topology, topology_b: Topology, node_matching: Dict[Node, Node]) -> Topology:
-        if not (Union._are_all_nodes_in_topology(topology_a, node_matching.keys()) and Union._are_all_nodes_in_topology(topology_b, node_matching.values())):
-            raise ValueError("The node matching contains nodes, that are not inside the corresponding topology. Abort.")
+    def union(
+        topology_a: Topology, topology_b: Topology, node_matching: Dict[Node, Node]
+    ) -> Topology:
+        if not (
+            Union._are_all_nodes_in_topology(topology_a, node_matching.keys())
+            and Union._are_all_nodes_in_topology(topology_b, node_matching.values())
+        ):
+            raise ValueError(
+                "The node matching contains nodes, that are not inside the corresponding topology. Abort."
+            )
 
         if not Union._are_all_nodes_ends(node_matching):
-            raise ValueError("Some of the nodes in the matching are points. All nodes have to be ends. Abort.")
+            raise ValueError(
+                "Some of the nodes in the matching are points. All nodes have to be ends. Abort."
+            )
 
         return topology_a
 

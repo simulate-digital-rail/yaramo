@@ -1,9 +1,10 @@
-from ..model import Topology, Edge
-from typing import List, Tuple
+from typing import Dict, Tuple
+
+from ..model import Edge, Topology
 
 
 class Split:
 
     @staticmethod
-    def split(topology: Topology, split_edges: List[Edge]) -> Tuple[Topology, Topology]:
+    def split(topology: Topology, split_edges: Dict[Edge, int]) -> Tuple[Topology, Topology]:
         return topology, topology

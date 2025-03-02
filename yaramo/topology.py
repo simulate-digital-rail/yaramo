@@ -1,7 +1,7 @@
 from datetime import datetime
+from typing import List
 
 import simplejson as json
-from typing import List
 
 from yaramo.base_element import BaseElement
 from yaramo.edge import Edge
