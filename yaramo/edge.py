@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
@@ -181,6 +181,33 @@ class Edge(BaseElement):
         if self.node_b.uuid == node.uuid:
             return self.intermediate_geo_nodes[-2]
         return None
+
+    def get_coordinates_on_edge_by_distance_from_start_node(
+        self, distance: float
+    ) -> Tuple[float, float]:
+        if distance > self.__get_length():
+            raise ValueError("Given distance is longer than edge.")
+        all_geo_nodes = (
+            [self.node_a.geo_node] + self.intermediate_geo_nodes + [self.node_b.geo_node]
+        )
+        remaining_distance = distance
+        for i in range(len(all_geo_nodes) - 1):
+            cur_geo_node = all_geo_nodes[i]
+            next_geo_node = all_geo_nodes[i + 1]
+            distance_between_nodes = cur_geo_node.get_distance_to_other_geo_node(next_geo_node)
+
+            if remaining_distance < distance_between_nodes:
+                # target is between these nodes
+                x1, y1 = cur_geo_node.x, cur_geo_node.y
+                x2, y2 = next_geo_node.x, next_geo_node.y
+                factor = remaining_distance / distance_between_nodes
+                x = x1 + (factor * (x2 - x1))
+                y = y1 + (factor * (y2 - y1))
+                return x, y
+
+            remaining_distance = remaining_distance - distance_between_nodes
+        # This shouldn't happen
+        raise ValueError("Distance on edge not found")
 
     def to_serializable(self):
         """See the description in the BaseElement class.
