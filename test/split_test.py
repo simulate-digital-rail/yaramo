@@ -32,6 +32,10 @@ def test_simple_split():
 
     topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0})
 
+    assert node_1.uuid in topology_a.nodes or node_1.uuid in topology_b.nodes
+    if node_1.uuid in topology_b.nodes:
+        topology_a, topology_b = topology_b, topology_a
+
     assert len(topology_a.nodes) == len([node_1, node_2, node_3]) + 1  # Plus new track end
     assert len(topology_b.nodes) == len([node_4, node_5, node_6]) + 1  # Plus new track end
     assert len(topology_a.edges) == len([edge_1, edge_2]) + 1  # Plus edge to new track end
@@ -72,6 +76,10 @@ def test_advanced_split():
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_8])
 
     topology_a, topology_b = Split.split(topology, split_edges={edge_4: 5.0, edge_5: 15.0})
+
+    assert node_1.uuid in topology_a.nodes or node_1.uuid in topology_b.nodes
+    if node_1.uuid in topology_b.nodes:
+        topology_a, topology_b = topology_b, topology_a
 
     assert (
         len(topology_a.nodes) == len([node_1, node_2, node_3, node_4]) + 2
@@ -171,6 +179,30 @@ def test_invalid_split_not_enough_edges():
         topology_a, topology_b = Split.split(topology, split_edges={edge_4: 5.0})
 
 
+def test_invalid_split_more_than_two_partitions():
+    topology = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 10))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=Wgs84GeoNode(30, 0))
+    node_6 = Node(geo_node=Wgs84GeoNode(40, 10))  # Point
+    node_7 = Node(geo_node=Wgs84GeoNode(50, 10))
+    node_8 = Node(geo_node=Wgs84GeoNode(50, 20))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_3, node_4)
+    edge_4 = Edge(node_4, node_5)
+    edge_5 = Edge(node_4, node_6)
+    edge_6 = Edge(node_6, node_7)
+    edge_7 = Edge(node_6, node_8)
+    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8])
+    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7])
+
+    with pytest.raises(ValueError):
+        topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0, edge_5: 5.0})
+
+
 def test_elements_on_split_edges():
     topology = Topology()
     node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
@@ -181,7 +213,7 @@ def test_elements_on_split_edges():
     node_6 = Node(geo_node=Wgs84GeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
-    edge_3 = Edge(node_4, node_3)
+    edge_3 = Edge(node_3, node_4)
     edge_4 = Edge(node_4, node_5)
     edge_5 = Edge(node_4, node_6)
     signal_1 = Signal(
@@ -201,6 +233,11 @@ def test_elements_on_split_edges():
     topology.add_signals([signal_1, signal_2, signal_3])
 
     topology_a, topology_b = Split.split(topology, split_edges={edge_3: 7.0})
+
+    assert node_1.uuid in topology_a.nodes or node_1.uuid in topology_b.nodes
+    if node_1.uuid in topology_b.nodes:
+        topology_a, topology_b = topology_b, topology_a
+
     assert len(topology_a.signals) == 2
     assert signal_1.uuid in topology_a.signals.keys()
     assert signal_2.uuid in topology_a.signals.keys()
@@ -228,7 +265,16 @@ def test_transitive_split():
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7])
     topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0})
+
+    assert node_1.uuid in topology_a.nodes or node_1.uuid in topology_b.nodes
+    if node_1.uuid in topology_b.nodes:
+        topology_a, topology_b = topology_b, topology_a
+
     topology_b, topology_c = Split.split(topology_b, split_edges={edge_5: 10.0})
+
+    assert node_4.uuid in topology_b.nodes or node_4.uuid in topology_c.nodes
+    if node_4.uuid in topology_c.nodes:
+        topology_b, topology_c = topology_c, topology_b
 
     expected_nodes_in_a = [node_1, node_2, node_3]  # Plus one split node
     expected_edges_in_a = [edge_1, edge_2]  # Plus one split edge
@@ -276,7 +322,11 @@ def test_geo_node_split():
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
 
-    topology_a, topology_b = Split.split(topology, split_edges={edge_3: 24.0})
+    topology_a, topology_b = Split.split(topology, split_edges={edge_3: 32.0})
+
+    assert node_1.uuid in topology_a.nodes or node_1.uuid in topology_b.nodes
+    if node_1.uuid in topology_b.nodes:
+        topology_a, topology_b = topology_b, topology_a
 
     def _count_geo_node(_topology: Topology):
         return sum(map(lambda _edge: len(_edge.intermediate_geo_nodes), _topology.edges.values()))
@@ -349,6 +399,10 @@ def test_route_split():
 
     topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0})
 
+    assert node_1.uuid in topology_a.nodes or node_1.uuid in topology_b.nodes
+    if node_1.uuid in topology_b.nodes:
+        topology_a, topology_b = topology_b, topology_a
+
     # Note: route 3 goes over split edge, so it gets removed
     assert len(topology_a.routes) == 1
     assert route_1 in topology_a.routes.values()
@@ -357,3 +411,5 @@ def test_route_split():
     assert route_2 in topology_b.routes.values()
     assert len(topology_b.signals) == 3
 
+
+# TODO more than two splits after splitting
