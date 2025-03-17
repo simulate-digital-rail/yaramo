@@ -19,6 +19,14 @@ class SignalDirection(Enum):
     def __str__(self):
         return self.name.lower()
 
+    @staticmethod
+    def get_other_direction(direction):
+        if direction == SignalDirection.IN:
+            return SignalDirection.GEGEN
+        elif direction == SignalDirection.GEGEN:
+            return SignalDirection.IN
+        return None
+
 
 class SignalFunction(Enum):
     """The SignalFunction determines the function of a Signal."""
