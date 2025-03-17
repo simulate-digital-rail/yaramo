@@ -410,6 +410,3 @@ def test_route_split():
     assert len(topology_b.routes) == 1
     assert route_2 in topology_b.routes.values()
     assert len(topology_b.signals) == 3
-
-
-# TODO more than two splits after splitting

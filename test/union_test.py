@@ -1,6 +1,9 @@
+from typing import List
+
 import pytest
 
 from yaramo.model import (
+    DbrefGeoNode,
     Edge,
     Node,
     Route,
@@ -268,4 +271,161 @@ def test_transitive_union_test():
         len(topology_ab.edges) + len(topology_c.edges) - 2 + 1
     )  # Minus Union Edges + 1 new Edge
 
-# TODO test with intermediate geo nodes on union edge
+
+def test_geo_node_union():
+    topology_a = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 10))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_3_end = Node(geo_node=Wgs84GeoNode(22, 10))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_3, node_3_end)
+    edge_3.intermediate_geo_nodes.extend([Wgs84GeoNode(16, 3)])
+    topology_a.add_nodes([node_1, node_2, node_3, node_3_end])
+    topology_a.add_edges([edge_1, edge_2, edge_3])
+
+    topology_b = Topology()
+    node_4_end = Node(geo_node=Wgs84GeoNode(23, 11))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(30, 30))  # Point
+    node_5 = Node(geo_node=Wgs84GeoNode(30, 40))
+    node_6 = Node(geo_node=Wgs84GeoNode(40, 40))
+    edge_4 = Edge(node_4, node_4_end)
+    edge_4.intermediate_geo_nodes.extend([Wgs84GeoNode(27, 24), Wgs84GeoNode(28, 25)])
+    edge_5 = Edge(node_4, node_5)
+    edge_6 = Edge(node_4, node_6)
+    topology_b.add_nodes([node_4_end, node_4, node_5, node_6])
+    topology_b.add_edges([edge_4, edge_5, edge_6])
+
+    topology_ab = Union.union(topology_a, topology_b, {node_3_end: node_4_end})
+
+    def _count_geo_node(_topology: Topology):
+        return sum(map(lambda _edge: len(_edge.intermediate_geo_nodes), _topology.edges.values()))
+
+    assert _count_geo_node(topology_a) == 1
+    assert _count_geo_node(topology_b) == 2
+    assert _count_geo_node(topology_ab) == 5  # 3 from previous + 2 union nodes
+
+
+def test_corner_cases_edge_directions():
+    configs = [
+        {
+            "switch_edge_a3": False,
+            "switch_edge_b3": False,
+            "signal_a1_distance": 4.0,
+            "signal_b1_distance": 21.0,
+            "signal_a1_direction": SignalDirection.IN,
+            "signal_b1_direction": SignalDirection.GEGEN,
+        },
+        {
+            "switch_edge_a3": False,
+            "switch_edge_b3": True,
+            "signal_a1_distance": 4.0,
+            "signal_b1_distance": 19.0,
+            "signal_a1_direction": SignalDirection.IN,
+            "signal_b1_direction": SignalDirection.IN,
+        },
+        {
+            "switch_edge_a3": True,
+            "switch_edge_b3": False,
+            "signal_a1_distance": 6.0,
+            "signal_b1_distance": 21.0,
+            "signal_a1_direction": SignalDirection.GEGEN,
+            "signal_b1_direction": SignalDirection.GEGEN,
+        },
+        {
+            "switch_edge_a3": True,
+            "switch_edge_b3": True,
+            "signal_a1_distance": 6.0,
+            "signal_b1_distance": 19.0,
+            "signal_a1_direction": SignalDirection.GEGEN,
+            "signal_b1_direction": SignalDirection.IN,
+        },
+    ]
+
+    def _are_geo_nodes_in_ascending_order(_geo_node_list: List[DbrefGeoNode]):
+        current_x = _geo_node_list[0].x
+        print(current_x)
+        for geo_node in _geo_node_list:
+            print(geo_node.x)
+            if geo_node.x < current_x:
+                return False
+            current_x = geo_node.x
+        return True
+
+    for config in configs:
+        print(config)
+        topology_a = Topology()
+        node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
+        node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
+        node_a3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
+        node_a4 = Node(geo_node=DbrefGeoNode(20, 0))  # Union-Node
+        edge_a1 = Edge(node_a1, node_a3)
+        edge_a2 = Edge(node_a2, node_a3)
+        if config["switch_edge_a3"]:
+            edge_a3 = Edge(node_a4, node_a3)
+            edge_a3.intermediate_geo_nodes.extend([DbrefGeoNode(17, 0), DbrefGeoNode(16, 0)])
+        else:
+            edge_a3 = Edge(node_a3, node_a4)
+            edge_a3.intermediate_geo_nodes.extend([DbrefGeoNode(16, 0), DbrefGeoNode(17, 0)])
+
+        signal_a1 = Signal(
+            edge=edge_a3,
+            distance_edge=4.0,
+            direction=SignalDirection.IN,
+            function=SignalFunction.Block_Signal,
+            kind=SignalKind.Hauptsignal,
+        )
+        edge_a3.signals.append(signal_a1)
+
+        topology_a.add_nodes([node_a1, node_a2, node_a3, node_a4])
+        topology_a.add_edges([edge_a1, edge_a2, edge_a3])
+        topology_a.add_signals([signal_a1])
+
+        edge_a3.update_length()
+        assert edge_a3.length == 10.0
+
+        topology_b = Topology()
+        node_b1 = Node(geo_node=DbrefGeoNode(45, 0))
+        node_b2 = Node(geo_node=DbrefGeoNode(45, 10))
+        node_b3 = Node(geo_node=DbrefGeoNode(35, 0))  # Point
+        node_b4 = Node(geo_node=DbrefGeoNode(25, 0))  # Union-Node
+        edge_b1 = Edge(node_b1, node_b3)
+        edge_b2 = Edge(node_b2, node_b3)
+        if config["switch_edge_b3"]:
+            edge_b3 = Edge(node_b3, node_b4)
+            edge_b3.intermediate_geo_nodes.extend([DbrefGeoNode(32, 0), DbrefGeoNode(31, 0)])
+        else:
+            edge_b3 = Edge(node_b4, node_b3)
+            edge_b3.intermediate_geo_nodes.extend([DbrefGeoNode(31, 0), DbrefGeoNode(32, 0)])
+
+        signal_b1 = Signal(
+            edge=edge_b3,
+            distance_edge=4.0,
+            direction=SignalDirection.IN,
+            function=SignalFunction.Block_Signal,
+            kind=SignalKind.Hauptsignal,
+        )
+        edge_b3.signals.append(signal_b1)
+
+        topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4])
+        topology_b.add_edges([edge_b1, edge_b2, edge_b3])
+        topology_a.add_signals([signal_b1])
+
+        edge_b3.update_length()
+        assert edge_b3.length == 10.0
+
+        topology_ab = Union.union(topology_a, topology_b, {node_a4: node_b4})
+
+        assert signal_a1 in topology_ab.signals.values()
+        assert signal_b1 in topology_ab.signals.values()
+        union_edge: Edge = topology_ab.get_edge_by_nodes(node_a3, node_b3)
+        union_edge.update_length()
+        assert union_edge.length == 25.0
+        assert signal_a1 in union_edge.signals
+        assert signal_b1 in union_edge.signals
+        assert signal_a1.distance_edge == config["signal_a1_distance"]
+        assert signal_b1.distance_edge == config["signal_b1_distance"]
+        assert signal_a1.direction == config["signal_a1_direction"]
+        assert signal_b1.direction == config["signal_b1_direction"]
+        assert _are_geo_nodes_in_ascending_order(union_edge.intermediate_geo_nodes)
