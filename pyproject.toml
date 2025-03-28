@@ -10,7 +10,7 @@ packages = [{include = "yaramo"}]
 python = "^3.11"
 pyproj = "^3.6.1"
 simplejson = "^3.19.2"
-
+networkx = {extras = ["default"], version = "^3.4.2"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.12.0"
