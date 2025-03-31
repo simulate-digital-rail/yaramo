@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from typing import Dict, List, Set, Tuple
 
+import networkx as nx
+
 from ..model import DbrefGeoNode, Edge, GeoNode, Node, Signal, Topology, Wgs84GeoNode
 
 
@@ -72,8 +74,9 @@ class Compare:
         if len(topology_a.nodes) != len(topology_b.nodes) or len(topology_a.edges) != len(topology_b.edges):
             # Catch easy case before running expensive network x lib
             return False
-        # network x graph edit distance == 0
-        return True
+        graph_a = topology_a.to_networkx_graph()
+        graph_b = topology_b.to_networkx_graph()
+        return nx.is_isomorphic(graph_a, graph_b)
 
     @staticmethod
     def _calc_distance_for_matching(matching: CompareMatching, element_type: str = "node"):
