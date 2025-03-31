@@ -47,8 +47,7 @@ class Compare:
                 raise ValueError("Both topologies needs to be isomorphic")
             if not given_node_matching:
                 raise ValueError("For isomorphic topologies, at least one mathing node needs to be given.")
-
-            # bfs at start nodes to generate matching
+            Compare._calc_isomorphic_matching(result, topology_a, topology_b, given_node_matching)
 
         result.node_distance = Compare._calc_distance_for_matching(result.node_matching)
         return result
@@ -68,6 +67,37 @@ class Compare:
                 compare_matching.not_found_in_b.append(element_a)
         for element_uuid_b in (element_dict_b.keys() - element_dict_a.keys()):
             compare_matching.not_found_in_a.append(element_dict_b[element_uuid_b])
+
+    @staticmethod
+    def _calc_isomorphic_matching(result: CompareResult, topology_a: Topology, topology_b: Topology, given_node_matching: Dict[Node, Node]):
+        open_nodes: List[Tuple[Node, Node]] = []
+
+        def __add_to_matching_and_open_nodes(__node_a: Node, __node_b: Node):
+            if __node_a is None and __node_b is None:
+                raise ValueError("Graph topology is isomorphic, but railway network graph differs (point is no point)")
+            if __node_a is None or __node_b is None:
+                raise ValueError("Graph topology is isomorphic, but railway network graph differs (topology broken)")
+            open_nodes.append((__node_a, __node_b))
+
+        for node_a, node_b in given_node_matching.items():
+            __add_to_matching_and_open_nodes(node_a, node_b)
+
+        # bfs at start nodes to generate matching
+        while open_nodes:
+            current_tuple = open_nodes.pop(0)
+            node_a = current_tuple[0]
+            node_b = current_tuple[1]
+            if node_a in result.node_matching.element_matching:
+                if result.node_matching.element_matching[node_a] != node_b:
+                    raise ValueError("Graph topology is isomorphic, but railway network graph differs (connections at points)")
+                continue
+            else:
+                result.node_matching.element_matching[node_a] = node_b
+
+            __add_to_matching_and_open_nodes(node_a.connected_on_head, node_b.connected_on_head)
+            if node_a.is_point():
+                __add_to_matching_and_open_nodes(node_a.connected_on_left, node_b.connected_on_left)
+                __add_to_matching_and_open_nodes(node_a.connected_on_right, node_b.connected_on_right)
 
     @staticmethod
     def _are_topologies_isomorphic(topology_a: Topology, topology_b: Topology):
