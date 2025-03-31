@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import List
+
 import networkx as nx
-
-
 import simplejson as json
 
 from yaramo.base_element import BaseElement

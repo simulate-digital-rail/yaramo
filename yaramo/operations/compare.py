@@ -7,7 +7,6 @@ from ..model import DbrefGeoNode, Edge, GeoNode, Node, Signal, Topology, Wgs84Ge
 
 
 class CompareMatching:
-
     def __init__(self):
         self.element_matching = {}
         self.not_found_in_a = []
@@ -46,7 +45,9 @@ class Compare:
             if not Compare._are_topologies_isomorphic(topology_a, topology_b):
                 raise ValueError("Both topologies needs to be isomorphic")
             if not given_node_matching:
-                raise ValueError("For isomorphic topologies, at least one mathing node needs to be given.")
+                raise ValueError(
+                    "For isomorphic topologies, at least one mathing node needs to be given."
+                )
             Compare._calc_isomorphic_matching(result, topology_a, topology_b, given_node_matching)
 
         result.node_distance = Compare._calc_distance_for_matching(result.node_matching)
@@ -54,29 +55,46 @@ class Compare:
 
     @staticmethod
     def _calc_exact_matching(result: CompareResult, topology_a: Topology, topology_b: Topology):
-        Compare._calc_exact_element_matching(result.node_matching, topology_a.nodes, topology_b.nodes)
-        Compare._calc_exact_element_matching(result.edge_matching, topology_a.edges, topology_b.edges)
-        Compare._calc_exact_element_matching(result.signal_matching, topology_a.signals, topology_b.signals)
+        Compare._calc_exact_element_matching(
+            result.node_matching, topology_a.nodes, topology_b.nodes
+        )
+        Compare._calc_exact_element_matching(
+            result.edge_matching, topology_a.edges, topology_b.edges
+        )
+        Compare._calc_exact_element_matching(
+            result.signal_matching, topology_a.signals, topology_b.signals
+        )
 
     @staticmethod
-    def _calc_exact_element_matching(compare_matching: CompareMatching, element_dict_a: Dict, element_dict_b: Dict):
+    def _calc_exact_element_matching(
+        compare_matching: CompareMatching, element_dict_a: Dict, element_dict_b: Dict
+    ):
         for element_uuid_a, element_a in element_dict_a.items():
             if element_uuid_a in element_dict_b:
                 compare_matching.element_matching[element_a] = element_dict_b[element_uuid_a]
             else:
                 compare_matching.not_found_in_b.append(element_a)
-        for element_uuid_b in (element_dict_b.keys() - element_dict_a.keys()):
+        for element_uuid_b in element_dict_b.keys() - element_dict_a.keys():
             compare_matching.not_found_in_a.append(element_dict_b[element_uuid_b])
 
     @staticmethod
-    def _calc_isomorphic_matching(result: CompareResult, topology_a: Topology, topology_b: Topology, given_node_matching: Dict[Node, Node]):
+    def _calc_isomorphic_matching(
+        result: CompareResult,
+        topology_a: Topology,
+        topology_b: Topology,
+        given_node_matching: Dict[Node, Node],
+    ):
         open_nodes: List[Tuple[Node, Node]] = []
 
         def __add_to_matching_and_open_nodes(__node_a: Node, __node_b: Node):
             if __node_a is None and __node_b is None:
-                raise ValueError("Graph topology is isomorphic, but railway network graph differs (point is no point)")
+                raise ValueError(
+                    "Graph topology is isomorphic, but railway network graph differs (point is no point)"
+                )
             if __node_a is None or __node_b is None:
-                raise ValueError("Graph topology is isomorphic, but railway network graph differs (topology broken)")
+                raise ValueError(
+                    "Graph topology is isomorphic, but railway network graph differs (topology broken)"
+                )
             open_nodes.append((__node_a, __node_b))
 
         for node_a, node_b in given_node_matching.items():
@@ -89,7 +107,9 @@ class Compare:
             node_b = current_tuple[1]
             if node_a in result.node_matching.element_matching:
                 if result.node_matching.element_matching[node_a] != node_b:
-                    raise ValueError("Graph topology is isomorphic, but railway network graph differs (connections at points)")
+                    raise ValueError(
+                        "Graph topology is isomorphic, but railway network graph differs (connections at points)"
+                    )
                 continue
             else:
                 result.node_matching.element_matching[node_a] = node_b
@@ -97,11 +117,15 @@ class Compare:
             __add_to_matching_and_open_nodes(node_a.connected_on_head, node_b.connected_on_head)
             if node_a.is_point():
                 __add_to_matching_and_open_nodes(node_a.connected_on_left, node_b.connected_on_left)
-                __add_to_matching_and_open_nodes(node_a.connected_on_right, node_b.connected_on_right)
+                __add_to_matching_and_open_nodes(
+                    node_a.connected_on_right, node_b.connected_on_right
+                )
 
     @staticmethod
     def _are_topologies_isomorphic(topology_a: Topology, topology_b: Topology):
-        if len(topology_a.nodes) != len(topology_b.nodes) or len(topology_a.edges) != len(topology_b.edges):
+        if len(topology_a.nodes) != len(topology_b.nodes) or len(topology_a.edges) != len(
+            topology_b.edges
+        ):
             # Catch easy case before running expensive network x lib
             return False
         graph_a = topology_a.to_networkx_graph()
@@ -124,4 +148,3 @@ class Compare:
             elif element_type == "signal":
                 raise NotImplementedError()
         return distance_sum
-

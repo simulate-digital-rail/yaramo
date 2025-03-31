@@ -1,6 +1,7 @@
 import pytest
 
 from yaramo.model import (
+    DbrefGeoNode,
     Edge,
     Node,
     Route,
@@ -10,7 +11,6 @@ from yaramo.model import (
     SignalKind,
     Topology,
     Wgs84GeoNode,
-    DbrefGeoNode,
 )
 from yaramo.operations import Compare, CompareMode, CompareResult
 
@@ -34,7 +34,9 @@ def test_identical_topologies():
     compare_modes = [CompareMode.EXACT, CompareMode.ISOMORPHIC]
 
     for compare_mode in compare_modes:
-        result = Compare.compare(topology, topology, compare_mode, given_node_matching={node_1: node_1})
+        result = Compare.compare(
+            topology, topology, compare_mode, given_node_matching={node_1: node_1}
+        )
         assert result.node_distance == 0.0
 
 
@@ -72,7 +74,9 @@ def test_identical_topologies_but_ids():
     compare_modes = [CompareMode.ISOMORPHIC]
 
     for compare_mode in compare_modes:
-        result = Compare.compare(topology_a, topology_b, compare_mode, given_node_matching={node_a1: node_b1})
+        result = Compare.compare(
+            topology_a, topology_b, compare_mode, given_node_matching={node_a1: node_b1}
+        )
         assert result.node_distance == 5.0
         assert node_a1 in result.node_matching.element_matching
         assert result.node_matching.element_matching[node_a1] == node_b1
@@ -149,7 +153,9 @@ def test_non_isomorphic_topologies_different_node_and_edge_count():
     topology_b.add_edges([edge_b1, edge_b2, edge_b3])
 
     with pytest.raises(ValueError):
-        result = Compare.compare(topology_a, topology_b, CompareMode.ISOMORPHIC, given_node_matching={node_a1: node_b1})
+        result = Compare.compare(
+            topology_a, topology_b, CompareMode.ISOMORPHIC, given_node_matching={node_a1: node_b1}
+        )
 
 
 def test_non_isomorphic_topologies_same_node_and_edge_count():
@@ -187,7 +193,9 @@ def test_non_isomorphic_topologies_same_node_and_edge_count():
     topology_b.add_edges([edge_b1, edge_b2, edge_b3, edge_b4, edge_b5, edge_b6])
 
     with pytest.raises(ValueError):
-        result = Compare.compare(topology_a, topology_b, CompareMode.ISOMORPHIC, given_node_matching={node_a1: node_b1})
+        result = Compare.compare(
+            topology_a, topology_b, CompareMode.ISOMORPHIC, given_node_matching={node_a1: node_b1}
+        )
 
 
 def test_isomorphic_topologies_without_given_node_matching():
