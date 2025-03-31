@@ -121,7 +121,7 @@ def test_exact_matching_with_overlapping_graph():
     assert node_b6 in result.node_matching.not_found_in_a
 
 
-def test_non_isomorphic_topologies():
+def test_non_isomorphic_topologies_different_node_and_edge_count():
     topology_a = Topology()
     node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
     node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
@@ -151,6 +151,43 @@ def test_non_isomorphic_topologies():
     with pytest.raises(ValueError):
         result = Compare.compare(topology_a, topology_b, CompareMode.ISOMORPHIC, given_node_matching={node_a1: node_b1})
 
+
+def test_non_isomorphic_topologies_same_node_and_edge_count():
+    topology_a = Topology()
+    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
+    node_a2 = Node(geo_node=DbrefGeoNode(10, 0))
+    node_a3 = Node(geo_node=DbrefGeoNode(20, 0))
+    node_a4 = Node(geo_node=DbrefGeoNode(30, 0))
+    node_a5 = Node(geo_node=DbrefGeoNode(40, 10))
+    node_a6 = Node(geo_node=DbrefGeoNode(40, 0))
+    edge_a1 = Edge(node_a1, node_a2)
+    edge_a2 = Edge(node_a2, node_a3)
+    edge_a2b = Edge(node_a2, node_a3)
+    edge_a2b.intermediate_geo_nodes.extend([DbrefGeoNode(12, 5), DbrefGeoNode(18, 5)])
+    edge_a3 = Edge(node_a3, node_a4)
+    edge_a4 = Edge(node_a4, node_a5)
+    edge_a5 = Edge(node_a4, node_a6)
+    topology_a.add_nodes([node_a1, node_a2, node_a3, node_a4, node_a5, node_a6])
+    topology_a.add_edges([edge_a1, edge_a2, edge_a2b, edge_a3, edge_a4, edge_a5])
+
+    topology_b = Topology()
+    node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
+    node_b2 = Node(geo_node=DbrefGeoNode(10, 0))
+    node_b3 = Node(geo_node=DbrefGeoNode(20, 0))
+    node_b4 = Node(geo_node=DbrefGeoNode(30, 0))
+    node_b5 = Node(geo_node=DbrefGeoNode(13, 5))
+    node_b6 = Node(geo_node=DbrefGeoNode(23, 5))
+    edge_b1 = Edge(node_b1, node_b2)
+    edge_b2 = Edge(node_b2, node_b3)
+    edge_b3 = Edge(node_b3, node_b4)
+    edge_b4 = Edge(node_b2, node_b5)
+    edge_b5 = Edge(node_b3, node_b5)
+    edge_b6 = Edge(node_b5, node_b6)
+    topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4, node_b5, node_b6])
+    topology_b.add_edges([edge_b1, edge_b2, edge_b3, edge_b4, edge_b5, edge_b6])
+
+    with pytest.raises(ValueError):
+        result = Compare.compare(topology_a, topology_b, CompareMode.ISOMORPHIC, given_node_matching={node_a1: node_b1})
 
 
 def test_isomorphic_topologies_without_given_node_matching():
