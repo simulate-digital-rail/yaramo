@@ -17,7 +17,9 @@ class CompareResult:
     def __init__(self):
         self.node_distance: float = -1.0
         self.node_matching: CompareMatching = CompareMatching()
+        self.edge_length_difference: float = -1.0
         self.edge_matching: CompareMatching = CompareMatching()
+        self.signal_distance: float = -1.0
         self.signal_matching: CompareMatching = CompareMatching()
 
 
@@ -33,6 +35,7 @@ class Compare:
         topology_b: Topology,
         compare_mode: CompareMode,
         given_node_matching: Dict[Node, Node] | None = None,
+        exclude_ends_in_calculation: bool = False
     ) -> CompareResult:
         if given_node_matching is None:
             given_node_matching = {}
@@ -50,7 +53,9 @@ class Compare:
                 )
             Compare._calc_isomorphic_matching(result, topology_a, topology_b, given_node_matching)
 
-        result.node_distance = Compare._calc_distance_for_matching(result.node_matching)
+        result.node_distance = Compare._calc_distance_for_matching(result.node_matching, exclude_ends_in_calculation)
+        result.edge_length_difference = Compare._calc_distance_for_matching(result.edge_matching, exclude_ends_in_calculation, element_type="edge")
+        result.signal_distance = Compare._calc_distance_for_matching(result.signal_matching, exclude_ends_in_calculation, element_type="signal")
         return result
 
     @staticmethod
@@ -86,7 +91,7 @@ class Compare:
     ):
         open_nodes: List[Tuple[Node, Node]] = []
 
-        def __add_to_matching_and_open_nodes(__node_a: Node, __node_b: Node):
+        def __add_to_open_nodes(__node_a: Node, __node_b: Node):
             if __node_a is None and __node_b is None:
                 raise ValueError(
                     "Graph topology is isomorphic, but railway network graph differs (point is no point)"
@@ -97,8 +102,17 @@ class Compare:
                 )
             open_nodes.append((__node_a, __node_b))
 
+        def __add_edges_to_matching(__edge_a: Edge, __edge_b: Edge):
+            if __edge_a in result.edge_matching.element_matching:
+                if result.edge_matching.element_matching[__edge_a] != __edge_b:
+                    raise ValueError(
+                        "Graph topology is isomorphic, but railway network graph differs (edge graph broken)"
+                    )
+            else:
+                result.edge_matching.element_matching[__edge_a] = __edge_b
+
         for node_a, node_b in given_node_matching.items():
-            __add_to_matching_and_open_nodes(node_a, node_b)
+            __add_to_open_nodes(node_a, node_b)
 
         # bfs at start nodes to generate matching
         while open_nodes:
@@ -114,12 +128,16 @@ class Compare:
             else:
                 result.node_matching.element_matching[node_a] = node_b
 
-            __add_to_matching_and_open_nodes(node_a.connected_on_head, node_b.connected_on_head)
+            __add_to_open_nodes(node_a.connected_on_head, node_b.connected_on_head)
+            __add_edges_to_matching(node_a.connected_edge_on_head, node_b.connected_edge_on_head)
+            # signals in order per direction
             if node_a.is_point():
-                __add_to_matching_and_open_nodes(node_a.connected_on_left, node_b.connected_on_left)
-                __add_to_matching_and_open_nodes(
+                __add_to_open_nodes(node_a.connected_on_left, node_b.connected_on_left)
+                __add_edges_to_matching(node_a.connected_edge_on_left, node_b.connected_edge_on_left)
+                __add_to_open_nodes(
                     node_a.connected_on_right, node_b.connected_on_right
                 )
+                __add_edges_to_matching(node_a.connected_edge_on_right, node_b.connected_edge_on_right)
 
     @staticmethod
     def _are_topologies_isomorphic(topology_a: Topology, topology_b: Topology):
@@ -133,18 +151,27 @@ class Compare:
         return nx.is_isomorphic(graph_a, graph_b)
 
     @staticmethod
-    def _calc_distance_for_matching(matching: CompareMatching, element_type: str = "node"):
+    def _calc_distance_for_matching(matching: CompareMatching, exclude_ends_in_calculation, element_type: str = "node"):
         if not matching.element_matching:
             return -1.0
+
         distance_sum: float = 0.0
         for element_a in matching.element_matching:
             element_b = matching.element_matching[element_a]
+
             if element_type == "node":
+                if exclude_ends_in_calculation and not element_a.is_point():
+                    continue
                 geo_node_a: GeoNode = element_a.geo_node
                 geo_node_b: GeoNode = element_b.geo_node
                 distance_sum += geo_node_a.get_distance_to_other_geo_node(geo_node_b)
             elif element_type == "edge":
-                raise NotImplementedError()
+                if exclude_ends_in_calculation and (not element_a.node_a.is_point() or not element_a.node_b.is_point()):
+                    continue
+                distance_sum += abs(element_a.length - element_b.length)
             elif element_type == "signal":
-                raise NotImplementedError()
+                x_a, y_a = element_a.get_calculated_coordinates()
+                x_b, y_b = element_a.get_calculated_coordinates()
+                distance_sum += DbrefGeoNode(x_a, y_a).get_distance_to_other_geo_node(DbrefGeoNode(x_b, y_b))
+
         return distance_sum
