@@ -28,8 +28,11 @@ def test_identical_topologies():
     edge_3 = Edge(node_4, node_3)
     edge_4 = Edge(node_4, node_5)
     edge_5 = Edge(node_4, node_6)
+    signal_1 = Signal(edge_3,5, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal)
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
+    topology.add_signals([signal_1])
+    topology.update_edge_lengths()
 
     compare_modes = [CompareMode.EXACT, CompareMode.ISOMORPHIC]
 
@@ -38,6 +41,8 @@ def test_identical_topologies():
             topology, topology, compare_mode, given_node_matching={node_1: node_1}
         )
         assert result.node_distance == 0.0
+        assert result.edge_length_difference == 0.0
+        assert result.signal_distance == 0.0
 
 
 def test_identical_topologies_but_ids():
@@ -55,6 +60,7 @@ def test_identical_topologies_but_ids():
     edge_a5 = Edge(node_a4, node_a6)
     topology_a.add_nodes([node_a1, node_a2, node_a3, node_a4, node_a5, node_a6])
     topology_a.add_edges([edge_a1, edge_a2, edge_a3, edge_a4, edge_a5])
+    topology_a.update_edge_lengths()
 
     topology_b = Topology()
     node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
@@ -70,6 +76,7 @@ def test_identical_topologies_but_ids():
     edge_b5 = Edge(node_b4, node_b6)
     topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4, node_b5, node_b6])
     topology_b.add_edges([edge_b1, edge_b2, edge_b3, edge_b4, edge_b5])
+    topology_b.update_edge_lengths()
 
     compare_modes = [CompareMode.ISOMORPHIC]
 
@@ -80,6 +87,58 @@ def test_identical_topologies_but_ids():
         assert result.node_distance == 5.0
         assert node_a1 in result.node_matching.element_matching
         assert result.node_matching.element_matching[node_a1] == node_b1
+        assert node_a3 in result.node_matching.element_matching
+        assert result.node_matching.element_matching[node_a3] == node_b3
+        assert edge_a5 in result.edge_matching.element_matching
+        assert result.edge_matching.element_matching[edge_a5] == edge_b5
+
+
+def test_edge_diff_and_signal_distance():
+    topology_a = Topology()
+    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
+    node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
+    node_a3 = Node(geo_node=DbrefGeoNode(10, 0))
+    node_a4 = Node(geo_node=DbrefGeoNode(20, 0))
+    node_a5 = Node(geo_node=DbrefGeoNode(30, 0))
+    node_a6 = Node(geo_node=DbrefGeoNode(30, 10))
+    edge_a1 = Edge(node_a1, node_a3)
+    edge_a2 = Edge(node_a2, node_a3)
+    edge_a3 = Edge(node_a4, node_a3)
+    edge_a4 = Edge(node_a4, node_a5)
+    edge_a5 = Edge(node_a4, node_a6)
+    signal_a1 = Signal(edge_a3,5, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal)
+    topology_a.add_nodes([node_a1, node_a2, node_a3, node_a4, node_a5, node_a6])
+    topology_a.add_edges([edge_a1, edge_a2, edge_a3, edge_a4, edge_a5])
+    topology_a.add_signals([signal_a1])
+    topology_a.update_edge_lengths()
+
+    topology_b = Topology()
+    node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
+    node_b2 = Node(geo_node=DbrefGeoNode(0, 10))
+    node_b3 = Node(geo_node=DbrefGeoNode(10, 0))
+    node_b4 = Node(geo_node=DbrefGeoNode(22, 0))
+    node_b5 = Node(geo_node=DbrefGeoNode(32, 0))
+    node_b6 = Node(geo_node=DbrefGeoNode(32, 10))
+    edge_b1 = Edge(node_b1, node_b3)
+    edge_b2 = Edge(node_b2, node_b3)
+    edge_b3 = Edge(node_b4, node_b3)
+    edge_b4 = Edge(node_b4, node_b5)
+    edge_b5 = Edge(node_b4, node_b6)
+    signal_b1 = Signal(edge_b3,8, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal)
+    topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4, node_b5, node_b6])
+    topology_b.add_edges([edge_b1, edge_b2, edge_b3, edge_b4, edge_b5])
+    topology_b.add_signals([signal_b1])
+    topology_b.update_edge_lengths()
+
+    compare_modes = [CompareMode.ISOMORPHIC]
+
+    for compare_mode in compare_modes:
+        result = Compare.compare(
+            topology_a, topology_b, compare_mode, given_node_matching={node_a1: node_b1}
+        )
+        assert result.node_distance == 6.0
+        assert result.edge_length_difference == 2.0
+        assert result.signal_distance == 3.0
 
 
 def test_exact_matching_with_overlapping_graph():
@@ -97,6 +156,7 @@ def test_exact_matching_with_overlapping_graph():
     edge_a5 = Edge(node_a4, node_a6)
     topology_a.add_nodes([node_a1, node_a2, node_a3, node_a4, node_a5, node_a6])
     topology_a.add_edges([edge_a1, edge_a2, edge_a3, edge_a4, edge_a5])
+    topology_a.update_edge_lengths()
 
     topology_b = Topology()
     node_b1 = Node(geo_node=DbrefGeoNode(0, 0), uuid=node_a1.uuid)
@@ -112,6 +172,8 @@ def test_exact_matching_with_overlapping_graph():
     edge_b5 = Edge(node_b6, node_b1)
     topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4, node_b5, node_b6])
     topology_b.add_edges([edge_b1, edge_b2, edge_b3, edge_b4, edge_b5])
+    topology_b.update_edge_lengths()
+
     result = Compare.compare(topology_a, topology_b, CompareMode.EXACT)
 
     assert result.node_distance == 3.0
