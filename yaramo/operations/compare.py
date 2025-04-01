@@ -3,7 +3,7 @@ from typing import Dict, List, Set, Tuple
 
 import networkx as nx
 
-from ..model import DbrefGeoNode, Edge, GeoNode, Node, Signal, Topology, Wgs84GeoNode
+from ..model import DbrefGeoNode, Edge, GeoNode, Node, Signal, Topology, Wgs84GeoNode, SignalDirection
 
 
 class CompareMatching:
@@ -114,7 +114,7 @@ class Compare:
         for node_a, node_b in given_node_matching.items():
             __add_to_open_nodes(node_a, node_b)
 
-        # bfs at start nodes to generate matching
+        # node and edge matching with a bfs
         while open_nodes:
             current_tuple = open_nodes.pop(0)
             node_a = current_tuple[0]
@@ -130,7 +130,6 @@ class Compare:
 
             __add_to_open_nodes(node_a.connected_on_head, node_b.connected_on_head)
             __add_edges_to_matching(node_a.connected_edge_on_head, node_b.connected_edge_on_head)
-            # signals in order per direction
             if node_a.is_point():
                 __add_to_open_nodes(node_a.connected_on_left, node_b.connected_on_left)
                 __add_edges_to_matching(node_a.connected_edge_on_left, node_b.connected_edge_on_left)
@@ -138,6 +137,37 @@ class Compare:
                     node_a.connected_on_right, node_b.connected_on_right
                 )
                 __add_edges_to_matching(node_a.connected_edge_on_right, node_b.connected_edge_on_right)
+
+        def __add_signal_lists_to_matching(signal_list_a: List[Signal], signal_list_b: List[Signal]):
+            for i in range(0, len(signal_list_a)):
+                signal_a = signal_list_a[i]
+                signal_b = signal_list_b[i]
+                result.signal_matching.element_matching[signal_a] = signal_b
+
+        # signal matching
+        for edge_a in topology_a.edges.values():
+            edge_b = result.edge_matching.element_matching[edge_a]
+            if not edge_a.signals and not edge_b.signals:
+                continue
+            if not edge_a.signals or not edge_b.signals:
+                raise ValueError(f"Signals on edges {edge_a.uuid} and {edge_b.uuid} does not match")
+            in_direction_a = [signal for signal in edge_a.signals if signal.direction == SignalDirection.IN]
+            in_direction_a.sort(key=lambda signal: signal.distance_edge)
+            other_direction_a = [signal for signal in edge_a.signals if signal.direction == SignalDirection.GEGEN]
+            other_direction_a.sort(key=lambda signal: signal.distance_edge)
+            in_direction_b = [signal for signal in edge_b.signals if signal.direction == SignalDirection.IN]
+            in_direction_b.sort(key=lambda signal: signal.distance_edge)
+            other_direction_b = [signal for signal in edge_b.signals if signal.direction == SignalDirection.GEGEN]
+            other_direction_b.sort(key=lambda signal: signal.distance_edge)
+
+            if result.node_matching.element_matching[edge_a.node_a] != edge_b.node_a:
+                # edge b is reversed, so switch lists
+                in_direction_b, other_direction_b = list(reversed(other_direction_b)), list(reversed(in_direction_b))
+
+            if len(in_direction_a) != len(in_direction_b) or len(other_direction_a) != len(other_direction_b):
+                raise ValueError(f"Number of signals on edges {edge_a.uuid} and {edge_b.uuid} differs (per direction)")
+            __add_signal_lists_to_matching(in_direction_a, in_direction_b)
+            __add_signal_lists_to_matching(other_direction_a, other_direction_b)
 
     @staticmethod
     def _are_topologies_isomorphic(topology_a: Topology, topology_b: Topology):
@@ -171,7 +201,7 @@ class Compare:
                 distance_sum += abs(element_a.length - element_b.length)
             elif element_type == "signal":
                 x_a, y_a = element_a.get_calculated_coordinates()
-                x_b, y_b = element_a.get_calculated_coordinates()
+                x_b, y_b = element_b.get_calculated_coordinates()
                 distance_sum += DbrefGeoNode(x_a, y_a).get_distance_to_other_geo_node(DbrefGeoNode(x_b, y_b))
 
         return distance_sum
