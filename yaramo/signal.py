@@ -200,6 +200,27 @@ class Signal(BaseElement):
         (with relative direction on the edge)."""
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
 
+    def get_calculated_coordinates(self):
+        previous_geo_node = self.edge.node_a.geo_node
+        missing_nodes = self.edge.intermediate_geo_nodes + [self.edge.node_b.geo_node]
+        edge_distance_sum_so_far = 0
+
+        for inter_geo_node in missing_nodes:
+            edge_length = previous_geo_node.get_distance_to_other_geo_node(inter_geo_node)
+            if self.distance_edge < edge_distance_sum_so_far + edge_length:
+                # Signal is between the geo nodes
+                x1, y1 = previous_geo_node.x, previous_geo_node.y
+                x2, y2 = inter_geo_node.x, inter_geo_node.y
+                factor = (float(self.distance_edge) - edge_distance_sum_so_far) / edge_length
+                x = x1 + (factor * (x2 - x1))
+                y = y1 + (factor * (y2 - y1))
+                return x, y
+
+            edge_distance_sum_so_far = edge_distance_sum_so_far + edge_length
+            previous_geo_node = inter_geo_node
+        raise ValueError("Signal is out of edge.")
+
+
     def to_serializable(self) -> Tuple[dict, dict]:
         """See the description in the BaseElement class.
 
