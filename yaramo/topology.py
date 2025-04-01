@@ -66,6 +66,7 @@ class Topology(BaseElement):
             self.add_vacancy_section(vacancy_section)
 
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
+        result = []
         for edge_uuid in self.edges:
             edge = self.edges[edge_uuid]
             if (
@@ -74,8 +75,12 @@ class Topology(BaseElement):
                 or edge.node_a.uuid == node_b.uuid
                 and edge.node_b.uuid == node_a.uuid
             ):
-                return edge
-        return None
+                result.append(edge)
+        return result
+
+    def update_edge_lengths(self):
+        for edge in self.edges.values():
+            edge.update_length()
 
     def to_serializable(self):
         """See the description in the BaseElement class.

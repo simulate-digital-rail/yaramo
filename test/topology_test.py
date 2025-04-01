@@ -19,8 +19,11 @@ def test_get_edge_by_nodes():
     assert len(topology.edges) == 1
 
     def _test_edge(_node_a, _node_b, _expected_edge):
-        _edge = topology.get_edge_by_nodes(_node_a, _node_b)
-        assert _edge == _expected_edge
+        _edge_list = topology.get_edge_by_nodes(_node_a, _node_b)
+        if not _edge_list:
+            assert _expected_edge is None
+        else:
+            assert _edge_list[0] == _expected_edge
 
     _test_edge(node_a, node_b, edge)
     _test_edge(node_b, node_a, edge)
