@@ -220,7 +220,6 @@ class Signal(BaseElement):
             previous_geo_node = inter_geo_node
         raise ValueError("Signal is out of edge.")
 
-
     def to_serializable(self) -> Tuple[dict, dict]:
         """See the description in the BaseElement class.
 

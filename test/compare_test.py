@@ -28,7 +28,9 @@ def test_identical_topologies():
     edge_3 = Edge(node_4, node_3)
     edge_4 = Edge(node_4, node_5)
     edge_5 = Edge(node_4, node_6)
-    signal_1 = Signal(edge_3, 5, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal)
+    signal_1 = Signal(
+        edge_3, 5, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
     edge_3.signals.append(signal_1)
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
@@ -107,11 +109,32 @@ def test_edge_diff_and_signal_distance():
     edge_a3 = Edge(node_a3, node_a4)
     edge_a4 = Edge(node_a4, node_a5)
     edge_a5 = Edge(node_a4, node_a6)
-    signal_a1 = Signal(edge_a3, 2, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal, name="a1")
+    signal_a1 = Signal(
+        edge_a3,
+        2,
+        SignalDirection.IN,
+        SignalFunction.Block_Signal,
+        SignalKind.Hauptsignal,
+        name="a1",
+    )
     edge_a3.signals.append(signal_a1)
-    signal_a2 = Signal(edge_a3, 7, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal, name="a2")
+    signal_a2 = Signal(
+        edge_a3,
+        7,
+        SignalDirection.IN,
+        SignalFunction.Block_Signal,
+        SignalKind.Hauptsignal,
+        name="a2",
+    )
     edge_a3.signals.append(signal_a2)
-    signal_a3 = Signal(edge_a3, 5, SignalDirection.GEGEN, SignalFunction.Block_Signal, SignalKind.Hauptsignal, name="a3")
+    signal_a3 = Signal(
+        edge_a3,
+        5,
+        SignalDirection.GEGEN,
+        SignalFunction.Block_Signal,
+        SignalKind.Hauptsignal,
+        name="a3",
+    )
     edge_a3.signals.append(signal_a3)
     topology_a.add_nodes([node_a1, node_a2, node_a3, node_a4, node_a5, node_a6])
     topology_a.add_edges([edge_a1, edge_a2, edge_a3, edge_a4, edge_a5])
@@ -130,11 +153,32 @@ def test_edge_diff_and_signal_distance():
     edge_b3 = Edge(node_b4, node_b3)  # Edge is reversed compared to edge_a3
     edge_b4 = Edge(node_b4, node_b5)
     edge_b5 = Edge(node_b4, node_b6)
-    signal_b1 = Signal(edge_b3, 8, SignalDirection.GEGEN, SignalFunction.Block_Signal, SignalKind.Hauptsignal, name="b1")
+    signal_b1 = Signal(
+        edge_b3,
+        8,
+        SignalDirection.GEGEN,
+        SignalFunction.Block_Signal,
+        SignalKind.Hauptsignal,
+        name="b1",
+    )
     edge_b3.signals.append(signal_b1)
-    signal_b2 = Signal(edge_b3, 4, SignalDirection.GEGEN, SignalFunction.Block_Signal, SignalKind.Hauptsignal, name="b2")
+    signal_b2 = Signal(
+        edge_b3,
+        4,
+        SignalDirection.GEGEN,
+        SignalFunction.Block_Signal,
+        SignalKind.Hauptsignal,
+        name="b2",
+    )
     edge_b3.signals.append(signal_b2)
-    signal_b3 = Signal(edge_b3, 6, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal, name="b3")
+    signal_b3 = Signal(
+        edge_b3,
+        6,
+        SignalDirection.IN,
+        SignalFunction.Block_Signal,
+        SignalKind.Hauptsignal,
+        name="b3",
+    )
     edge_b3.signals.append(signal_b3)
     topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4, node_b5, node_b6])
     topology_b.add_edges([edge_b1, edge_b2, edge_b3, edge_b4, edge_b5])
