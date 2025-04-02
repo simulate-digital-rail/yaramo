@@ -1,73 +1,87 @@
+import math
 from abc import ABC, abstractmethod
 
+import pyproj
+
 from yaramo.base_element import BaseElement
-from yaramo.geo_point import DbrefGeoPoint, GeoPoint, Wgs84GeoPoint
 
 
 class GeoNode(ABC, BaseElement):
     """This is the baseclass of specific GeoNodes that use different coordinate systems.
 
-    A GeoNode refers to a GeoPoint as a means of location.
+    A GeoNode is characterized by it's x and y coordinates.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, x, y, **kwargs):
         super().__init__(**kwargs)
-        self.geo_point: GeoPoint = None
+        self.x = x
+        self.y = y
 
     @abstractmethod
     def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
-        """Returns to distance to the given other GeoNode."""
-
-        pass
-
-    @abstractmethod
-    def to_wgs84(self) -> "Wgs84GeoNode":
-        pass
-
-    @abstractmethod
-    def to_dbref(self) -> "DbrefGeoNode":
         pass
 
     def to_serializable(self):
-        """See the description in the BaseElement class.
+        return self.__dict__, {}
 
-        Returns:
-            A serializable dictionary and a dictionary with serialized objects (GeoPoints).
-        """
-        attributes = self.__dict__
-        references = {
-            "geo_point": self.geo_point.uuid,
-        }
-        point_object, point_serialized = self.geo_point.to_serializable()
-        return {**attributes, **references}, {self.geo_point.uuid: point_object, **point_serialized}
+    @abstractmethod
+    def to_wgs84(self):
+        pass
+
+    @abstractmethod
+    def to_dbref(self):
+        pass
 
 
 class Wgs84GeoNode(GeoNode):
-    def __init__(self, x, y, **kwargs):
-        super().__init__(**kwargs)
-        self.geo_point = Wgs84GeoPoint(x, y)
-
     def get_distance_to_other_geo_node(self, geo_node_b: "Wgs84GeoNode"):
-        return self.geo_point.get_distance_to_other_geo_point(geo_node_b.geo_point)
+        assert type(self) == type(
+            geo_node_b
+        ), "You cannot calculate the distance between a Wgs84GeoNode and a DbrefGeoNode!"
+        return self.__haversine_distance(geo_node_b) / 1000
 
-    def to_wgs84(self) -> "Wgs84GeoNode":
+    def __haversine_distance(self, geo_node_b: "GeoNode"):
+        pi_over_180 = float(math.pi / 180)
+        return (
+            2
+            * 6371000
+            * math.asin(
+                math.pi
+                / 180
+                * math.sqrt(
+                    math.pow(math.sin((pi_over_180 * (geo_node_b.x - self.x)) / 2), 2)
+                    + math.cos(pi_over_180 * self.x)
+                    * math.cos(pi_over_180 * geo_node_b.x)
+                    * math.pow(math.sin((pi_over_180 * (geo_node_b.y - self.y)) / 2), 2)
+                )
+            )
+        )
+
+    def to_wgs84(self):
         return self
 
-    def to_dbref(self) -> "DbrefGeoNode":
-        geopoint = self.geo_point.to_dbref()
-        return DbrefGeoNode(geopoint.x, geopoint.y)
+    def to_dbref(self):
+        transformer = pyproj.Transformer.from_crs("epsg:4326", "epsg:31468")
+        x, y = transformer.transform(self.y, self.x)
+        return DbrefGeoNode(x, y)
 
 
 class DbrefGeoNode(GeoNode):
-    def __init__(self, x, y, **kwargs):
-        super().__init__(**kwargs)
-        self.geo_point = DbrefGeoPoint(x, y)
-
     def get_distance_to_other_geo_node(self, geo_node_b: "DbrefGeoNode"):
-        return self.geo_point.get_distance_to_other_geo_point(geo_node_b.geo_point)
+        assert type(self) == type(
+            geo_node_b
+        ), "You cannot calculate the distance between a DbrefGeoNode and a Wgs84GeoNode!"
+        return self.__eucldian_distance(geo_node_b)
 
-    def to_wgs84(self) -> "Wgs84GeoNode":
+    def __eucldian_distance(self, geo_node_b: "GeoNode"):
+        min_x = min(self.x, geo_node_b.x)
+        min_y = min(self.y, geo_node_b.y)
+        max_x = max(self.x, geo_node_b.x)
+        max_y = max(self.y, geo_node_b.y)
+        return math.sqrt(math.pow(max_x - min_x, 2) + math.pow(max_y - min_y, 2))
+
+    def to_wgs84(self):
         raise NotImplementedError
 
-    def to_dbref(self) -> "DbrefGeoNode":
+    def to_dbref(self):
         return self

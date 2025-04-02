@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import simplejson as json
 
 from yaramo.base_element import BaseElement
@@ -22,6 +24,9 @@ class Topology(BaseElement):
         self.signals: dict[str, Signal] = {}
         self.routes: dict[str, Route] = {}
         self.vacancy_sections: dict[str, VacancySection] = {}
+
+        self.created_at: datetime = datetime.now()
+        self.created_with: str = "unknown"
 
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
