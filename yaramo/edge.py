@@ -42,7 +42,9 @@ class Edge(BaseElement):
         super().__init__(**kwargs)
         self.intermediate_geo_nodes = intermediate_geo_nodes or []
         self.node_a = node_a
+        self.node_a.connected_edges.append(self)
         self.node_b = node_b
+        self.node_b.connected_edges.append(self)
         self.signals = signals or []
         self.length = length
         self.maximum_speed = maximum_speed
@@ -76,6 +78,15 @@ class Edge(BaseElement):
             self.node_b.geo_node
         )
         return total_length
+
+    def get_direction_based_on_start_node(self, start: "Node") -> "SignalDirection":
+        from yaramo.signal import SignalDirection
+
+        if self.node_a.uuid == start.uuid:
+            return SignalDirection.IN
+        elif self.node_b.uuid == start.uuid:
+            return SignalDirection.GEGEN
+        return None
 
     def get_direction_based_on_nodes(self, node_a: "Node", node_b: "Node") -> "SignalDirection":
         """Returns the direction according to whether the order of node_a and node_b is the same as in self
@@ -131,6 +142,45 @@ class Edge(BaseElement):
                 result.append(signal)
         result.sort(key=lambda x: x.distance_edge, reverse=(direction == SignalDirection.GEGEN))
         return result
+
+    def get_opposite_node(self, node: "Node") -> "Node":
+        """Returns the opposite Node of the given Node
+
+        Parameters
+        ----------
+        node : Node
+            The Node to get the opposite Node of
+
+        Returns
+        -------
+        Node
+            The opposite Node
+        """
+
+        if self.node_a.uuid == node.uuid:
+            return self.node_b
+        return self.node_a
+
+    def get_next_geo_node(self, node: "Node") -> "GeoNode":
+        """Returns the next GeoNode on Edgeof the given Top Node
+
+        Parameters
+        ----------
+        geo_node : Node
+            The Top Node to get the next GeoNode of
+
+        Returns
+        -------
+        GeoNode
+            The next GeoNode
+        """
+        if len(self.intermediate_geo_nodes) < 2:
+            return self.get_opposite_node(node).geo_node
+        if self.node_a.uuid == node.uuid:
+            return self.intermediate_geo_nodes[1]
+        if self.node_b.uuid == node.uuid:
+            return self.intermediate_geo_nodes[-2]
+        return None
 
     def to_serializable(self):
         """See the description in the BaseElement class.

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 from enum import Enum
 
 import simplejson as json
@@ -45,6 +46,9 @@ class Topology(BaseElement):
         self.vacancy_sections: dict[str, VacancySection] = {}
         self.current_status: PlanningState = PlanningState.erstellt
         self.status_information: dict[PlanningState, dict[str, str]] = defaultdict(dict)
+
+        self.created_at: datetime = datetime.now()
+        self.created_with: str = "unknown"
 
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
