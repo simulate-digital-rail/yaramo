@@ -19,18 +19,19 @@ class GeoNode(ABC, BaseElement):
 
     @abstractmethod
     def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
+        """Returns to distance to the given other GeoNode."""
+        pass
+
+    @abstractmethod
+    def to_wgs84(self) -> "Wgs84GeoNode":
+        pass
+
+    @abstractmethod
+    def to_dbref(self) -> "DbrefGeoNode":
         pass
 
     def to_serializable(self):
         return self.__dict__, {}
-
-    @abstractmethod
-    def to_wgs84(self):
-        pass
-
-    @abstractmethod
-    def to_dbref(self):
-        pass
 
 
 class Wgs84GeoNode(GeoNode):
