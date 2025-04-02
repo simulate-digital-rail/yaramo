@@ -1,3 +1,7 @@
+from collections import defaultdict
+from datetime import datetime
+from enum import Enum
+
 import simplejson as json
 
 from yaramo.base_element import BaseElement
@@ -9,10 +13,28 @@ from yaramo.signal import Signal
 from yaramo.vacancy_section import VacancySection
 
 
+class PlanningState(Enum):
+    erstellt = 1
+    qualitaetsgeprueft = 2
+    plangeprueft = 3
+    freigegeben = 4
+    genehmigt = 5
+    abgenommen = 6
+    uebernommen = 7
+    gleichgestellt = 8
+    sonstige = 9
+
+    def __str__(self):
+        return self.name
+
+
 class Topology(BaseElement):
     """The Topology is a collection of all track elements comprising that topology.
 
     Elements like Signals, Nodes, Edges, Routes and Vacancy Sections can be accessed by their uuid in their respective dictionary.
+
+    The status_information provides additional information for each PlanningState, with the keys of the inner dict
+    being based on the PlanPro Akteur_Zuordnung class.
     """
 
     def __init__(self, **kwargs):
@@ -22,6 +44,11 @@ class Topology(BaseElement):
         self.signals: dict[str, Signal] = {}
         self.routes: dict[str, Route] = {}
         self.vacancy_sections: dict[str, VacancySection] = {}
+        self.current_status: PlanningState = PlanningState.erstellt
+        self.status_information: dict[PlanningState, dict[str, str]] = defaultdict(dict)
+
+        self.created_at: datetime = datetime.now()
+        self.created_with: str = "unknown"
 
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
@@ -49,6 +76,15 @@ class Topology(BaseElement):
             ):
                 return edge
         return None
+
+    def get_route_by_signal_names(self, start_signal_name, end_signal_name):
+        for route_uuid in self.routes:
+            route = self.routes[route_uuid]
+            if (
+                route.start_signal.name == start_signal_name
+                and route.end_signal.name == end_signal_name
+            ):
+                return route
 
     def to_serializable(self):
         """See the description in the BaseElement class.
@@ -78,12 +114,16 @@ class Topology(BaseElement):
             "routes": routes,
             "objects": objects,
             "vacany_sections": vacancy_sections,
+            "current_status": self.current_status.value,
+            "status_information": self.status_information,
         }, {}
 
     @classmethod
     def from_json(cls, json_str: str):
         obj = json.loads(json_str)
         topology = cls()
+        topology.current_status = PlanningState(obj.get("current_status", PlanningState.erstellt))
+        topology.status_information = obj.get("status_information", defaultdict(dict))
         for node in obj["nodes"]:
             node_obj = Node(**node)
             topology.add_node(node_obj)
