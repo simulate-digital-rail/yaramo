@@ -178,9 +178,7 @@ class Node(BaseElement):
                 # left turn more than (or almost) 90°
                 continue
 
-            right_angle_abs = get_rad_between_nodes(
-                self.geo_node, right.get_next_geo_node(self)
-            )
+            right_angle_abs = get_rad_between_nodes(self.geo_node, right.get_next_geo_node(self))
             right_angle_rel = right_angle_abs - head_angle_abs
             if cos(right_angle_rel) <= almost_zero:
                 # right turn more than (or almost) 90°
