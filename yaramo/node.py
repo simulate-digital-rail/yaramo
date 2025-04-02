@@ -155,15 +155,15 @@ class Node(BaseElement):
     def calc_anschluss_of_all_edges(self):
         """Calculates and sets the 'Anschluss' or connection side of
         the connected_nodes based on their geo location."""
-
         if len(self.connected_edges) == 1:
             self.connected_edge_on_head = self.connected_edges[0]
             return
+        almost_zero = sys.float_info.epsilon
 
-        def get_arc_between_geo_nodes(geo_node_a: "GeoNode", geo_node_b: "GeoNode") -> float:
+        def get_rad_between_nodes(geo_node_a: GeoNode, geo_node_b: GeoNode) -> float:
             """
             Returns the angle of an (maybe imaginary) line between
-            :param:`node_a` and :param:`node_b`.
+            :param:`geo_node_a` and :param:`geo_node_b`.
             """
             return atan2(geo_node_b.y - geo_node_a.y, geo_node_b.x - geo_node_a.x)
 
@@ -171,20 +171,25 @@ class Node(BaseElement):
         # permutations and checking for plausibility.
         for head, left, right in permutations(self.connected_edges):
 
-            head_angle_abs = get_arc_between_geo_nodes(head.get_next_geo_node(self), self.geo_node)
-            left_angle_abs = get_arc_between_geo_nodes(self.geo_node, left.get_next_geo_node(self))
+            head_angle_abs = get_rad_between_nodes(head.get_next_geo_node(self), self.geo_node)
+            left_angle_abs = get_rad_between_nodes(self.geo_node, left.get_next_geo_node(self))
             left_angle_rel = left_angle_abs - head_angle_abs
-            if cos(left_angle_rel) <= sys.float_info.epsilon:
+            if cos(left_angle_rel) <= almost_zero:
                 # left turn more than (or almost) 90°
                 continue
 
-            right_angle_abs = get_arc_between_geo_nodes(
-                self.geo_node, right.get_next_geo_node(self)
-            )
+            right_angle_abs = get_rad_between_nodes(self.geo_node, right.get_next_geo_node(self))
             right_angle_rel = right_angle_abs - head_angle_abs
-            if cos(right_angle_rel) <= sys.float_info.epsilon:
-                # left turn more than (or almost) 90°
+            if cos(right_angle_rel) <= almost_zero:
+                # right turn more than (or almost) 90°
                 continue
+
+            if cos(left_angle_abs - right_angle_abs) <= almost_zero:
+                # turn from left to right less than (or almost) 90°
+                raise Exception(
+                    f"Node {self} has three connected nodes but "
+                    "geometrically, it does not look like a switch."
+                )
 
             if sin(left_angle_rel) < sin(right_angle_rel):
                 # Left and right mixed up. Although the permutations do

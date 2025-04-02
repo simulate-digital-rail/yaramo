@@ -1,5 +1,8 @@
 from itertools import product
 
+from pytest import raises
+
+from yaramo.geo_node import Wgs84GeoNode
 from yaramo.model import Node
 
 from .helper import create_edge, create_node
@@ -134,3 +137,17 @@ def test_anschluss():
             assert switch.connected_on_right == right, (
                 "right node " f"{coords_str(switch.connected_on_right)} incorrect"
             )
+
+
+def test_implausible_anschluss():
+    """Assert that detection of "Anschluss" (head, left, right) raises
+    an exception on really implausible geographies."""
+    head = create_node(0, 0)  # layout:
+    point = create_node(2, 2)  #      l
+    left = create_node(1, 3)  #       s r
+    right = create_node(3, 2)  #     h
+
+    point.connected_nodes.extend((head, left, right))
+
+    with raises(Exception) as exception:
+        point.calc_anschluss_of_all_nodes()
