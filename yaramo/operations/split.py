@@ -17,7 +17,11 @@ class Label(Enum):
 
 class Split:
     @staticmethod
-    def split(topology: Topology, split_edges: Dict[Edge, float]) -> Tuple[Topology, Topology]:
+    def split(
+        topology: Topology,
+        split_edges: Dict[Edge, float],
+        add_missing_elements_to_topology: None | Label = None,
+    ) -> Tuple[Topology, Topology]:
         Split._validate_split_edges(split_edges)
 
         topology_a = Topology()
@@ -25,6 +29,11 @@ class Split:
 
         new_end_nodes = Split._split_edges(topology, split_edges)
         node_labels, edge_labels, signal_labels = Split._label_elements(topology, new_end_nodes)
+
+        if add_missing_elements_to_topology is not None:
+            Split._assign_missing_elements_to_label(
+                topology, node_labels, edge_labels, signal_labels, add_missing_elements_to_topology
+            )
 
         # Add nodes, edges and signals to destination topologies.
         def _add_elements_to_topology(
@@ -187,6 +196,24 @@ class Split:
                 _dfs(node_a, Label.get_opposite_label(node_labels[node_b]))
 
         return node_labels, edge_labels, signal_labels
+
+    @staticmethod
+    def _assign_missing_elements_to_label(
+        topology: Topology,
+        node_labels: Dict[Node, Label],
+        edge_labels: Dict[Edge, Label],
+        signal_labels: Dict[Signal, Label],
+        label: Label,
+    ):
+        for node in topology.nodes.values():
+            if node not in node_labels:
+                node_labels[node] = label
+        for edge in topology.edges.values():
+            if edge not in edge_labels:
+                edge_labels[edge] = label
+        for signal in topology.signals.values():
+            if signal not in signal_labels:
+                signal_labels[signal] = label
 
     @staticmethod
     def _validate_for_data_loss(

@@ -11,7 +11,7 @@ from yaramo.model import (
     Topology,
     Wgs84GeoNode,
 )
-from yaramo.operations import Split
+from yaramo.operations import Label, Split
 
 
 def test_simple_split():
@@ -257,16 +257,20 @@ def test_add_non_connected_elements_to_a_partition():
     node_b4 = Node(geo_node=Wgs84GeoNode(120, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
-    edge_3 = Edge(node_4, node_3)
+    edge_3 = Edge(node_3, node_4)
     edge_4 = Edge(node_4, node_5)
     edge_5 = Edge(node_4, node_6)
     edge_b1 = Edge(node_b1, node_b2)
     edge_b2 = Edge(node_b2, node_b3)
     edge_b3 = Edge(node_b2, node_b4)
-    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_b1, node_b2, node_b3, node_b4])
+    topology.add_nodes(
+        [node_1, node_2, node_3, node_4, node_5, node_6, node_b1, node_b2, node_b3, node_b4]
+    )
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_b1, edge_b2, edge_b3])
 
-    topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0})
+    topology_a, topology_b = Split.split(
+        topology, split_edges={edge_3: 5.0}, add_missing_elements_to_topology=Label.A_Topology
+    )
 
     assert set([node_1, node_2, node_3, node_b1, node_b2, node_b3, node_b4]).issubset(
         topology_a.nodes.values()
