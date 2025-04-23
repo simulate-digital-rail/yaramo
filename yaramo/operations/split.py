@@ -8,10 +8,20 @@ class Label(Enum):
     A_Topology = auto()
     B_Topology = auto()
 
+    @staticmethod
+    def get_opposite_label(label):
+        if label == Label.A_Topology:
+            return Label.B_Topology
+        return Label.A_Topology
+
 
 class Split:
     @staticmethod
-    def split(topology: Topology, split_edges: Dict[Edge, float]) -> Tuple[Topology, Topology]:
+    def split(
+        topology: Topology,
+        split_edges: Dict[Edge, float],
+        add_missing_elements_to_topology: None | Label = None,
+    ) -> Tuple[Topology, Topology]:
         Split._validate_split_edges(split_edges)
 
         topology_a = Topology()
@@ -19,6 +29,11 @@ class Split:
 
         new_end_nodes = Split._split_edges(topology, split_edges)
         node_labels, edge_labels, signal_labels = Split._label_elements(topology, new_end_nodes)
+
+        if add_missing_elements_to_topology is not None:
+            Split._assign_missing_elements_to_label(
+                topology, node_labels, edge_labels, signal_labels, add_missing_elements_to_topology
+            )
 
         # Add nodes, edges and signals to destination topologies.
         def _add_elements_to_topology(
@@ -165,11 +180,40 @@ class Split:
 
         if not new_end_nodes:
             raise ValueError("No new end nodes found. Split not possible")
-        any_pair = list(new_end_nodes.values())[0]
-        _dfs(any_pair[0], Label.A_Topology)
-        _dfs(any_pair[1], Label.B_Topology)
+
+        for end_node_pair in new_end_nodes.values():
+            node_a = end_node_pair[0]
+            node_b = end_node_pair[1]
+            if node_a not in node_labels and node_b not in node_labels:
+                _dfs(node_a, Label.A_Topology)
+                _dfs(node_b, Label.B_Topology)
+            elif node_a in node_labels and node_b in node_labels:
+                if node_labels[node_a] == node_labels[node_b]:
+                    raise ValueError("Split edges do not fully split. Split not possible.")
+            elif node_a in node_labels:
+                _dfs(node_b, Label.get_opposite_label(node_labels[node_a]))
+            elif node_b in node_labels:
+                _dfs(node_a, Label.get_opposite_label(node_labels[node_b]))
 
         return node_labels, edge_labels, signal_labels
+
+    @staticmethod
+    def _assign_missing_elements_to_label(
+        topology: Topology,
+        node_labels: Dict[Node, Label],
+        edge_labels: Dict[Edge, Label],
+        signal_labels: Dict[Signal, Label],
+        label: Label,
+    ):
+        for node in topology.nodes.values():
+            if node not in node_labels:
+                node_labels[node] = label
+        for edge in topology.edges.values():
+            if edge not in edge_labels:
+                edge_labels[edge] = label
+        for signal in topology.signals.values():
+            if signal not in signal_labels:
+                signal_labels[signal] = label
 
     @staticmethod
     def _validate_for_data_loss(

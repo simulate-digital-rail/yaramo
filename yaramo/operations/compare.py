@@ -61,10 +61,15 @@ class Compare:
                 raise ValueError(
                     "For isomorphic topologies, at least one mathing node needs to be given."
                 )
-            Compare._calc_isomorphic_matching(result, topology_a, topology_b, given_node_matching, skip_signals)
+            Compare._calc_isomorphic_matching(
+                result, topology_a, topology_b, given_node_matching, skip_signals
+            )
 
         result.node_distance = Compare._calc_distance_for_matching(
-            result.node_matching, exclude_ends_in_calculation, start_node_a=list(given_node_matching.keys())[0], start_node_b=list(given_node_matching.values())[0]
+            result.node_matching,
+            exclude_ends_in_calculation,
+            start_node_a=list(given_node_matching.keys())[0],
+            start_node_b=list(given_node_matching.values())[0],
         )
         result.edge_length_difference = Compare._calc_distance_for_matching(
             result.edge_matching, exclude_ends_in_calculation, element_type="edge"
@@ -159,6 +164,7 @@ class Compare:
                 )
 
         if not skip_signals:
+
             def __add_signal_lists_to_matching(
                 signal_list_a: List[Signal], signal_list_b: List[Signal]
             ):
@@ -173,7 +179,9 @@ class Compare:
                 if not edge_a.signals and not edge_b.signals:
                     continue
                 if not edge_a.signals or not edge_b.signals:
-                    raise ValueError(f"Signals on edges {edge_a.uuid} and {edge_b.uuid} does not match")
+                    raise ValueError(
+                        f"Signals on edges {edge_a.uuid} and {edge_b.uuid} does not match"
+                    )
                 in_direction_a = [
                     signal for signal in edge_a.signals if signal.direction == SignalDirection.IN
                 ]
@@ -219,7 +227,11 @@ class Compare:
 
     @staticmethod
     def _calc_distance_for_matching(
-        matching: CompareMatching, exclude_ends_in_calculation, element_type: str = "node", start_node_a: Node = None, start_node_b: Node = None,
+        matching: CompareMatching,
+        exclude_ends_in_calculation,
+        element_type: str = "node",
+        start_node_a: Node = None,
+        start_node_b: Node = None,
     ):
         if not matching.element_matching:
             return -1.0
@@ -235,7 +247,10 @@ class Compare:
                 start_geo_node_b = start_node_b.geo_node
                 geo_node_a: GeoNode = element_a.geo_node
                 geo_node_b: GeoNode = element_b.geo_node
-                distance = abs(start_geo_node_a.get_distance_to_other_geo_node(geo_node_a) - start_geo_node_b.get_distance_to_other_geo_node(geo_node_b))
+                distance = abs(
+                    start_geo_node_a.get_distance_to_other_geo_node(geo_node_a)
+                    - start_geo_node_b.get_distance_to_other_geo_node(geo_node_b)
+                )
                 print(f"From {element_a.uuid} to {element_b.uuid}: {distance}")
                 distance_sum += distance
             elif element_type == "edge":
@@ -243,7 +258,9 @@ class Compare:
                     not element_a.node_a.is_point() or not element_a.node_b.is_point()
                 ):
                     continue
-                print(f"Edge {element_a.uuid} compared to {element_b.uuid}: {abs(element_a.length - element_b.length)}")
+                print(
+                    f"Edge {element_a.uuid} compared to {element_b.uuid}: {abs(element_a.length - element_b.length)}"
+                )
                 distance_sum += abs(element_a.length - element_b.length)
             elif element_type == "signal":
                 x_a, y_a = element_a.get_calculated_coordinates()
