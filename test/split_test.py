@@ -179,7 +179,7 @@ def test_invalid_split_not_enough_edges():
         topology_a, topology_b = Split.split(topology, split_edges={edge_4: 5.0})
 
 
-def test_invalid_split_more_than_two_partitions():
+def test_split_in_three_partitions():
     topology = Topology()
     node_1 = Node(geo_node=Wgs84GeoNode(0, 10))
     node_2 = Node(geo_node=Wgs84GeoNode(0, 0))
@@ -193,14 +193,54 @@ def test_invalid_split_more_than_two_partitions():
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
     edge_4 = Edge(node_4, node_5)
-    edge_5 = Edge(node_4, node_6)
+    edge_5 = Edge(node_6, node_4)
     edge_6 = Edge(node_6, node_7)
     edge_7 = Edge(node_6, node_8)
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7])
 
-    with pytest.raises(ValueError):
-        topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0, edge_5: 5.0})
+    topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0, edge_5: 5.0})
+    assert set([node_1, node_2, node_3, node_6, node_7, node_8]).issubset(topology_a.nodes.values())
+    assert set([node_4, node_5]).issubset(topology_b.nodes.values())
+    assert set([edge_1, edge_2, edge_6, edge_7]).issubset(topology_a.edges.values())
+    assert set([edge_4]).issubset(topology_b.edges.values())
+
+
+def test_split_in_more_than_three_partitions():
+    topology = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 10))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=Wgs84GeoNode(30, 0))  # Point
+    node_6 = Node(geo_node=Wgs84GeoNode(40, 10))  # Point
+    node_7 = Node(geo_node=Wgs84GeoNode(50, 10))
+    node_8 = Node(geo_node=Wgs84GeoNode(50, 20))
+    node_9 = Node(geo_node=Wgs84GeoNode(50, 5))
+    node_A = Node(geo_node=Wgs84GeoNode(50, 0))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_3, node_4)
+    edge_4 = Edge(node_4, node_5)
+    edge_5 = Edge(node_6, node_4)
+    edge_6 = Edge(node_6, node_7)
+    edge_7 = Edge(node_6, node_8)
+    edge_8 = Edge(node_5, node_9)
+    edge_9 = Edge(node_5, node_A)
+    topology.add_nodes(
+        [node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8, node_9, node_A]
+    )
+    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_8, edge_9])
+
+    topology_a, topology_b = Split.split(
+        topology, split_edges={edge_3: 5.0, edge_5: 5.0, edge_4: 5.0}
+    )
+    assert set([node_1, node_2, node_3, node_5, node_6, node_7, node_8, node_9, node_A]).issubset(
+        topology_a.nodes.values()
+    )
+    assert set([node_4]).issubset(topology_b.nodes.values())
+    assert set([edge_1, edge_2, edge_6, edge_7, edge_8, edge_9]).issubset(topology_a.edges.values())
+    # No predefined edges are left in topology B due to split edges
 
 
 def test_elements_on_split_edges():

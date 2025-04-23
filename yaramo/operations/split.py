@@ -8,6 +8,12 @@ class Label(Enum):
     A_Topology = auto()
     B_Topology = auto()
 
+    @staticmethod
+    def get_opposite_label(label):
+        if label == Label.A_Topology:
+            return Label.B_Topology
+        return Label.A_Topology
+
 
 class Split:
     @staticmethod
@@ -165,9 +171,20 @@ class Split:
 
         if not new_end_nodes:
             raise ValueError("No new end nodes found. Split not possible")
-        any_pair = list(new_end_nodes.values())[0]
-        _dfs(any_pair[0], Label.A_Topology)
-        _dfs(any_pair[1], Label.B_Topology)
+
+        for end_node_pair in new_end_nodes.values():
+            node_a = end_node_pair[0]
+            node_b = end_node_pair[1]
+            if node_a not in node_labels and node_b not in node_labels:
+                _dfs(node_a, Label.A_Topology)
+                _dfs(node_b, Label.B_Topology)
+            elif node_a in node_labels and node_b in node_labels:
+                if node_labels[node_a] == node_labels[node_b]:
+                    raise ValueError("Split edges do not fully split. Split not possible.")
+            elif node_a in node_labels:
+                _dfs(node_b, Label.get_opposite_label(node_labels[node_a]))
+            elif node_b in node_labels:
+                _dfs(node_a, Label.get_opposite_label(node_labels[node_b]))
 
         return node_labels, edge_labels, signal_labels
 
