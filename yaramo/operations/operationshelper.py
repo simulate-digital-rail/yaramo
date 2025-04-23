@@ -1,5 +1,4 @@
 class OperationsHelper:
-
     @staticmethod
     def copy_topology_metadata(orig_topology: Topology, new_topology: Topology):
         new_topology.name = orig_topology.name
