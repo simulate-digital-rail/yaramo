@@ -45,6 +45,7 @@ class Compare:
         compare_mode: CompareMode,
         given_node_matching: Dict[Node, Node] | None = None,
         exclude_ends_in_calculation: bool = False,
+        skip_signals: bool = False,
     ) -> CompareResult:
         if given_node_matching is None:
             given_node_matching = {}
@@ -60,17 +61,18 @@ class Compare:
                 raise ValueError(
                     "For isomorphic topologies, at least one mathing node needs to be given."
                 )
-            Compare._calc_isomorphic_matching(result, topology_a, topology_b, given_node_matching)
+            Compare._calc_isomorphic_matching(result, topology_a, topology_b, given_node_matching, skip_signals)
 
         result.node_distance = Compare._calc_distance_for_matching(
-            result.node_matching, exclude_ends_in_calculation
+            result.node_matching, exclude_ends_in_calculation, start_node_a=list(given_node_matching.keys())[0], start_node_b=list(given_node_matching.values())[0]
         )
         result.edge_length_difference = Compare._calc_distance_for_matching(
             result.edge_matching, exclude_ends_in_calculation, element_type="edge"
         )
-        result.signal_distance = Compare._calc_distance_for_matching(
-            result.signal_matching, exclude_ends_in_calculation, element_type="signal"
-        )
+        if not skip_signals:
+            result.signal_distance = Compare._calc_distance_for_matching(
+                result.signal_matching, exclude_ends_in_calculation, element_type="signal"
+            )
         return result
 
     @staticmethod
@@ -103,6 +105,7 @@ class Compare:
         topology_a: Topology,
         topology_b: Topology,
         given_node_matching: Dict[Node, Node],
+        skip_signals: bool,
     ):
         open_nodes: List[Tuple[Node, Node]] = []
 
@@ -155,52 +158,53 @@ class Compare:
                     node_a.connected_edge_on_right, node_b.connected_edge_on_right
                 )
 
-        def __add_signal_lists_to_matching(
-            signal_list_a: List[Signal], signal_list_b: List[Signal]
-        ):
-            for i in range(0, len(signal_list_a)):
-                signal_a = signal_list_a[i]
-                signal_b = signal_list_b[i]
-                result.signal_matching.element_matching[signal_a] = signal_b
-
-        # signal matching
-        for edge_a in topology_a.edges.values():
-            edge_b = result.edge_matching.element_matching[edge_a]
-            if not edge_a.signals and not edge_b.signals:
-                continue
-            if not edge_a.signals or not edge_b.signals:
-                raise ValueError(f"Signals on edges {edge_a.uuid} and {edge_b.uuid} does not match")
-            in_direction_a = [
-                signal for signal in edge_a.signals if signal.direction == SignalDirection.IN
-            ]
-            in_direction_a.sort(key=lambda signal: signal.distance_edge)
-            other_direction_a = [
-                signal for signal in edge_a.signals if signal.direction == SignalDirection.GEGEN
-            ]
-            other_direction_a.sort(key=lambda signal: signal.distance_edge)
-            in_direction_b = [
-                signal for signal in edge_b.signals if signal.direction == SignalDirection.IN
-            ]
-            in_direction_b.sort(key=lambda signal: signal.distance_edge)
-            other_direction_b = [
-                signal for signal in edge_b.signals if signal.direction == SignalDirection.GEGEN
-            ]
-            other_direction_b.sort(key=lambda signal: signal.distance_edge)
-
-            if result.node_matching.element_matching[edge_a.node_a] != edge_b.node_a:
-                # edge b is reversed, so switch lists
-                in_direction_b, other_direction_b = list(reversed(other_direction_b)), list(
-                    reversed(in_direction_b)
-                )
-
-            if len(in_direction_a) != len(in_direction_b) or len(other_direction_a) != len(
-                other_direction_b
+        if not skip_signals:
+            def __add_signal_lists_to_matching(
+                signal_list_a: List[Signal], signal_list_b: List[Signal]
             ):
-                raise ValueError(
-                    f"Number of signals on edges {edge_a.uuid} and {edge_b.uuid} differs (per direction)"
-                )
-            __add_signal_lists_to_matching(in_direction_a, in_direction_b)
-            __add_signal_lists_to_matching(other_direction_a, other_direction_b)
+                for i in range(0, len(signal_list_a)):
+                    signal_a = signal_list_a[i]
+                    signal_b = signal_list_b[i]
+                    result.signal_matching.element_matching[signal_a] = signal_b
+
+            # signal matching
+            for edge_a in topology_a.edges.values():
+                edge_b = result.edge_matching.element_matching[edge_a]
+                if not edge_a.signals and not edge_b.signals:
+                    continue
+                if not edge_a.signals or not edge_b.signals:
+                    raise ValueError(f"Signals on edges {edge_a.uuid} and {edge_b.uuid} does not match")
+                in_direction_a = [
+                    signal for signal in edge_a.signals if signal.direction == SignalDirection.IN
+                ]
+                in_direction_a.sort(key=lambda signal: signal.distance_edge)
+                other_direction_a = [
+                    signal for signal in edge_a.signals if signal.direction == SignalDirection.GEGEN
+                ]
+                other_direction_a.sort(key=lambda signal: signal.distance_edge)
+                in_direction_b = [
+                    signal for signal in edge_b.signals if signal.direction == SignalDirection.IN
+                ]
+                in_direction_b.sort(key=lambda signal: signal.distance_edge)
+                other_direction_b = [
+                    signal for signal in edge_b.signals if signal.direction == SignalDirection.GEGEN
+                ]
+                other_direction_b.sort(key=lambda signal: signal.distance_edge)
+
+                if result.node_matching.element_matching[edge_a.node_a] != edge_b.node_a:
+                    # edge b is reversed, so switch lists
+                    in_direction_b, other_direction_b = list(reversed(other_direction_b)), list(
+                        reversed(in_direction_b)
+                    )
+
+                if len(in_direction_a) != len(in_direction_b) or len(other_direction_a) != len(
+                    other_direction_b
+                ):
+                    raise ValueError(
+                        f"Number of signals on edges {edge_a.uuid} and {edge_b.uuid} differs (per direction)"
+                    )
+                __add_signal_lists_to_matching(in_direction_a, in_direction_b)
+                __add_signal_lists_to_matching(other_direction_a, other_direction_b)
 
     @staticmethod
     def _are_topologies_isomorphic(topology_a: Topology, topology_b: Topology):
@@ -215,7 +219,7 @@ class Compare:
 
     @staticmethod
     def _calc_distance_for_matching(
-        matching: CompareMatching, exclude_ends_in_calculation, element_type: str = "node"
+        matching: CompareMatching, exclude_ends_in_calculation, element_type: str = "node", start_node_a: Node = None, start_node_b: Node = None,
     ):
         if not matching.element_matching:
             return -1.0
@@ -227,14 +231,19 @@ class Compare:
             if element_type == "node":
                 if exclude_ends_in_calculation and not element_a.is_point():
                     continue
+                start_geo_node_a = start_node_a.geo_node
+                start_geo_node_b = start_node_b.geo_node
                 geo_node_a: GeoNode = element_a.geo_node
                 geo_node_b: GeoNode = element_b.geo_node
-                distance_sum += geo_node_a.get_distance_to_other_geo_node(geo_node_b)
+                distance = abs(start_geo_node_a.get_distance_to_other_geo_node(geo_node_a) - start_geo_node_b.get_distance_to_other_geo_node(geo_node_b))
+                print(f"From {element_a.uuid} to {element_b.uuid}: {distance}")
+                distance_sum += distance
             elif element_type == "edge":
                 if exclude_ends_in_calculation and (
                     not element_a.node_a.is_point() or not element_a.node_b.is_point()
                 ):
                     continue
+                print(f"Edge {element_a.uuid} compared to {element_b.uuid}: {abs(element_a.length - element_b.length)}")
                 distance_sum += abs(element_a.length - element_b.length)
             elif element_type == "signal":
                 x_a, y_a = element_a.get_calculated_coordinates()
