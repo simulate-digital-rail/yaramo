@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from ..model import Edge, Node, SignalDirection, Topology
+from .operationshelper import OperationsHelper
 
 
 class Union:
@@ -22,8 +23,7 @@ class Union:
             )
 
         topology_ab = Topology()
-        topology_ab.created_at = topology_a.created_at
-        topology_ab.created_with = topology_a.created_with
+        OperationsHelper.copy_topology_metadata(topology_a, topology_ab)
 
         topology_ab.nodes.update(topology_a.nodes)
         topology_ab.nodes.update(topology_b.nodes)
