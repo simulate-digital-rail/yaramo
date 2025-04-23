@@ -2,6 +2,7 @@ from enum import Enum, auto
 from typing import Dict, List, Set, Tuple
 
 from ..model import DbrefGeoNode, Edge, GeoNode, Node, Signal, Topology, Wgs84GeoNode
+from .operationshelper import OperationsHelper
 
 
 class Label(Enum):
@@ -25,7 +26,9 @@ class Split:
         Split._validate_split_edges(split_edges)
 
         topology_a = Topology()
+        OperationsHelper.copy_topology_metadata(topology, topology_a)
         topology_b = Topology()
+        OperationsHelper.copy_topology_metadata(topology, topology_b)
 
         new_end_nodes = Split._split_edges(topology, split_edges)
         node_labels, edge_labels, signal_labels = Split._label_elements(topology, new_end_nodes)
