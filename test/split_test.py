@@ -243,6 +243,39 @@ def test_split_in_more_than_three_partitions():
     # No predefined edges are left in topology B due to split edges
 
 
+def test_add_non_connected_elements_to_a_partition():
+    topology = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 10))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=Wgs84GeoNode(30, 0))
+    node_6 = Node(geo_node=Wgs84GeoNode(30, 10))
+    node_b1 = Node(geo_node=Wgs84GeoNode(100, 0))
+    node_b2 = Node(geo_node=Wgs84GeoNode(110, 0))  # Point
+    node_b3 = Node(geo_node=Wgs84GeoNode(120, 0))
+    node_b4 = Node(geo_node=Wgs84GeoNode(120, 10))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_4, node_3)
+    edge_4 = Edge(node_4, node_5)
+    edge_5 = Edge(node_4, node_6)
+    edge_b1 = Edge(node_b1, node_b2)
+    edge_b2 = Edge(node_b2, node_b3)
+    edge_b3 = Edge(node_b2, node_b4)
+    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_b1, node_b2, node_b3, node_b4])
+    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_b1, edge_b2, edge_b3])
+
+    topology_a, topology_b = Split.split(topology, split_edges={edge_3: 5.0})
+
+    assert set([node_1, node_2, node_3, node_b1, node_b2, node_b3, node_b4]).issubset(
+        topology_a.nodes.values()
+    )
+    assert set([node_4, node_5, node_6]).issubset(topology_b.nodes.values())
+    assert set([edge_1, edge_2, edge_b1, edge_b2, edge_b3]).issubset(topology_a.edges.values())
+    assert set([edge_4, edge_5]).issubset(topology_b.edges.values())
+
+
 def test_elements_on_split_edges():
     topology = Topology()
     node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
