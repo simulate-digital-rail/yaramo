@@ -22,7 +22,7 @@ class Split:
         topology: Topology,
         split_edges: Dict[Edge, float],
         add_missing_elements_to_topology: None | Label = None,
-        node_label_assignments: Dict[Node, Label] = None,
+        node_label_assignments: Node | Dict[Node, Label] = None,
     ) -> Tuple[Topology, Topology, Dict[Edge, Tuple[Node, Node]]]:
         Split._validate_split_edges(split_edges)
 
@@ -32,7 +32,11 @@ class Split:
         OperationsHelper.copy_topology_metadata(topology, topology_b)
 
         new_end_nodes = Split._split_edges(topology, split_edges)
-        node_labels, edge_labels, signal_labels = Split._label_elements(topology, new_end_nodes)
+
+        if node_label_assignments is None:
+            node_label_assignments = {}
+
+        node_labels, edge_labels, signal_labels = Split._label_elements(topology, new_end_nodes, node_label_assignments)
 
         if add_missing_elements_to_topology is not None:
             Split._assign_missing_elements_to_label(
@@ -157,7 +161,9 @@ class Split:
 
     @staticmethod
     def _label_elements(
-        topology: Topology, new_end_nodes: Dict[Edge, Tuple[Node, Node]]
+        topology: Topology,
+        new_end_nodes: Dict[Edge, Tuple[Node, Node]],
+        node_label_assignments: Node | Dict[Node, Label],
     ) -> Tuple[Dict[Node, Label], Dict[Edge, Label], Dict[Signal, Label]]:
         node_labels: Dict[Node, Label] = {}
         edge_labels: Dict[Edge, Label] = {}
@@ -186,6 +192,10 @@ class Split:
 
         if not new_end_nodes:
             raise ValueError("No new end nodes found. Split not possible")
+
+        for node, label in node_label_assignments.items():
+            _dfs(node, label)
+
 
         for end_node_pair in new_end_nodes.values():
             node_a = end_node_pair[0]
