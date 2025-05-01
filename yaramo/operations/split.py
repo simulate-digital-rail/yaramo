@@ -74,6 +74,8 @@ class Split:
             edge.update_length()
             if edge.length < distance_on_edge:
                 raise ValueError(f"The edge {edge.name} is shorter than split distance.")
+            if distance_on_edge <= 0:
+                raise ValueError(f"The split distance of the edge {edge.name} has to be greater than 0.")
             for signal in edge.signals:
                 if signal.distance_edge == distance_on_edge:
                     raise ValueError(
