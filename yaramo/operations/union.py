@@ -115,7 +115,7 @@ class Union:
         for signal in _edge.signals:
             # distance_edge and direction
             if _edge_direction_in:
-                signal.distance_edge = signal.distance_edge + _distance_offset
+                signal.distance_edge = float(signal.distance_edge) + _distance_offset
             else:
                 signal.distance_edge = (_edge.length - signal.distance_edge) + _distance_offset
                 signal.direction = SignalDirection.get_other_direction(signal.direction)
