@@ -22,6 +22,7 @@ class Split:
         topology: Topology,
         split_edges: Dict[Edge, float],
         add_missing_elements_to_topology: None | Label = None,
+        node_label_assignments: Dict[Node, Label] = None,
     ) -> Tuple[Topology, Topology]:
         Split._validate_split_edges(split_edges)
 
@@ -66,7 +67,7 @@ class Split:
 
         Split._validate_for_data_loss(topology, topology_a, topology_b, split_edges)
 
-        return topology_a, topology_b
+        return topology_a, topology_b, new_end_nodes
 
     @staticmethod
     def _validate_split_edges(split_edges: Dict[Edge, float]):
