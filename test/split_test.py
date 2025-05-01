@@ -584,31 +584,37 @@ def test_assign_nodes_to_labels_conflicting_label():
 
 
 def test_five_parts_after_split():
-    topology = Topology()
-    node_1 = Node(geo_node=Wgs84GeoNode(0, 5))
-    node_2 = Node(geo_node=Wgs84GeoNode(0, 0))
-    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=Wgs84GeoNode(30, 5))
-    node_6 = Node(geo_node=Wgs84GeoNode(30, 0))  # Point
-    node_7 = Node(geo_node=Wgs84GeoNode(40, 0))  # Point
-    node_8 = Node(geo_node=Wgs84GeoNode(50, 0))  # Point
-    node_9 = Node(geo_node=Wgs84GeoNode(60, 5))
-    node_10 = Node(geo_node=Wgs84GeoNode(60, 0))
-    edge_1 = Edge(node_1, node_3)
-    edge_2 = Edge(node_2, node_3)
-    edge_3 = Edge(node_4, node_3)
-    edge_4 = Edge(node_4, node_5)
-    edge_5 = Edge(node_4, node_6)
-    edge_6 = Edge(node_7, node_6)
-    edge_7 = Edge(node_6, node_7, intermediate_geo_nodes=[Wgs84GeoNode(33,5),Wgs84GeoNode(37,5)])
-    edge_8 = Edge(node_8, node_7)
-    edge_9 = Edge(node_8, node_9)
-    edge_10 = Edge(node_8, node_10)
-    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8, node_9, node_10])
-    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_8, edge_9, edge_10])
+    labels_of_selected_nodes = [Label.A_Topology, Label.B_Topology]
+    for losn in labels_of_selected_nodes:
+        topology = Topology()
+        node_1 = Node(geo_node=Wgs84GeoNode(0, 5))
+        node_2 = Node(geo_node=Wgs84GeoNode(0, 0))
+        node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+        node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
+        node_5 = Node(geo_node=Wgs84GeoNode(30, 5))
+        node_6 = Node(geo_node=Wgs84GeoNode(30, 0))  # Point
+        node_7 = Node(geo_node=Wgs84GeoNode(40, 0))  # Point
+        node_8 = Node(geo_node=Wgs84GeoNode(50, 0))  # Point
+        node_9 = Node(geo_node=Wgs84GeoNode(60, 5))
+        node_10 = Node(geo_node=Wgs84GeoNode(60, 0))
+        edge_1 = Edge(node_1, node_3)
+        edge_2 = Edge(node_2, node_3)
+        edge_3 = Edge(node_4, node_3)
+        edge_4 = Edge(node_4, node_5)
+        edge_5 = Edge(node_4, node_6)
+        edge_6 = Edge(node_7, node_6)
+        edge_7 = Edge(node_6, node_7, intermediate_geo_nodes=[Wgs84GeoNode(33,5),Wgs84GeoNode(37,5)])
+        edge_8 = Edge(node_8, node_7)
+        edge_9 = Edge(node_8, node_9)
+        edge_10 = Edge(node_8, node_10)
+        topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8, node_9, node_10])
+        topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_8, edge_9, edge_10])
 
-    topology_a, topology_b, _ = Split.split(topology, split_edges={edge_3: 5.0, edge_5: 5.0, edge_6: 5.0, edge_7: 5.0, edge_8: 5.0},
-                                            node_label_assignments={node_1: Label.A_Topology, node_6: Label.A_Topology, node_10: Label.A_Topology})
-    assert set([node_1, node_2, node_3, node_6, node_8, node_9, node_10]).issubset(topology_a.nodes.values())
-    assert set([node_4, node_5, node_7]).issubset(topology_b.nodes.values())
+        topology_a, topology_b, _ = Split.split(topology, split_edges={edge_3: 5.0, edge_5: 5.0, edge_6: 5.0, edge_7: 5.0, edge_8: 5.0},
+                                                node_label_assignments={node_1: losn, node_6: losn, node_10: losn})
+        if losn == Label.A_Topology:
+            assert set([node_1, node_2, node_3, node_6, node_8, node_9, node_10]).issubset(topology_a.nodes.values())
+            assert set([node_4, node_5, node_7]).issubset(topology_b.nodes.values())
+        else:
+            assert set([node_1, node_2, node_3, node_6, node_8, node_9, node_10]).issubset(topology_b.nodes.values())
+            assert set([node_4, node_5, node_7]).issubset(topology_a.nodes.values())
