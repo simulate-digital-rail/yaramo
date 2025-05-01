@@ -51,6 +51,16 @@ class Topology(BaseElement):
         self.created_at: datetime = datetime.now()
         self.created_with: str = "unknown"
 
+    def __contains__(self, item):
+        if type(item) == Node:
+            return item in self.nodes.values()
+        if type(item) == Edge:
+            return item in self.edges.values()
+        if type(item) == Signal:
+            return item in self.signals.values()
+        if type(item) == Route:
+            return item in self.routes.values()
+
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
 
