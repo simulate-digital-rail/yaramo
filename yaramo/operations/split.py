@@ -23,7 +23,7 @@ class Split:
         split_edges: Dict[Edge, float],
         add_missing_elements_to_topology: None | Label = None,
         node_label_assignments: Dict[Node, Label] = None,
-    ) -> Tuple[Topology, Topology]:
+    ) -> Tuple[Topology, Topology, Dict[Edge, Tuple[Node, Node]]]:
         Split._validate_split_edges(split_edges)
 
         topology_a = Topology()
