@@ -135,7 +135,7 @@ class Split:
             node_b = edge.node_b
             node_b.remove_edge(edge)
             end_node_b = Node(geo_node=_get_new_geo_node_same_type(node_b.geo_node, x, y))
-            edge_b = Edge(node_b, end_node_b)
+            edge_b = Edge(end_node_b, node_b)
             edge_b.intermediate_geo_nodes = geo_nodes_b
             _connect_edge_at_old_position(node_b, edge_b)
             end_node_b.set_connection_head_edge(edge_b)
