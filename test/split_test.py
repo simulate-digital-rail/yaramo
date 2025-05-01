@@ -526,7 +526,9 @@ def test_new_end_nodes():
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
 
-    topology_a, topology_b, new_end_nodes_matching = Split.split(topology, split_edges={edge_3: 5.0})
+    topology_a, topology_b, new_end_nodes_matching = Split.split(
+        topology, split_edges={edge_3: 5.0}
+    )
     for split_edge, new_end_nodes in new_end_nodes_matching.items():
         assert split_edge not in topology_a.edges.values()
         assert split_edge not in topology_b.edges.values()
@@ -554,8 +556,9 @@ def test_assign_nodes_to_labels():
         topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
         topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
 
-        topology_a, topology_b, _ = Split.split(topology, split_edges={edge_3: 5.0},
-                                                node_label_assignments={node_1: label_of_node_1})
+        topology_a, topology_b, _ = Split.split(
+            topology, split_edges={edge_3: 5.0}, node_label_assignments={node_1: label_of_node_1}
+        )
         if label_of_node_1 == Label.A_Topology:
             assert node_1 in topology_a.nodes.values()
         else:
@@ -579,8 +582,11 @@ def test_assign_nodes_to_labels_conflicting_label():
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
 
     with pytest.raises(ValueError):
-        topology_a, topology_b, _ = Split.split(topology, split_edges={edge_3: 5.0},
-                                                node_label_assignments={node_1: Label.A_Topology, node_2: Label.B_Topology})
+        topology_a, topology_b, _ = Split.split(
+            topology,
+            split_edges={edge_3: 5.0},
+            node_label_assignments={node_1: Label.A_Topology, node_2: Label.B_Topology},
+        )
 
 
 def test_five_parts_after_split():
@@ -603,18 +609,31 @@ def test_five_parts_after_split():
         edge_4 = Edge(node_4, node_5)
         edge_5 = Edge(node_4, node_6)
         edge_6 = Edge(node_7, node_6)
-        edge_7 = Edge(node_6, node_7, intermediate_geo_nodes=[Wgs84GeoNode(33,5),Wgs84GeoNode(37,5)])
+        edge_7 = Edge(
+            node_6, node_7, intermediate_geo_nodes=[Wgs84GeoNode(33, 5), Wgs84GeoNode(37, 5)]
+        )
         edge_8 = Edge(node_8, node_7)
         edge_9 = Edge(node_8, node_9)
         edge_10 = Edge(node_8, node_10)
-        topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8, node_9, node_10])
-        topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_8, edge_9, edge_10])
+        topology.add_nodes(
+            [node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8, node_9, node_10]
+        )
+        topology.add_edges(
+            [edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_8, edge_9, edge_10]
+        )
 
-        topology_a, topology_b, _ = Split.split(topology, split_edges={edge_3: 5.0, edge_5: 5.0, edge_6: 5.0, edge_7: 5.0, edge_8: 5.0},
-                                                node_label_assignments={node_1: losn, node_6: losn, node_10: losn})
+        topology_a, topology_b, _ = Split.split(
+            topology,
+            split_edges={edge_3: 5.0, edge_5: 5.0, edge_6: 5.0, edge_7: 5.0, edge_8: 5.0},
+            node_label_assignments={node_1: losn, node_6: losn, node_10: losn},
+        )
         if losn == Label.A_Topology:
-            assert set([node_1, node_2, node_3, node_6, node_8, node_9, node_10]).issubset(topology_a.nodes.values())
+            assert set([node_1, node_2, node_3, node_6, node_8, node_9, node_10]).issubset(
+                topology_a.nodes.values()
+            )
             assert set([node_4, node_5, node_7]).issubset(topology_b.nodes.values())
         else:
-            assert set([node_1, node_2, node_3, node_6, node_8, node_9, node_10]).issubset(topology_b.nodes.values())
+            assert set([node_1, node_2, node_3, node_6, node_8, node_9, node_10]).issubset(
+                topology_b.nodes.values()
+            )
             assert set([node_4, node_5, node_7]).issubset(topology_a.nodes.values())

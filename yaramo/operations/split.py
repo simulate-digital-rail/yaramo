@@ -36,7 +36,9 @@ class Split:
         if node_label_assignments is None:
             node_label_assignments = {}
 
-        node_labels, edge_labels, signal_labels = Split._label_elements(topology, new_end_nodes, node_label_assignments)
+        node_labels, edge_labels, signal_labels = Split._label_elements(
+            topology, new_end_nodes, node_label_assignments
+        )
 
         if add_missing_elements_to_topology is not None:
             Split._assign_missing_elements_to_label(
@@ -80,7 +82,9 @@ class Split:
             if edge.length < distance_on_edge:
                 raise ValueError(f"The edge {edge.name} is shorter than split distance.")
             if distance_on_edge <= 0:
-                raise ValueError(f"The split distance of the edge {edge.name} has to be greater than 0.")
+                raise ValueError(
+                    f"The split distance of the edge {edge.name} has to be greater than 0."
+                )
             for signal in edge.signals:
                 if signal.distance_edge == distance_on_edge:
                     raise ValueError(
@@ -195,7 +199,6 @@ class Split:
 
         for node, label in node_label_assignments.items():
             _dfs(node, label)
-
 
         for end_node_pair in new_end_nodes.values():
             node_a = end_node_pair[0]
