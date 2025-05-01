@@ -508,3 +508,29 @@ def test_route_split():
     assert len(topology_b.routes) == 1
     assert route_2 in topology_b.routes.values()
     assert len(topology_b.signals) == 3
+
+
+def test_new_end_nodes():
+    topology = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 10))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=Wgs84GeoNode(30, 0))
+    node_6 = Node(geo_node=Wgs84GeoNode(30, 10))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_4, node_3)
+    edge_4 = Edge(node_4, node_5)
+    edge_5 = Edge(node_4, node_6)
+    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
+    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
+
+    topology_a, topology_b, new_end_nodes_matching = Split.split(topology, split_edges={edge_3: 5.0})
+    for split_edge, new_end_nodes in new_end_nodes_matching.items():
+        assert split_edge not in topology_a.edges.values()
+        assert split_edge not in topology_b.edges.values()
+        assert new_end_nodes[0] in topology_a.nodes.values()
+        assert new_end_nodes[1] in topology_b.nodes.values()
+        assert new_end_nodes[0] not in topology_b.nodes.values()
+        assert new_end_nodes[1] not in topology_a.nodes.values()
