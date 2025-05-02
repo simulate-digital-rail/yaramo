@@ -20,21 +20,22 @@ class Split:
     @staticmethod
     def split(
         topology: Topology,
-        split_edges: Dict[Edge, float],
+        split_edges: None | Dict[Edge, float] = None,
         add_missing_elements_to_topology: None | Label = None,
         node_label_assignments: Node | Dict[Node, Label] = None,
     ) -> Tuple[Topology, Topology, Dict[Edge, Tuple[Node, Node]]]:
-        Split._validate_split_edges(split_edges)
-
-        topology_a = Topology()
-        OperationsHelper.copy_topology_metadata(topology, topology_a)
-        topology_b = Topology()
-        OperationsHelper.copy_topology_metadata(topology, topology_b)
-
-        new_end_nodes = Split._split_edges(topology, split_edges)
-
+        if split_edges is None:
+            split_edges = {}
         if node_label_assignments is None:
             node_label_assignments = {}
+
+        if not split_edges and not node_label_assignments:
+            raise ValueError("Either split edges or node label assignments are necessary")
+
+        new_end_nodes = {}
+        if split_edges:
+            Split._validate_split_edges(split_edges)
+            new_end_nodes = Split._split_edges(topology, split_edges)
 
         node_labels, edge_labels, signal_labels = Split._label_elements(
             topology, new_end_nodes, node_label_assignments
@@ -54,6 +55,11 @@ class Split:
                     _topology_a_method(_element)
                 elif _label == Label.B_Topology:
                     _topology_b_method(_element)
+
+        topology_a = Topology()
+        OperationsHelper.copy_topology_metadata(topology, topology_a)
+        topology_b = Topology()
+        OperationsHelper.copy_topology_metadata(topology, topology_b)
 
         _add_elements_to_topology(node_labels, topology_a.add_node, topology_b.add_node)
         _add_elements_to_topology(edge_labels, topology_a.add_edge, topology_b.add_edge)
@@ -193,9 +199,6 @@ class Split:
 
                 node_list.extend(cur_node.connected_nodes)
                 visited.add(cur_node)
-
-        if not new_end_nodes:
-            raise ValueError("No new end nodes found. Split not possible")
 
         for node, label in node_label_assignments.items():
             _dfs(node, label)

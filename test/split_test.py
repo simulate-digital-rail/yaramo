@@ -625,3 +625,52 @@ def test_five_parts_after_split():
                 topology_b.nodes.values()
             )
             assert set([node_4, node_5, node_7]).issubset(topology_a.nodes.values())
+
+def test_split_without_split_edges_not_connected_topology():
+    topology = Topology()
+    node_a1 = Node()
+    node_a2 = Node()
+    node_a3 = Node()
+    node_a4 = Node()
+
+    node_b1 = Node()
+    node_b2 = Node()
+    node_b3 = Node()
+    node_b4 = Node()
+
+    edge_a1 = Edge(node_a1, node_a3)
+    edge_a2 = Edge(node_a2, node_a3)
+    edge_a3 = Edge(node_a4, node_a3)
+
+    edge_b1 = Edge(node_b1, node_b3)
+    edge_b2 = Edge(node_b2, node_b3)
+    edge_b3 = Edge(node_b4, node_b3)
+
+    topology.add_nodes([node_a1, node_a2, node_a3, node_a4, node_b1, node_b2, node_b3, node_b4])
+    topology.add_edges([edge_a1, edge_a2, edge_a3, edge_b1, edge_b2, edge_b3])
+
+    topology_a, topology_b, _ = Split.split(
+        topology, node_label_assignments={node_a1: Label.A_Topology, node_b1: Label.B_Topology},
+    )
+
+    assert [node_a1, node_a2, node_a3, node_a4, edge_a1, edge_a2, edge_a3] in topology_a
+    assert [node_b1, node_b2, node_b3, node_b4, edge_b1, edge_b2, edge_b3] in topology_b
+
+def test_split_without_split_edges_connected_topology():
+    topology = Topology()
+    node_a1 = Node()
+    node_a2 = Node()
+    node_a3 = Node()
+    node_a4 = Node()
+
+    edge_a1 = Edge(node_a1, node_a3)
+    edge_a2 = Edge(node_a2, node_a3)
+    edge_a3 = Edge(node_a4, node_a3)
+
+    topology.add_nodes([node_a1, node_a2, node_a3, node_a4])
+    topology.add_edges([edge_a1, edge_a2, edge_a3])
+
+    with pytest.raises(ValueError):
+        topology_a, topology_b, _ = Split.split(
+            topology, node_label_assignments={node_a1: Label.A_Topology, node_a4: Label.B_Topology},
+        )
