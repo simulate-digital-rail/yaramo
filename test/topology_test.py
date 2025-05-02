@@ -124,11 +124,12 @@ def test_contains_method():
     topology.add_routes([route_1])
     assert node_1 in topology
     assert node_2 in topology
-    assert node_3 in topology
-    assert node_4 in topology
+    assert [node_3, node_4] in topology
     assert edge_1 in topology
-    assert edge_2 in topology
-    assert edge_3 in topology
+    assert [edge_2, edge_3] in topology
     assert signal_1 in topology
     assert signal_2 in topology
     assert route_1 in topology
+    assert "test" not in topology
+    assert ["test"] not in topology
+    assert [node_1, "test"] not in topology
