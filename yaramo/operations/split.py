@@ -201,6 +201,9 @@ class Split:
         new_end_nodes: Dict[Edge, Tuple[Node, Node]],
         node_label_assignments: Dict[Node, Label],
     ) -> Tuple[Dict[Node, Label], Dict[Edge, Label], Dict[Signal, Label]]:
+        if not new_end_nodes and not node_label_assignments:
+            raise ValueError("No end nodes but also nothing labeled. Split not possible")
+
         node_labels: Dict[Node, Label] = {}
         edge_labels: Dict[Edge, Label] = {}
         signal_labels: Dict[Signal, Label] = {}
@@ -226,22 +229,11 @@ class Split:
                 node_list.extend(cur_node.connected_nodes)
                 visited.add(cur_node)
 
-        for node, label in node_label_assignments.items():
-            _dfs(node, label)
-
         def _get_any_unlabeled_end_node_pair():
             for pair in new_end_nodes.values():
                 if pair[0] not in node_labels and pair[1] not in node_labels:
                     return pair
             return None
-
-        if not node_labels:
-            # Nothing labeled so far, start with any pair
-            if not new_end_nodes:
-                raise ValueError("No end nodes but also nothing labeled. Split not possible")
-            any_end_node_pair = _get_any_unlabeled_end_node_pair()
-            _dfs(any_end_node_pair[0], Label.A_Topology)
-            _dfs(any_end_node_pair[1], Label.B_Topology)
 
         def _get_next_end_node_pair():
             for pair in new_end_nodes.values():
@@ -252,6 +244,15 @@ class Split:
                 ):
                     return pair
             return _get_any_unlabeled_end_node_pair()
+
+        if node_label_assignments:
+            for node, label in node_label_assignments.items():
+                _dfs(node, label)
+        else:
+            # Nothing labeled so far, start with any pair
+            any_end_node_pair = _get_any_unlabeled_end_node_pair()
+            _dfs(any_end_node_pair[0], Label.A_Topology)
+            _dfs(any_end_node_pair[1], Label.B_Topology)
 
         next_pair = _get_next_end_node_pair()
         while next_pair is not None:
