@@ -188,7 +188,7 @@ class Split:
     def _label_elements(
         topology: Topology,
         new_end_nodes: Dict[Edge, Tuple[Node, Node]],
-        node_label_assignments: Node | Dict[Node, Label],
+        node_label_assignments: Dict[Node, Label],
     ) -> Tuple[Dict[Node, Label], Dict[Edge, Label], Dict[Signal, Label]]:
         node_labels: Dict[Node, Label] = {}
         edge_labels: Dict[Edge, Label] = {}
@@ -218,19 +218,52 @@ class Split:
         for node, label in node_label_assignments.items():
             _dfs(node, label)
 
-        for end_node_pair in new_end_nodes.values():
-            node_a = end_node_pair[0]
-            node_b = end_node_pair[1]
+        def _get_any_unlabeled_end_node_pair():
+            for pair in new_end_nodes.values():
+                if pair[0] not in node_labels and pair[1] not in node_labels:
+                    return pair
+            return None
+
+        if not node_labels:
+            # Nothing labeled so far, start with any pair
+            if not new_end_nodes:
+                raise ValueError("No end nodes but also nothing labeled. Split not possible")
+            any_end_node_pair = _get_any_unlabeled_end_node_pair()
+            _dfs(any_end_node_pair[0], Label.A_Topology)
+            _dfs(any_end_node_pair[1], Label.B_Topology)
+
+        def _get_next_end_node_pair():
+            for pair in new_end_nodes.values():
+                _node_a = pair[0]
+                _node_b = pair[1]
+                if (_node_a in node_labels and _node_b not in node_labels) or (_node_a not in node_labels and _node_b in node_labels):
+                    return pair
+            return _get_any_unlabeled_end_node_pair()
+
+        next_pair = _get_next_end_node_pair()
+        while next_pair is not None:
+            node_a = next_pair[0]
+            node_b = next_pair[1]
             if node_a not in node_labels and node_b not in node_labels:
                 _dfs(node_a, Label.A_Topology)
                 _dfs(node_b, Label.B_Topology)
             elif node_a in node_labels and node_b in node_labels:
                 if node_labels[node_a] == node_labels[node_b]:
-                    raise ValueError("Split edges do not fully split. Split not possible.")
+                    raise ValueError("Split edges do not fully split or is not colorable with two colors. Split not possible.")
             elif node_a in node_labels:
                 _dfs(node_b, Label.get_opposite_label(node_labels[node_a]))
             elif node_b in node_labels:
                 _dfs(node_a, Label.get_opposite_label(node_labels[node_b]))
+            next_pair = _get_next_end_node_pair()
+
+        # Verify all end node pairs have different labels
+        for pair in new_end_nodes.values():
+            node_a = pair[0]
+            node_b = pair[1]
+            if node_labels[node_a] == node_labels[node_b]:
+                raise ValueError(
+                    "Split edges do not fully split or is not colorable with two colors. Split not possible."
+                )
 
         return node_labels, edge_labels, signal_labels
 
