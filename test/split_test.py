@@ -583,10 +583,10 @@ def test_route_ends_on_split_edge():
         topology, split_edges={edge_3: 5.0}, node_label_assignments={node_1: Label.A_Topology}
     )
 
-    # Note: route 1 goes over split area, so it gets removed
     assert len(topology_a.routes) == 1
-    assert list(topology_a.routes.values())[0] in topology_a
-    assert list(topology_a.routes.values())[0].edges in topology_a
+    assert route_1 in topology_a
+    assert list(route_1.edges) in topology_a
+    assert len(route_1.edges) == 2
     assert len(topology_b.routes) == 0
 
 
@@ -834,3 +834,40 @@ def test_topology_with_two_color_problem_but_solvable():
                                             )
     assert [node_4, node_1] in topology_a
     assert [node_3] in topology_b
+
+def test_validate_input():
+    topology = Topology()
+    with pytest.raises(ValueError):
+        topology_a, topology_b, _ = Split.split(
+            topology,
+            split_edges={Edge(Node(), Node()): 5.0}
+        )
+
+    node_1 = Node(geo_node=DbrefGeoNode(x=0, y=0))
+    node_3 = Node(geo_node=DbrefGeoNode(x=10, y=0))
+    node_4 = Node(geo_node=DbrefGeoNode(x=30, y=0))
+    node_5 = Node(geo_node=DbrefGeoNode(x=40, y=0))
+    node_6 = Node(geo_node=DbrefGeoNode(x=20, y=5))
+    node_7 = Node(geo_node=DbrefGeoNode(x=30, y=10))
+
+    edge_1 = Edge(node_1, node_3)
+    edge_3 = Edge(node_3, node_4)
+    edge_4 = Edge(node_3, node_6, intermediate_geo_nodes=[DbrefGeoNode(x=12.5, y=5)])
+    edge_5 = Edge(node_6, node_7, intermediate_geo_nodes=[DbrefGeoNode(x=22.5, y=10)])
+    edge_6 = Edge(node_6, node_4, intermediate_geo_nodes=[DbrefGeoNode(x=27.5, y=5)])
+    edge_7 = Edge(node_4, node_5)
+
+    topology.add_nodes([node_1, node_3, node_4, node_5, node_6, node_7])
+    topology.add_edges([edge_1, edge_3, edge_4, edge_5, edge_6, edge_7])
+
+    with pytest.raises(ValueError):
+        topology_a, topology_b, _ = Split.split(
+            topology,
+            split_edges={Edge(Node(), Node()): 5.0}
+        )
+
+    with pytest.raises(ValueError):
+        topology_a, topology_b, _ = Split.split(
+            topology,
+            node_label_assignments={Node(): Label.A_Topology}
+        )
