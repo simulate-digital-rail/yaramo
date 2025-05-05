@@ -26,15 +26,21 @@ class Split:
     ) -> Tuple[Topology, Topology, Dict[Edge, Tuple[Node, Node]]]:
         if split_edges is None:
             split_edges = {}
+        else:
+            Split._validate_split_edges(split_edges)
         if node_label_assignments is None:
             node_label_assignments = {}
 
         if not split_edges and not node_label_assignments:
             raise ValueError("Either split edges or node label assignments are necessary")
 
+        topology_a = Topology()
+        OperationsHelper.copy_topology_metadata(topology, topology_a)
+        topology_b = Topology()
+        OperationsHelper.copy_topology_metadata(topology, topology_b)
+
         new_end_nodes = {}
         if split_edges:
-            Split._validate_split_edges(split_edges)
             new_end_nodes = Split._split_edges(topology, split_edges)
 
         node_labels, edge_labels, signal_labels = Split._label_elements(
@@ -55,11 +61,6 @@ class Split:
                     _topology_a_method(_element)
                 elif _label == Label.B_Topology:
                     _topology_b_method(_element)
-
-        topology_a = Topology()
-        OperationsHelper.copy_topology_metadata(topology, topology_a)
-        topology_b = Topology()
-        OperationsHelper.copy_topology_metadata(topology, topology_b)
 
         _add_elements_to_topology(node_labels, topology_a.add_node, topology_b.add_node)
         _add_elements_to_topology(edge_labels, topology_a.add_edge, topology_b.add_edge)
@@ -244,22 +245,22 @@ class Split:
         topology_b: Topology,
         split_edges: Dict[Edge, float],
     ):
-        for node_uuid in topology.nodes:
-            if node_uuid not in topology_a.nodes and node_uuid not in topology_b.nodes:
+        for node in topology.nodes.values():
+            if node not in topology_a and node not in topology_b:
                 raise ValueError(
-                    "Data loss (lost node). Split edges split topology in more than two splits. Not supported."
+                    "Unexpected data loss (lost node)."
                 )
 
-        for edge_uuid, edge in topology.edges.items():
-            if edge in split_edges.keys():
+        for edge in topology.edges.values():
+            if edge in split_edges:
                 continue
-            if edge_uuid not in topology_a.edges and edge_uuid not in topology_b.edges:
+            if edge not in topology_a and edge not in topology_b:
                 raise ValueError(
-                    "Data loss (lost edge). Split edges split topology in more than two splits. Not supported."
+                    "Unexpected data loss (lost edge)."
                 )
 
-        for signal_uuid in topology.signals:
-            if signal_uuid not in topology_a.signals and signal_uuid not in topology_b.signals:
+        for signal in topology.signals.values():
+            if signal not in topology_a and signal not in topology_b:
                 raise ValueError(
-                    "Data loss (lost signal). Split edges split topology in more than two splits. Not supported."
+                    "Unexpected data loss (lost signal)."
                 )
