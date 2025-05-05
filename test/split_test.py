@@ -1,6 +1,7 @@
 import pytest
 
 from yaramo.model import (
+    DbrefGeoNode,
     Edge,
     Node,
     Route,
@@ -10,7 +11,6 @@ from yaramo.model import (
     SignalKind,
     Topology,
     Wgs84GeoNode,
-    DbrefGeoNode
 )
 from yaramo.operations import Label, Split
 
@@ -499,6 +499,7 @@ def test_route_split():
     assert route_2 in topology_b
     assert len(topology_b.signals) == 3
 
+
 def test_route_split_three_parts():
     topology = Topology()
     node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
@@ -539,12 +540,15 @@ def test_route_split_three_parts():
     topology.add_routes([route_1])
 
     topology_a, topology_b, _ = Split.split(
-        topology, split_edges={edge_3: 5.0, edge_5: 5.0}, node_label_assignments={node_1: Label.A_Topology}
+        topology,
+        split_edges={edge_3: 5.0, edge_5: 5.0},
+        node_label_assignments={node_1: Label.A_Topology},
     )
 
     # Note: route 1 goes over split area, so it gets removed
     assert len(topology_a.routes) == 0
     assert len(topology_b.routes) == 0
+
 
 def test_route_ends_on_split_edge():
     topology = Topology()
@@ -767,6 +771,7 @@ def test_split_without_split_edges_connected_topology():
             node_label_assignments={node_a1: Label.A_Topology, node_a4: Label.B_Topology},
         )
 
+
 def test_topology_with_two_color_problem():
     topology = Topology()
     node_1 = Node(geo_node=DbrefGeoNode(x=0, y=0))
@@ -788,9 +793,9 @@ def test_topology_with_two_color_problem():
 
     with pytest.raises(ValueError):
         topology_a, topology_b, _ = Split.split(
-            topology,
-            split_edges={edge_3: 5.0, edge_4: 5.0, edge_6: 5.0}
+            topology, split_edges={edge_3: 5.0, edge_4: 5.0, edge_6: 5.0}
         )
+
 
 def test_topology_with_two_color_problem_but_solvable():
     topology = Topology()
@@ -828,20 +833,19 @@ def test_topology_with_two_color_problem_but_solvable():
         [edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_9, edge_10, edge_11]
     )
 
-    topology_a, topology_b, _ = Split.split(topology,
-                                            split_edges={edge_2: 5.0, edge_3: 5.0, edge_10: 2.795},
-                                            node_label_assignments={node_4: Label.A_Topology}
-                                            )
+    topology_a, topology_b, _ = Split.split(
+        topology,
+        split_edges={edge_2: 5.0, edge_3: 5.0, edge_10: 2.795},
+        node_label_assignments={node_4: Label.A_Topology},
+    )
     assert [node_4, node_1] in topology_a
     assert [node_3] in topology_b
+
 
 def test_validate_input():
     topology = Topology()
     with pytest.raises(ValueError):
-        topology_a, topology_b, _ = Split.split(
-            topology,
-            split_edges={Edge(Node(), Node()): 5.0}
-        )
+        topology_a, topology_b, _ = Split.split(topology, split_edges={Edge(Node(), Node()): 5.0})
 
     node_1 = Node(geo_node=DbrefGeoNode(x=0, y=0))
     node_3 = Node(geo_node=DbrefGeoNode(x=10, y=0))
@@ -861,13 +865,9 @@ def test_validate_input():
     topology.add_edges([edge_1, edge_3, edge_4, edge_5, edge_6, edge_7])
 
     with pytest.raises(ValueError):
-        topology_a, topology_b, _ = Split.split(
-            topology,
-            split_edges={Edge(Node(), Node()): 5.0}
-        )
+        topology_a, topology_b, _ = Split.split(topology, split_edges={Edge(Node(), Node()): 5.0})
 
     with pytest.raises(ValueError):
         topology_a, topology_b, _ = Split.split(
-            topology,
-            node_label_assignments={Node(): Label.A_Topology}
+            topology, node_label_assignments={Node(): Label.A_Topology}
         )

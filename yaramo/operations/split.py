@@ -69,8 +69,9 @@ class Split:
         _add_elements_to_topology(node_labels, topology_a.add_node, topology_b.add_node)
         _add_elements_to_topology(edge_labels, topology_a.add_edge, topology_b.add_edge)
         _add_elements_to_topology(signal_labels, topology_a.add_signal, topology_b.add_signal)
-        Split._assign_routes_to_topologies(topology, topology_a, topology_b, edge_labels, signal_labels)
-
+        Split._assign_routes_to_topologies(
+            topology, topology_a, topology_b, edge_labels, signal_labels
+        )
 
         Split._validate_for_data_loss(topology, topology_a, topology_b, split_edges)
 
@@ -96,7 +97,9 @@ class Split:
                     )
 
     @staticmethod
-    def _validate_node_label_assignment(topology: Topology, node_label_assignment: Dict[Node, Label]):
+    def _validate_node_label_assignment(
+        topology: Topology, node_label_assignment: Dict[Node, Label]
+    ):
         for node in node_label_assignment:
             if node not in topology:
                 raise ValueError("Node of node label assignment not in topology.")
@@ -171,7 +174,10 @@ class Split:
             for route in topology.routes.values():
                 if edge in route.edges:
                     route.edges.remove(edge)
-                    if route.start_signal.edge not in route.edges or route.end_signal.edge not in route.edges:
+                    if (
+                        route.start_signal.edge not in route.edges
+                        or route.end_signal.edge not in route.edges
+                    ):
                         if route.start_signal.edge not in route.edges:
                             route.edges.add(route.start_signal.edge)
                         if route.end_signal.edge not in route.edges:
@@ -236,7 +242,9 @@ class Split:
             for pair in new_end_nodes.values():
                 _node_a = pair[0]
                 _node_b = pair[1]
-                if (_node_a in node_labels and _node_b not in node_labels) or (_node_a not in node_labels and _node_b in node_labels):
+                if (_node_a in node_labels and _node_b not in node_labels) or (
+                    _node_a not in node_labels and _node_b in node_labels
+                ):
                     return pair
             return _get_any_unlabeled_end_node_pair()
 
@@ -249,7 +257,9 @@ class Split:
                 _dfs(node_b, Label.B_Topology)
             elif node_a in node_labels and node_b in node_labels:
                 if node_labels[node_a] == node_labels[node_b]:
-                    raise ValueError("Split edges do not fully split or is not colorable with two colors. Split not possible.")
+                    raise ValueError(
+                        "Split edges do not fully split or is not colorable with two colors. Split not possible."
+                    )
             elif node_a in node_labels:
                 _dfs(node_b, Label.get_opposite_label(node_labels[node_a]))
             elif node_b in node_labels:
@@ -268,7 +278,13 @@ class Split:
         return node_labels, edge_labels, signal_labels
 
     @staticmethod
-    def _assign_routes_to_topologies(topology: Topology, topology_a: Topology, topology_b: Topology, edge_labels: Dict[Edge, Label], signal_labels: Dict[Signal, Label]):
+    def _assign_routes_to_topologies(
+        topology: Topology,
+        topology_a: Topology,
+        topology_b: Topology,
+        edge_labels: Dict[Edge, Label],
+        signal_labels: Dict[Signal, Label],
+    ):
         for route in topology.routes.values():
             start_signal_label = signal_labels[route.start_signal]
             end_signal_label = signal_labels[route.end_signal]
@@ -286,8 +302,7 @@ class Split:
                 topology_a.add_route(route)
             else:
                 topology_b.add_route(route)
-            
-            
+
     @staticmethod
     def _assign_missing_elements_to_label(
         topology: Topology,
@@ -315,20 +330,14 @@ class Split:
     ):
         for node in topology.nodes.values():
             if node not in topology_a and node not in topology_b:
-                raise ValueError(
-                    "Unexpected data loss (lost node)."
-                )
+                raise ValueError("Unexpected data loss (lost node).")
 
         for edge in topology.edges.values():
             if edge in split_edges:
                 continue
             if edge not in topology_a and edge not in topology_b:
-                raise ValueError(
-                    "Unexpected data loss (lost edge)."
-                )
+                raise ValueError("Unexpected data loss (lost edge).")
 
         for signal in topology.signals.values():
             if signal not in topology_a and signal not in topology_b:
-                raise ValueError(
-                    "Unexpected data loss (lost signal)."
-                )
+                raise ValueError("Unexpected data loss (lost signal).")
