@@ -69,18 +69,8 @@ class Split:
         _add_elements_to_topology(node_labels, topology_a.add_node, topology_b.add_node)
         _add_elements_to_topology(edge_labels, topology_a.add_edge, topology_b.add_edge)
         _add_elements_to_topology(signal_labels, topology_a.add_signal, topology_b.add_signal)
+        Split._assign_routes_to_topologies(topology, topology_a, topology_b, edge_labels, signal_labels)
 
-        # Assign routes
-        for route in topology.routes.values():
-            start_signal_label = signal_labels[route.start_signal]
-            end_signal_label = signal_labels[route.end_signal]
-            if start_signal_label != end_signal_label:
-                # Route goes over split edges, remove this route
-                continue
-            if start_signal_label == Label.A_Topology:
-                topology_a.add_route(route)
-            elif start_signal_label == Label.B_Topology:
-                topology_b.add_route(route)
 
         Split._validate_for_data_loss(topology, topology_a, topology_b, split_edges)
 
@@ -178,6 +168,18 @@ class Split:
                     edge_b.signals.append(signal)
                     signal.edge = edge_b
 
+            for route in topology.routes.values():
+                if edge in route.edges:
+                    route.edges.remove(edge)
+                    if route.start_signal.edge not in route.edges or route.end_signal.edge not in route.edges:
+                        if route.start_signal.edge not in route.edges:
+                            route.edges.add(route.start_signal.edge)
+                        if route.end_signal.edge not in route.edges:
+                            route.edges.add(route.end_signal.edge)
+                    else:
+                        route.edges.add(edge_a)
+                        route.edges.add(edge_b)
+
             new_end_nodes[edge] = (end_node_a, end_node_b)
 
         return new_end_nodes
@@ -232,6 +234,27 @@ class Split:
 
         return node_labels, edge_labels, signal_labels
 
+    @staticmethod
+    def _assign_routes_to_topologies(topology: Topology, topology_a: Topology, topology_b: Topology, edge_labels: Dict[Edge, Label], signal_labels: Dict[Signal, Label]):
+        for route in topology.routes.values():
+            start_signal_label = signal_labels[route.start_signal]
+            end_signal_label = signal_labels[route.end_signal]
+            if start_signal_label != end_signal_label:
+                # Route start and end in different areas, remove route
+                continue
+            all_edges_in_same_topology = True
+            for edge in route.edges:
+                if edge_labels[edge] != start_signal_label:
+                    # Route goes over different area, remove route
+                    all_edges_in_same_topology = False
+            if not all_edges_in_same_topology:
+                continue
+            if start_signal_label == Label.A_Topology:
+                topology_a.add_route(route)
+            else:
+                topology_b.add_route(route)
+            
+            
     @staticmethod
     def _assign_missing_elements_to_label(
         topology: Topology,
