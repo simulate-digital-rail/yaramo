@@ -24,12 +24,16 @@ class Split:
         add_missing_elements_to_topology: None | Label = None,
         node_label_assignments: Node | Dict[Node, Label] = None,
     ) -> Tuple[Topology, Topology, Dict[Edge, Tuple[Node, Node]]]:
+        if not topology.nodes:
+            raise ValueError("Given topology is empty.")
         if split_edges is None:
             split_edges = {}
         else:
-            Split._validate_split_edges(split_edges)
+            Split._validate_split_edges(topology, split_edges)
         if node_label_assignments is None:
             node_label_assignments = {}
+        else:
+            Split._validate_node_label_assignment(topology, node_label_assignments)
 
         if not split_edges and not node_label_assignments:
             raise ValueError("Either split edges or node label assignments are necessary")
@@ -83,8 +87,10 @@ class Split:
         return topology_a, topology_b, new_end_nodes
 
     @staticmethod
-    def _validate_split_edges(split_edges: Dict[Edge, float]):
+    def _validate_split_edges(topology: Topology, split_edges: Dict[Edge, float]):
         for edge, distance_on_edge in split_edges.items():
+            if edge not in topology:
+                raise ValueError("Given split edge is not part of the topology")
             edge.update_length()
             if edge.length < distance_on_edge:
                 raise ValueError(f"The edge {edge.name} is shorter than split distance.")
@@ -98,6 +104,12 @@ class Split:
                         f"The edge {edge.name} contains a signal exactly at the position, where it "
                         f"should be split. This is not possible."
                     )
+
+    @staticmethod
+    def _validate_node_label_assignment(topology: Topology, node_label_assignment: Dict[Node, Label]):
+        for node in node_label_assignment:
+            if node not in topology:
+                raise ValueError("Node of node label assignment not in topology.")
 
     @staticmethod
     def _split_edges(
