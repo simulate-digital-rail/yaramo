@@ -75,6 +75,11 @@ class Split:
 
         Split._validate_for_data_loss(topology, topology_a, topology_b, split_edges)
 
+        # Ensure first element of new end nodes is always in A-topology
+        for edge, new_end_node_pair in new_end_nodes.items():
+            if node_labels[new_end_node_pair[0]] == Label.B_Topology:
+                new_end_nodes[edge] = (new_end_node_pair[1], new_end_node_pair[0])
+
         return topology_a, topology_b, new_end_nodes
 
     @staticmethod
