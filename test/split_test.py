@@ -10,6 +10,7 @@ from yaramo.model import (
     SignalKind,
     Topology,
     Wgs84GeoNode,
+    DbrefGeoNode
 )
 from yaramo.operations import Label, Split
 
@@ -498,6 +499,96 @@ def test_route_split():
     assert route_2 in topology_b
     assert len(topology_b.signals) == 3
 
+def test_route_split_three_parts():
+    topology = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 10))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=Wgs84GeoNode(30, 0))
+    node_6 = Node(geo_node=Wgs84GeoNode(30, 10))  # Point
+    node_7 = Node(geo_node=Wgs84GeoNode(40, 10))
+    node_8 = Node(geo_node=Wgs84GeoNode(40, 20))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_3, node_4)
+    edge_4 = Edge(node_4, node_5)
+    edge_5 = Edge(node_4, node_6)
+    edge_6 = Edge(node_6, node_7)
+    edge_7 = Edge(node_6, node_8)
+
+    # Route 1
+    signal_1 = Signal(
+        edge_1, 5.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
+    edge_1.signals.append(signal_1)
+    signal_2 = Signal(
+        edge_7, 5.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
+    edge_7.signals.append(signal_2)
+    route_1 = Route(signal_1)
+    route_1.edges.add(edge_1)
+    route_1.edges.add(edge_3)
+    route_1.edges.add(edge_5)
+    route_1.edges.add(edge_7)
+    route_1.end_signal = signal_2
+
+    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8])
+    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7])
+    topology.add_signals([signal_1, signal_2])
+    topology.add_routes([route_1])
+
+    topology_a, topology_b, _ = Split.split(
+        topology, split_edges={edge_3: 5.0, edge_5: 5.0}, node_label_assignments={node_1: Label.A_Topology}
+    )
+
+    # Note: route 1 goes over split area, so it gets removed
+    assert len(topology_a.routes) == 0
+    assert len(topology_b.routes) == 0
+
+def test_route_ends_on_split_edge():
+    topology = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 10))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=Wgs84GeoNode(30, 0))
+    node_6 = Node(geo_node=Wgs84GeoNode(30, 10))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_3, node_4)
+    edge_4 = Edge(node_4, node_5)
+    edge_5 = Edge(node_4, node_6)
+
+    # Route 1
+    signal_1 = Signal(
+        edge_1, 5.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
+    edge_1.signals.append(signal_1)
+    signal_2 = Signal(
+        edge_3, 2.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
+    edge_3.signals.append(signal_2)
+    route_1 = Route(signal_1)
+    route_1.edges.add(edge_1)
+    route_1.edges.add(edge_3)
+    route_1.end_signal = signal_2
+
+    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
+    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
+    topology.add_signals([signal_1, signal_2])
+    topology.add_routes([route_1])
+
+    topology_a, topology_b, _ = Split.split(
+        topology, split_edges={edge_3: 5.0}, node_label_assignments={node_1: Label.A_Topology}
+    )
+
+    # Note: route 1 goes over split area, so it gets removed
+    assert len(topology_a.routes) == 1
+    assert list(topology_a.routes.values())[0] in topology_a
+    assert list(topology_a.routes.values())[0].edges in topology_a
+    assert len(topology_b.routes) == 0
+
 
 def test_new_end_nodes():
     topology = Topology()
@@ -675,3 +766,71 @@ def test_split_without_split_edges_connected_topology():
             topology,
             node_label_assignments={node_a1: Label.A_Topology, node_a4: Label.B_Topology},
         )
+
+def test_topology_with_two_color_problem():
+    topology = Topology()
+    node_1 = Node(geo_node=DbrefGeoNode(x=0, y=0))
+    node_3 = Node(geo_node=DbrefGeoNode(x=10, y=0))
+    node_4 = Node(geo_node=DbrefGeoNode(x=30, y=0))
+    node_5 = Node(geo_node=DbrefGeoNode(x=40, y=0))
+    node_6 = Node(geo_node=DbrefGeoNode(x=20, y=5))
+    node_7 = Node(geo_node=DbrefGeoNode(x=30, y=10))
+
+    edge_1 = Edge(node_1, node_3)
+    edge_3 = Edge(node_3, node_4)
+    edge_4 = Edge(node_3, node_6, intermediate_geo_nodes=[DbrefGeoNode(x=12.5, y=5)])
+    edge_5 = Edge(node_6, node_7, intermediate_geo_nodes=[DbrefGeoNode(x=22.5, y=10)])
+    edge_6 = Edge(node_6, node_4, intermediate_geo_nodes=[DbrefGeoNode(x=27.5, y=5)])
+    edge_7 = Edge(node_4, node_5)
+
+    topology.add_nodes([node_1, node_3, node_4, node_5, node_6, node_7])
+    topology.add_edges([edge_1, edge_3, edge_4, edge_5, edge_6, edge_7])
+
+    with pytest.raises(ValueError):
+        topology_a, topology_b, _ = Split.split(
+            topology,
+            split_edges={edge_3: 5.0, edge_4: 5.0, edge_6: 5.0}
+        )
+
+def test_topology_with_two_color_problem_but_solvable():
+    topology = Topology()
+
+    node_6 = Node(geo_node=DbrefGeoNode(0, 5))
+    node_7 = Node(geo_node=DbrefGeoNode(12.5, 5))  # Point
+    node_8 = Node(geo_node=DbrefGeoNode(17.5, 5))  # Point
+    node_9 = Node(geo_node=DbrefGeoNode(40, 5))
+
+    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
+    node_2 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
+    node_3 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
+    node_4 = Node(geo_node=DbrefGeoNode(30, 0))  # Point
+    node_5 = Node(geo_node=DbrefGeoNode(40, 0))
+
+    node_A = Node(geo_node=DbrefGeoNode(20, -5))
+
+    edge_1 = Edge(node_1, node_2)
+    edge_2 = Edge(node_3, node_2)
+    edge_3 = Edge(node_3, node_4)
+    edge_4 = Edge(node_4, node_5)
+
+    edge_5 = Edge(node_6, node_7)
+    edge_6 = Edge(node_7, node_8)
+    edge_7 = Edge(node_8, node_9)
+
+    edge_9 = Edge(node_2, node_7)
+    edge_10 = Edge(node_8, node_3)
+    edge_11 = Edge(node_4, node_A, intermediate_geo_nodes=[DbrefGeoNode(27.5, -5)])
+
+    topology.add_nodes(
+        [node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8, node_9, node_A]
+    )
+    topology.add_edges(
+        [edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7, edge_9, edge_10, edge_11]
+    )
+
+    topology_a, topology_b, _ = Split.split(topology,
+                                            split_edges={edge_2: 5.0, edge_3: 5.0, edge_10: 2.795},
+                                            node_label_assignments={node_4: Label.A_Topology}
+                                            )
+    assert [node_4, node_1] in topology_a
+    assert [node_3] in topology_b
