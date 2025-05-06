@@ -41,6 +41,8 @@ class Node(BaseElement):
         self.connected_edges: list["Edge"] = []
         self.geo_node: GeoNode = kwargs.get("geo_node", None)
         self.turnout_side: str = turnout_side
+        self.drive_amount = 0
+
 
     def maximum_speed(self, node_a: "Node", node_b: "Node"):
         """Return the maximum allowed speed for traversing this node,
