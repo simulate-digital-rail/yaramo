@@ -66,10 +66,7 @@ class Compare:
             )
 
         result.node_distance = Compare._calc_distance_for_matching(
-            result.node_matching,
-            exclude_ends_in_calculation,
-            start_node_a=list(given_node_matching.keys())[0],
-            start_node_b=list(given_node_matching.values())[0],
+            result.node_matching, exclude_ends_in_calculation
         )
         result.edge_length_difference = Compare._calc_distance_for_matching(
             result.edge_matching, exclude_ends_in_calculation, element_type="edge"
@@ -230,8 +227,6 @@ class Compare:
         matching: CompareMatching,
         exclude_ends_in_calculation,
         element_type: str = "node",
-        start_node_a: Node = None,
-        start_node_b: Node = None,
     ):
         if not matching.element_matching:
             return -1.0
