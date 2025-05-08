@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List
 
+import networkx as nx
 import simplejson as json
 
 from yaramo.base_element import BaseElement
@@ -104,6 +105,7 @@ class Topology(BaseElement):
             self.add_vacancy_section(vacancy_section)
 
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
+        result = []
         for edge_uuid in self.edges:
             edge = self.edges[edge_uuid]
             if (
@@ -112,8 +114,12 @@ class Topology(BaseElement):
                 or edge.node_a.uuid == node_b.uuid
                 and edge.node_b.uuid == node_a.uuid
             ):
-                return edge
-        return None
+                result.append(edge)
+        return result
+
+    def update_edge_lengths(self):
+        for edge in self.edges.values():
+            edge.update_length()
 
     def get_route_by_signal_names(self, start_signal_name, end_signal_name):
         for route_uuid in self.routes:
@@ -211,3 +217,15 @@ class Topology(BaseElement):
         for signal in obj["signals"]:
             topology.signals[signal["uuid"]].edge = topology.edges[signal["edge"]]
         return topology
+
+    def to_networkx_graph(self) -> nx.MultiGraph:
+        graph = nx.MultiGraph()
+        for node_uuid, node in self.nodes.items():
+            x = node.geo_node.x
+            y = node.geo_node.y
+            graph.add_node(node_uuid, x=x, y=y)
+
+        for edge_uuid, edge in self.edges.items():
+            edge.update_length()
+            graph.add_edge(edge.node_a.uuid, edge.node_b.uuid, uuid=edge_uuid, length=edge.length)
+        return graph

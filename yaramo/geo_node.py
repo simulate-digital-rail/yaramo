@@ -2,6 +2,7 @@ import math
 from abc import ABC, abstractmethod
 
 import pyproj
+from haversine import Unit, haversine
 
 from yaramo.base_element import BaseElement
 
@@ -39,24 +40,12 @@ class Wgs84GeoNode(GeoNode):
         assert type(self) == type(
             geo_node_b
         ), "You cannot calculate the distance between a Wgs84GeoNode and a DbrefGeoNode!"
-        return self.__haversine_distance(geo_node_b) / 1000
+        return self.__haversine_distance(geo_node_b)
 
     def __haversine_distance(self, geo_node_b: "GeoNode"):
-        pi_over_180 = float(math.pi / 180)
-        return (
-            2
-            * 6371000
-            * math.asin(
-                math.pi
-                / 180
-                * math.sqrt(
-                    math.pow(math.sin((pi_over_180 * (geo_node_b.x - self.x)) / 2), 2)
-                    + math.cos(pi_over_180 * self.x)
-                    * math.cos(pi_over_180 * geo_node_b.x)
-                    * math.pow(math.sin((pi_over_180 * (geo_node_b.y - self.y)) / 2), 2)
-                )
-            )
-        )
+        own = (self.x, self.y)
+        other = (geo_node_b.x, geo_node_b.y)
+        return haversine(own, other, unit=Unit.METERS)
 
     def to_wgs84(self):
         return self

@@ -419,7 +419,7 @@ def test_corner_cases_edge_directions():
 
         assert signal_a1 in topology_ab.signals.values()
         assert signal_b1 in topology_ab.signals.values()
-        union_edge: Edge = topology_ab.get_edge_by_nodes(node_a3, node_b3)
+        union_edge: Edge = topology_ab.get_edge_by_nodes(node_a3, node_b3)[0]
         union_edge.update_length()
         assert union_edge.length == 25.0
         assert signal_a1 in union_edge.signals
