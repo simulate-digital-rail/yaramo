@@ -201,8 +201,8 @@ class Edge(BaseElement):
                 x1, y1 = cur_geo_node.x, cur_geo_node.y
                 x2, y2 = next_geo_node.x, next_geo_node.y
                 factor = remaining_distance / distance_between_nodes
-                x = x1 + (factor * (x2 - x1))
-                y = y1 + (factor * (y2 - y1))
+                x = float(x1) + (factor * float(x2 - x1))
+                y = float(y1) + (factor * float(y2 - y1))
                 return x, y
 
             remaining_distance = remaining_distance - distance_between_nodes
