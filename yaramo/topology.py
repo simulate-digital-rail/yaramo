@@ -65,6 +65,13 @@ class Topology(BaseElement):
                 all_in = all_in and item in self.signals.values()
             elif type(item) == Route:
                 all_in = all_in and item in self.routes.values()
+            elif type(item) == str:
+                all_in = (
+                    item in self.nodes
+                    or item in self.edges
+                    or item in self.signals
+                    or item in self.routes
+                )
             else:
                 all_in = False
         return all_in

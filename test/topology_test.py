@@ -126,8 +126,10 @@ def test_contains_method():
     topology.add_signals([signal_1, signal_2])
     topology.add_routes([route_1])
     assert node_1 in topology
+    assert node_1.uuid in topology
     assert node_2 in topology
     assert [node_3, node_4] in topology
+    assert [node_3.uuid, node_4.uuid] in topology
     assert edge_1 in topology
     assert [edge_2, edge_3] in topology
     assert signal_1 in topology
