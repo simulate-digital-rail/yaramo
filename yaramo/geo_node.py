@@ -2,10 +2,9 @@ import math
 from abc import ABC, abstractmethod
 
 import pyproj
+from haversine import Unit, haversine
 
 from yaramo.base_element import BaseElement
-from haversine import haversine, Unit
-
 
 
 class GeoNode(ABC, BaseElement):
