@@ -243,14 +243,9 @@ class Compare:
             if element_type == "node":
                 if exclude_ends_in_calculation and not element_a.is_point():
                     continue
-                start_geo_node_a = start_node_a.geo_node
-                start_geo_node_b = start_node_b.geo_node
                 geo_node_a: GeoNode = element_a.geo_node
                 geo_node_b: GeoNode = element_b.geo_node
-                distance = abs(
-                    start_geo_node_a.get_distance_to_other_geo_node(geo_node_a)
-                    - start_geo_node_b.get_distance_to_other_geo_node(geo_node_b)
-                )
+                distance = abs(geo_node_a.get_distance_to_other_geo_node(geo_node_b))
                 print(f"From {element_a.uuid} to {element_b.uuid}: {distance}")
                 distance_sum += distance
             elif element_type == "edge":
