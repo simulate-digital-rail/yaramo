@@ -1,9 +1,11 @@
 import math
 from abc import ABC, abstractmethod
 
-import pyproj
+from haversine import Unit, haversine
 
 from yaramo.base_element import BaseElement
+
+from .utils.coordinateconversion import transform_dbref_to_wgs84, transform_wgs84_to_dbref
 
 
 class GeoNode(ABC, BaseElement):
@@ -12,10 +14,11 @@ class GeoNode(ABC, BaseElement):
     A GeoNode is characterized by it's x and y coordinates.
     """
 
-    def __init__(self, x, y, **kwargs):
+    def __init__(self, x, y, dbref_crs: str = "ER0", **kwargs):
         super().__init__(**kwargs)
         self.x = x
         self.y = y
+        self.dbref_crs = dbref_crs
 
     @abstractmethod
     def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
@@ -39,66 +42,43 @@ class GeoNode(ABC, BaseElement):
 
 
 class Wgs84GeoNode(GeoNode):
-    def get_distance_to_other_geo_node(self, geo_node_b: "Wgs84GeoNode"):
-        assert type(self) == type(
-            geo_node_b
-        ), "You cannot calculate the distance between a Wgs84GeoNode and a geo node of a different type!"
-        return self.__haversine_distance(geo_node_b) / 1000
+    def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
+        geo_node_b = geo_node_b.to_wgs84()
+        return self.__haversine_distance(geo_node_b)
 
     def __haversine_distance(self, geo_node_b: "GeoNode"):
-        pi_over_180 = float(math.pi / 180)
-        return (
-            2
-            * 6371000
-            * math.asin(
-                math.pi
-                / 180
-                * math.sqrt(
-                    math.pow(math.sin((pi_over_180 * (geo_node_b.x - self.x)) / 2), 2)
-                    + math.cos(pi_over_180 * self.x)
-                    * math.cos(pi_over_180 * geo_node_b.x)
-                    * math.pow(math.sin((pi_over_180 * (geo_node_b.y - self.y)) / 2), 2)
-                )
-            )
-        )
+        own = (self.x, self.y)
+        other = (geo_node_b.x, geo_node_b.y)
+        return haversine(own, other, unit=Unit.METERS)
 
-    def to_wgs84(self):
+    def to_wgs84(self) -> "Wgs84GeoNode":
         return self
 
-    def to_dbref(self):
-        transformer = pyproj.Transformer.from_crs("epsg:4326", "epsg:31468")
-        x, y = transformer.transform(self.y, self.x)
-        return DbrefGeoNode(x, y)
+    def to_dbref(self) -> "DbrefGeoNode":
+        x, y = transform_wgs84_to_dbref(self.x, self.y, self.dbref_crs)
+        return DbrefGeoNode(x, y, self.dbref_crs)
 
     def to_euclidean(self) -> "EuclideanGeoNode":
-        raise NotImplementedError
+        return self.to_dbref().to_euclidean()
 
 
 class DbrefGeoNode(GeoNode):
-    def get_distance_to_other_geo_node(self, geo_node_b: "DbrefGeoNode"):
-        assert type(self) == type(
-            geo_node_b
-        ), "You cannot calculate the distance between a DbrefGeoNode and a geo node of a different type!"
-        return self.__eucldian_distance(geo_node_b)
+    def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
+        # Separate DB Ref distance method not implemented yet, therefore use WGS84 distance
+        return self.to_wgs84().get_distance_to_other_geo_node(geo_node_b)
 
-    def __eucldian_distance(self, geo_node_b: "GeoNode"):
-        min_x = min(self.x, geo_node_b.x)
-        min_y = min(self.y, geo_node_b.y)
-        max_x = max(self.x, geo_node_b.x)
-        max_y = max(self.y, geo_node_b.y)
-        return math.sqrt(math.pow(max_x - min_x, 2) + math.pow(max_y - min_y, 2))
+    def to_wgs84(self) -> "Wgs84GeoNode":
+        x, y = transform_dbref_to_wgs84(self.x, self.y, self.dbref_crs)
+        return Wgs84GeoNode(x, y, self.dbref_crs)
 
-    def to_wgs84(self):
-        raise NotImplementedError
-
-    def to_dbref(self):
+    def to_dbref(self) -> "DbrefGeoNode":
         return self
 
     def to_euclidean(self) -> "EuclideanGeoNode":
         # This transformation is just for testing purposes and not correct, see documentation in EuclideanGeoNode.
         _x_shift = 4533770.0
         _y_shift = 5625780.0
-        return EuclideanGeoNode(self.x - _x_shift, self.y - _y_shift)
+        return EuclideanGeoNode(self.x - _x_shift, self.y - _y_shift, self.dbref_crs)
 
 
 class EuclideanGeoNode(GeoNode):
@@ -109,9 +89,7 @@ class EuclideanGeoNode(GeoNode):
     """
 
     def get_distance_to_other_geo_node(self, geo_node_b: "EuclideanGeoNode"):
-        assert type(self) == type(
-            geo_node_b
-        ), "You cannot calculate the distance between a EuclideanGeoNode and a geo node of a different type!"
+        geo_node_b = geo_node_b.to_euclidean()
         return self.__eucldian_distance(geo_node_b)
 
     def __eucldian_distance(self, geo_node_b: "GeoNode"):
@@ -122,12 +100,12 @@ class EuclideanGeoNode(GeoNode):
         return math.sqrt(math.pow(max_x - min_x, 2) + math.pow(max_y - min_y, 2))
 
     def to_wgs84(self) -> "Wgs84GeoNode":
-        raise NotImplementedError
+        return self.to_dbref().to_wgs84()
 
-    def to_dbref(self):
+    def to_dbref(self) -> "DbrefGeoNode":
         _x_shift = 4533770.0
         _y_shift = 5625780.0
-        return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift)
+        return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift, self.dbref_crs)
 
     def to_euclidean(self) -> "EuclideanGeoNode":
         return self
