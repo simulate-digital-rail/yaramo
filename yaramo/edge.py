@@ -58,10 +58,15 @@ class Edge(BaseElement):
             return self.node_b
         return self.node_a
 
-    def update_length(self):
+    def update_length(self, force: bool = False):
+        if force:
+            self.length = None
         self.length = self.__get_length()
 
     def __get_length(self) -> float:
+        if self.length is not None:
+            return self.length
+
         if len(self.intermediate_geo_nodes) == 0:
             return self.node_a.geo_node.get_distance_to_other_geo_node(self.node_b.geo_node)
 
