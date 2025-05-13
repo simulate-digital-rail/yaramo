@@ -1,5 +1,5 @@
 from yaramo.edge import Edge  # pylint: noqa
-from yaramo.geo_node import DbrefGeoNode, GeoNode, Wgs84GeoNode  # pylint: noqa
+from yaramo.geo_node import DbrefGeoNode, EuclideanGeoNode, GeoNode, Wgs84GeoNode  # pylint: noqa
 from yaramo.node import EdgeConnectionDirection, Node  # pylint: noqa
 from yaramo.route import Route  # pylint: noqa
 from yaramo.signal import (  # pylint: noqa

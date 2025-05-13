@@ -1,8 +1,8 @@
-from yaramo.model import Edge, Node, Wgs84GeoNode
+from yaramo.model import Edge, EuclideanGeoNode, Node
 
 
 def create_geo_node(x, y):
-    return Wgs84GeoNode(x, y)
+    return EuclideanGeoNode(x, y)
 
 
 def create_node(x, y):

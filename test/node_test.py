@@ -2,8 +2,8 @@ from itertools import product
 
 from pytest import raises
 
-from yaramo.geo_node import Wgs84GeoNode
-from yaramo.model import Node
+import yaramo.utils.coordinateconversion
+from yaramo.model import DbrefGeoNode, Node, Wgs84GeoNode
 
 from .helper import create_edge, create_node
 
@@ -151,3 +151,34 @@ def test_implausible_anschluss():
 
     with raises(Exception) as exception:
         point.calc_anschluss_of_all_nodes()
+
+
+def test_wgs84_dbref_coordinate_conversion():
+    def _test_distance(_dbref_x, _dbref_y, _wgs84_x, _wgs84_y, factor, smaller_as):
+        wgs84_geo_node = Wgs84GeoNode(wgs84_x, wgs84_y)
+        dbref_geo_node = DbrefGeoNode(dbref_x, dbref_y)
+        assert wgs84_geo_node.get_distance_to_other_geo_node(dbref_geo_node) * factor < smaller_as
+
+    # Example 1:
+    dbref_x = 4563230.251887853
+    dbref_y = 5601992.441701063
+    wgs84_x = 50.55025861737121
+    wgs84_y = 12.890666340087865
+
+    _test_distance(dbref_x, dbref_y, wgs84_x, wgs84_y, 1000 * 1000, 2)
+
+    # Example 2:
+    dbref_x = 4563437.90802
+    dbref_y = 5601946.51808
+    wgs84_x = 50.54982337298292
+    wgs84_y = 12.893588101538324
+
+    _test_distance(dbref_x, dbref_y, wgs84_x, wgs84_y, 1000 * 1000, 2)
+
+    # Example 3: (close-by)
+    dbref_x = 4564720.99586
+    dbref_y = 5601735.46336
+    wgs84_x = 50.5477883
+    wgs84_y = 12.9116547
+
+    _test_distance(dbref_x, dbref_y, wgs84_x, wgs84_y, 1, 0.3)
