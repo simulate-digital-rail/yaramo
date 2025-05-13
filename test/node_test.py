@@ -2,7 +2,6 @@ from itertools import product
 
 from pytest import raises
 
-from yaramo.geo_node import Wgs84GeoNode
 from yaramo.model import Node
 
 from .helper import create_edge, create_node
