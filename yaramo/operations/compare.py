@@ -3,14 +3,7 @@ from typing import Dict, List, Tuple
 
 import networkx as nx
 
-from ..model import (
-    Edge,
-    GeoNode,
-    Node,
-    Signal,
-    SignalDirection,
-    Topology,
-)
+from ..model import Edge, GeoNode, Node, Signal, SignalDirection, Topology
 
 
 class CompareMatching:

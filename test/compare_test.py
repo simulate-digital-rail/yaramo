@@ -131,7 +131,11 @@ def test_exclude_element_list():
 
     for compare_mode in compare_modes:
         result = Compare.compare(
-            topology_a, topology_b, compare_mode, given_node_matching={node_a1: node_b1}, exclude_element_list=[node_b4]
+            topology_a,
+            topology_b,
+            compare_mode,
+            given_node_matching={node_a1: node_b1},
+            exclude_element_list=[node_b4],
         )
         assert result.node_distance == 2.0
         assert node_a1 in result.node_matching.element_matching
