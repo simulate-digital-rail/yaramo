@@ -1,8 +1,8 @@
 import pytest
 
 from yaramo.model import (
-    DbrefGeoNode,
     Edge,
+    EuclideanGeoNode,
     Node,
     Route,
     Signal,
@@ -16,12 +16,12 @@ from yaramo.operations import Label, Split
 
 def test_simple_split():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_4, node_3)
@@ -46,14 +46,14 @@ def test_simple_split():
 
 def test_advanced_split():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_2 = Node(geo_node=DbrefGeoNode(20, 10))  # Point
-    node_3 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_4 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 10))  # Point
-    node_6 = Node(geo_node=DbrefGeoNode(50, 10))
-    node_7 = Node(geo_node=DbrefGeoNode(40, 0))  # Point
-    node_8 = Node(geo_node=DbrefGeoNode(50, 0))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_2 = Node(geo_node=EuclideanGeoNode(20, 10))  # Point
+    node_3 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_4 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 10))  # Point
+    node_6 = Node(geo_node=EuclideanGeoNode(50, 10))
+    node_7 = Node(geo_node=EuclideanGeoNode(40, 0))  # Point
+    node_8 = Node(geo_node=EuclideanGeoNode(50, 0))
     edge_1 = Edge(node_1, node_2)
     edge_2 = Edge(node_3, node_4)
     edge_3 = Edge(node_4, node_2)
@@ -89,12 +89,12 @@ def test_advanced_split():
 
 def test_invalid_split_edge_length():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_4, node_3)
@@ -109,12 +109,12 @@ def test_invalid_split_edge_length():
 
 def test_invalid_split_edge_length_zero():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_4, node_3)
@@ -129,12 +129,12 @@ def test_invalid_split_edge_length_zero():
 
 def test_invalid_split_edge_length_negative():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_4, node_3)
@@ -149,12 +149,12 @@ def test_invalid_split_edge_length_negative():
 
 def test_invalid_split_on_signal():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_4, node_3)
@@ -174,14 +174,14 @@ def test_invalid_split_on_signal():
 
 def test_invalid_split_not_enough_edges():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_2 = Node(geo_node=DbrefGeoNode(20, 10))  # Point
-    node_3 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_4 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 10))  # Point
-    node_6 = Node(geo_node=DbrefGeoNode(50, 10))
-    node_7 = Node(geo_node=DbrefGeoNode(40, 0))  # Point
-    node_8 = Node(geo_node=DbrefGeoNode(50, 0))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_2 = Node(geo_node=EuclideanGeoNode(20, 10))  # Point
+    node_3 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_4 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 10))  # Point
+    node_6 = Node(geo_node=EuclideanGeoNode(50, 10))
+    node_7 = Node(geo_node=EuclideanGeoNode(40, 0))  # Point
+    node_8 = Node(geo_node=EuclideanGeoNode(50, 0))
     edge_1 = Edge(node_1, node_2)
     edge_2 = Edge(node_3, node_4)
     edge_3 = Edge(node_4, node_2)
@@ -199,14 +199,14 @@ def test_invalid_split_not_enough_edges():
 
 def test_split_in_three_partitions():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(40, 10))  # Point
-    node_7 = Node(geo_node=DbrefGeoNode(50, 10))
-    node_8 = Node(geo_node=DbrefGeoNode(50, 20))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(40, 10))  # Point
+    node_7 = Node(geo_node=EuclideanGeoNode(50, 10))
+    node_8 = Node(geo_node=EuclideanGeoNode(50, 20))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -235,16 +235,16 @@ def test_split_in_three_partitions():
 
 def test_split_in_more_than_three_partitions():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))  # Point
-    node_6 = Node(geo_node=DbrefGeoNode(40, 10))  # Point
-    node_7 = Node(geo_node=DbrefGeoNode(50, 10))
-    node_8 = Node(geo_node=DbrefGeoNode(50, 20))
-    node_9 = Node(geo_node=DbrefGeoNode(50, 5))
-    node_A = Node(geo_node=DbrefGeoNode(50, 0))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))  # Point
+    node_6 = Node(geo_node=EuclideanGeoNode(40, 10))  # Point
+    node_7 = Node(geo_node=EuclideanGeoNode(50, 10))
+    node_8 = Node(geo_node=EuclideanGeoNode(50, 20))
+    node_9 = Node(geo_node=EuclideanGeoNode(50, 5))
+    node_A = Node(geo_node=EuclideanGeoNode(50, 0))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -270,16 +270,16 @@ def test_split_in_more_than_three_partitions():
 
 def test_add_non_connected_elements_to_a_partition():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
-    node_b1 = Node(geo_node=DbrefGeoNode(100, 0))
-    node_b2 = Node(geo_node=DbrefGeoNode(110, 0))  # Point
-    node_b3 = Node(geo_node=DbrefGeoNode(120, 0))
-    node_b4 = Node(geo_node=DbrefGeoNode(120, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
+    node_b1 = Node(geo_node=EuclideanGeoNode(100, 0))
+    node_b2 = Node(geo_node=EuclideanGeoNode(110, 0))  # Point
+    node_b3 = Node(geo_node=EuclideanGeoNode(120, 0))
+    node_b4 = Node(geo_node=EuclideanGeoNode(120, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -305,12 +305,12 @@ def test_add_non_connected_elements_to_a_partition():
 
 def test_elements_on_split_edges():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -345,14 +345,14 @@ def test_elements_on_split_edges():
 
 def test_transitive_split():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(40, 10))  # Point
-    node_7 = Node(geo_node=DbrefGeoNode(50, 10))
-    node_8 = Node(geo_node=DbrefGeoNode(50, 20))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(40, 10))  # Point
+    node_7 = Node(geo_node=EuclideanGeoNode(50, 10))
+    node_8 = Node(geo_node=EuclideanGeoNode(50, 20))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -394,18 +394,18 @@ def test_transitive_split():
 
 def test_geo_node_split():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(30, 30))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 40))
-    node_6 = Node(geo_node=DbrefGeoNode(40, 40))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(30, 30))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 40))
+    node_6 = Node(geo_node=EuclideanGeoNode(40, 40))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
 
     edge_3 = Edge(node_3, node_4)
     edge_3.intermediate_geo_nodes.extend(
-        [DbrefGeoNode(16, 3), DbrefGeoNode(22, 10), DbrefGeoNode(27, 24)]
+        [EuclideanGeoNode(16, 3), EuclideanGeoNode(22, 10), EuclideanGeoNode(27, 24)]
     )
 
     edge_4 = Edge(node_4, node_5)
@@ -426,12 +426,12 @@ def test_geo_node_split():
 
 def test_route_split():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -501,14 +501,14 @@ def test_route_split():
 
 def test_route_split_three_parts():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))  # Point
-    node_7 = Node(geo_node=DbrefGeoNode(40, 10))
-    node_8 = Node(geo_node=DbrefGeoNode(40, 20))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))  # Point
+    node_7 = Node(geo_node=EuclideanGeoNode(40, 10))
+    node_8 = Node(geo_node=EuclideanGeoNode(40, 20))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -551,12 +551,12 @@ def test_route_split_three_parts():
 
 def test_route_ends_on_split_edge():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -595,12 +595,12 @@ def test_route_ends_on_split_edge():
 
 def test_new_end_nodes():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_4, node_3)
@@ -625,12 +625,12 @@ def test_assign_nodes_to_labels():
     labels_of_node_1 = [Label.A_Topology, Label.B_Topology]
     for label_of_node_1 in labels_of_node_1:
         topology = Topology()
-        node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-        node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-        node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-        node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-        node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-        node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+        node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+        node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+        node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+        node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+        node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+        node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
         edge_1 = Edge(node_1, node_3)
         edge_2 = Edge(node_2, node_3)
         edge_3 = Edge(node_3, node_4)
@@ -650,12 +650,12 @@ def test_assign_nodes_to_labels():
 
 def test_assign_nodes_to_labels_conflicting_label():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_3, node_4)
@@ -676,16 +676,16 @@ def test_five_parts_after_split():
     labels_of_selected_nodes = [Label.A_Topology, Label.B_Topology]
     for losn in labels_of_selected_nodes:
         topology = Topology()
-        node_1 = Node(geo_node=DbrefGeoNode(0, 5))
-        node_2 = Node(geo_node=DbrefGeoNode(0, 0))
-        node_3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-        node_4 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-        node_5 = Node(geo_node=DbrefGeoNode(30, 5))
-        node_6 = Node(geo_node=DbrefGeoNode(30, 0))  # Point
-        node_7 = Node(geo_node=DbrefGeoNode(40, 0))  # Point
-        node_8 = Node(geo_node=DbrefGeoNode(50, 0))  # Point
-        node_9 = Node(geo_node=DbrefGeoNode(60, 5))
-        node_10 = Node(geo_node=DbrefGeoNode(60, 0))
+        node_1 = Node(geo_node=EuclideanGeoNode(0, 5))
+        node_2 = Node(geo_node=EuclideanGeoNode(0, 0))
+        node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+        node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+        node_5 = Node(geo_node=EuclideanGeoNode(30, 5))
+        node_6 = Node(geo_node=EuclideanGeoNode(30, 0))  # Point
+        node_7 = Node(geo_node=EuclideanGeoNode(40, 0))  # Point
+        node_8 = Node(geo_node=EuclideanGeoNode(50, 0))  # Point
+        node_9 = Node(geo_node=EuclideanGeoNode(60, 5))
+        node_10 = Node(geo_node=EuclideanGeoNode(60, 0))
         edge_1 = Edge(node_1, node_3)
         edge_2 = Edge(node_2, node_3)
         edge_3 = Edge(node_4, node_3)
@@ -693,7 +693,9 @@ def test_five_parts_after_split():
         edge_5 = Edge(node_4, node_6)
         edge_6 = Edge(node_7, node_6)
         edge_7 = Edge(
-            node_6, node_7, intermediate_geo_nodes=[DbrefGeoNode(33, 5), DbrefGeoNode(37, 5)]
+            node_6,
+            node_7,
+            intermediate_geo_nodes=[EuclideanGeoNode(33, 5), EuclideanGeoNode(37, 5)],
         )
         edge_8 = Edge(node_8, node_7)
         edge_9 = Edge(node_8, node_9)
@@ -773,18 +775,18 @@ def test_split_without_split_edges_connected_topology():
 
 def test_topology_with_two_color_problem():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(x=0, y=0))
-    node_3 = Node(geo_node=DbrefGeoNode(x=10, y=0))
-    node_4 = Node(geo_node=DbrefGeoNode(x=30, y=0))
-    node_5 = Node(geo_node=DbrefGeoNode(x=40, y=0))
-    node_6 = Node(geo_node=DbrefGeoNode(x=20, y=5))
-    node_7 = Node(geo_node=DbrefGeoNode(x=30, y=10))
+    node_1 = Node(geo_node=EuclideanGeoNode(x=0, y=0))
+    node_3 = Node(geo_node=EuclideanGeoNode(x=10, y=0))
+    node_4 = Node(geo_node=EuclideanGeoNode(x=30, y=0))
+    node_5 = Node(geo_node=EuclideanGeoNode(x=40, y=0))
+    node_6 = Node(geo_node=EuclideanGeoNode(x=20, y=5))
+    node_7 = Node(geo_node=EuclideanGeoNode(x=30, y=10))
 
     edge_1 = Edge(node_1, node_3)
     edge_3 = Edge(node_3, node_4)
-    edge_4 = Edge(node_3, node_6, intermediate_geo_nodes=[DbrefGeoNode(x=12.5, y=5)])
-    edge_5 = Edge(node_6, node_7, intermediate_geo_nodes=[DbrefGeoNode(x=22.5, y=10)])
-    edge_6 = Edge(node_6, node_4, intermediate_geo_nodes=[DbrefGeoNode(x=27.5, y=5)])
+    edge_4 = Edge(node_3, node_6, intermediate_geo_nodes=[EuclideanGeoNode(x=12.5, y=5)])
+    edge_5 = Edge(node_6, node_7, intermediate_geo_nodes=[EuclideanGeoNode(x=22.5, y=10)])
+    edge_6 = Edge(node_6, node_4, intermediate_geo_nodes=[EuclideanGeoNode(x=27.5, y=5)])
     edge_7 = Edge(node_4, node_5)
 
     topology.add_nodes([node_1, node_3, node_4, node_5, node_6, node_7])
@@ -799,18 +801,18 @@ def test_topology_with_two_color_problem():
 def test_topology_with_two_color_problem_but_solvable():
     topology = Topology()
 
-    node_6 = Node(geo_node=DbrefGeoNode(0, 5))
-    node_7 = Node(geo_node=DbrefGeoNode(12.5, 5))  # Point
-    node_8 = Node(geo_node=DbrefGeoNode(17.5, 5))  # Point
-    node_9 = Node(geo_node=DbrefGeoNode(40, 5))
+    node_6 = Node(geo_node=EuclideanGeoNode(0, 5))
+    node_7 = Node(geo_node=EuclideanGeoNode(12.5, 5))  # Point
+    node_8 = Node(geo_node=EuclideanGeoNode(17.5, 5))  # Point
+    node_9 = Node(geo_node=EuclideanGeoNode(40, 5))
 
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-    node_3 = Node(geo_node=DbrefGeoNode(20, 0))  # Point
-    node_4 = Node(geo_node=DbrefGeoNode(30, 0))  # Point
-    node_5 = Node(geo_node=DbrefGeoNode(40, 0))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_3 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(30, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(40, 0))
 
-    node_A = Node(geo_node=DbrefGeoNode(20, -5))
+    node_A = Node(geo_node=EuclideanGeoNode(20, -5))
 
     edge_1 = Edge(node_1, node_2)
     edge_2 = Edge(node_3, node_2)
@@ -823,7 +825,7 @@ def test_topology_with_two_color_problem_but_solvable():
 
     edge_9 = Edge(node_2, node_7)
     edge_10 = Edge(node_8, node_3)
-    edge_11 = Edge(node_4, node_A, intermediate_geo_nodes=[DbrefGeoNode(27.5, -5)])
+    edge_11 = Edge(node_4, node_A, intermediate_geo_nodes=[EuclideanGeoNode(27.5, -5)])
 
     topology.add_nodes(
         [node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8, node_9, node_A]
@@ -846,18 +848,18 @@ def test_validate_input():
     with pytest.raises(ValueError):
         topology_a, topology_b, _ = Split.split(topology, split_edges={Edge(Node(), Node()): 5.0})
 
-    node_1 = Node(geo_node=DbrefGeoNode(x=0, y=0))
-    node_3 = Node(geo_node=DbrefGeoNode(x=10, y=0))
-    node_4 = Node(geo_node=DbrefGeoNode(x=30, y=0))
-    node_5 = Node(geo_node=DbrefGeoNode(x=40, y=0))
-    node_6 = Node(geo_node=DbrefGeoNode(x=20, y=5))
-    node_7 = Node(geo_node=DbrefGeoNode(x=30, y=10))
+    node_1 = Node(geo_node=EuclideanGeoNode(x=0, y=0))
+    node_3 = Node(geo_node=EuclideanGeoNode(x=10, y=0))
+    node_4 = Node(geo_node=EuclideanGeoNode(x=30, y=0))
+    node_5 = Node(geo_node=EuclideanGeoNode(x=40, y=0))
+    node_6 = Node(geo_node=EuclideanGeoNode(x=20, y=5))
+    node_7 = Node(geo_node=EuclideanGeoNode(x=30, y=10))
 
     edge_1 = Edge(node_1, node_3)
     edge_3 = Edge(node_3, node_4)
-    edge_4 = Edge(node_3, node_6, intermediate_geo_nodes=[DbrefGeoNode(x=12.5, y=5)])
-    edge_5 = Edge(node_6, node_7, intermediate_geo_nodes=[DbrefGeoNode(x=22.5, y=10)])
-    edge_6 = Edge(node_6, node_4, intermediate_geo_nodes=[DbrefGeoNode(x=27.5, y=5)])
+    edge_4 = Edge(node_3, node_6, intermediate_geo_nodes=[EuclideanGeoNode(x=12.5, y=5)])
+    edge_5 = Edge(node_6, node_7, intermediate_geo_nodes=[EuclideanGeoNode(x=22.5, y=10)])
+    edge_6 = Edge(node_6, node_4, intermediate_geo_nodes=[EuclideanGeoNode(x=27.5, y=5)])
     edge_7 = Edge(node_4, node_5)
 
     topology.add_nodes([node_1, node_3, node_4, node_5, node_6, node_7])

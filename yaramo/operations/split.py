@@ -1,7 +1,16 @@
 from enum import Enum, auto
 from typing import Dict, List, Set, Tuple
 
-from ..model import DbrefGeoNode, Edge, GeoNode, Node, Signal, Topology, Wgs84GeoNode
+from ..model import (
+    DbrefGeoNode,
+    Edge,
+    EuclideanGeoNode,
+    GeoNode,
+    Node,
+    Signal,
+    Topology,
+    Wgs84GeoNode,
+)
 from .operationshelper import OperationsHelper
 
 
@@ -121,13 +130,6 @@ class Split:
             elif _node.connected_edge_on_right is None:
                 _node.set_connection_right_edge(_edge)
 
-        def _get_new_geo_node_same_type(_old_geo_node: GeoNode, x: float, y: float) -> GeoNode:
-            if isinstance(_old_geo_node, Wgs84GeoNode):
-                return Wgs84GeoNode(x, y)
-            elif isinstance(_old_geo_node, DbrefGeoNode):
-                return DbrefGeoNode(x, y)
-            raise NotImplementedError
-
         new_end_nodes: Dict[Edge, Tuple[Node, Node]] = {}
         for edge, distance_on_edge in split_edges.items():
             # Get coordinates of new edge nodes and separate geo nodes
@@ -150,7 +152,7 @@ class Split:
             # Split edge
             node_a = edge.node_a
             node_a.remove_edge(edge)
-            end_node_a = Node(geo_node=_get_new_geo_node_same_type(node_a.geo_node, x, y))
+            end_node_a = Node(geo_node=GeoNode.get_new_geo_node_same_type(node_a.geo_node, x, y))
             edge_a = Edge(node_a, end_node_a)
             edge_a.intermediate_geo_nodes = geo_nodes_a
             _connect_edge_at_old_position(node_a, edge_a)
@@ -160,7 +162,7 @@ class Split:
 
             node_b = edge.node_b
             node_b.remove_edge(edge)
-            end_node_b = Node(geo_node=_get_new_geo_node_same_type(node_b.geo_node, x, y))
+            end_node_b = Node(geo_node=GeoNode.get_new_geo_node_same_type(node_b.geo_node, x, y))
             edge_b = Edge(end_node_b, node_b)
             edge_b.intermediate_geo_nodes = geo_nodes_b
             _connect_edge_at_old_position(node_b, edge_b)

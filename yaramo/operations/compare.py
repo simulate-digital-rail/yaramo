@@ -254,9 +254,13 @@ class Compare:
                 distance_sum += abs(element_a.length - element_b.length)
             elif element_type == "signal":
                 x_a, y_a = element_a.get_calculated_coordinates()
-                x_b, y_b = element_b.get_calculated_coordinates()
-                distance_sum += DbrefGeoNode(x_a, y_a).get_distance_to_other_geo_node(
-                    DbrefGeoNode(x_b, y_b)
+                geo_node_a = GeoNode.get_new_geo_node_same_type(
+                    element_a.edge.node_a.geo_node, x_a, y_a
                 )
+                x_b, y_b = element_b.get_calculated_coordinates()
+                geo_node_b = GeoNode.get_new_geo_node_same_type(
+                    element_b.edge.node_a.geo_node, x_b, y_b
+                )
+                distance_sum += geo_node_a.get_distance_to_other_geo_node(geo_node_b)
 
         return distance_sum

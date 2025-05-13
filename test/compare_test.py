@@ -1,28 +1,26 @@
 import pytest
 
 from yaramo.model import (
-    DbrefGeoNode,
     Edge,
+    EuclideanGeoNode,
     Node,
-    Route,
     Signal,
     SignalDirection,
     SignalFunction,
     SignalKind,
     Topology,
-    Wgs84GeoNode,
 )
 from yaramo.operations import Compare, CompareMode, CompareResult
 
 
 def test_identical_topologies():
     topology = Topology()
-    node_1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_4 = Node(geo_node=DbrefGeoNode(20, 0))
-    node_5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_1 = Edge(node_1, node_3)
     edge_2 = Edge(node_2, node_3)
     edge_3 = Edge(node_4, node_3)
@@ -50,12 +48,12 @@ def test_identical_topologies():
 
 def test_identical_topologies_but_ids():
     topology_a = Topology()
-    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_a3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_a4 = Node(geo_node=DbrefGeoNode(20, 0))
-    node_a5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_a6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_a1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_a2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_a3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_a4 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_a5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_a6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_a1 = Edge(node_a1, node_a3)
     edge_a2 = Edge(node_a2, node_a3)
     edge_a3 = Edge(node_a4, node_a3)
@@ -66,12 +64,12 @@ def test_identical_topologies_but_ids():
     topology_a.update_edge_lengths()
 
     topology_b = Topology()
-    node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_b2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_b3 = Node(geo_node=DbrefGeoNode(12, 0))  # x differs from Node A3
-    node_b4 = Node(geo_node=DbrefGeoNode(20, 3))  # y differs from Node A4
-    node_b5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_b6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_b1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_b2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_b3 = Node(geo_node=EuclideanGeoNode(12, 0))  # x differs from Node A3
+    node_b4 = Node(geo_node=EuclideanGeoNode(20, 3))  # y differs from Node A4
+    node_b5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_b6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_b1 = Edge(node_b1, node_b3)
     edge_b2 = Edge(node_b2, node_b3)
     edge_b3 = Edge(node_b4, node_b3)
@@ -98,12 +96,12 @@ def test_identical_topologies_but_ids():
 
 def test_edge_diff_and_signal_distance():
     topology_a = Topology()
-    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_a3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_a4 = Node(geo_node=DbrefGeoNode(20, 0))
-    node_a5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_a6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_a1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_a2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_a3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_a4 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_a5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_a6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_a1 = Edge(node_a1, node_a3)
     edge_a2 = Edge(node_a2, node_a3)
     edge_a3 = Edge(node_a3, node_a4)
@@ -142,12 +140,12 @@ def test_edge_diff_and_signal_distance():
     topology_a.update_edge_lengths()
 
     topology_b = Topology()
-    node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_b2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_b3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_b4 = Node(geo_node=DbrefGeoNode(22, 0))
-    node_b5 = Node(geo_node=DbrefGeoNode(32, 0))
-    node_b6 = Node(geo_node=DbrefGeoNode(32, 10))
+    node_b1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_b2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_b3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_b4 = Node(geo_node=EuclideanGeoNode(22, 0))
+    node_b5 = Node(geo_node=EuclideanGeoNode(32, 0))
+    node_b6 = Node(geo_node=EuclideanGeoNode(32, 10))
     edge_b1 = Edge(node_b1, node_b3)
     edge_b2 = Edge(node_b2, node_b3)
     edge_b3 = Edge(node_b4, node_b3)  # Edge is reversed compared to edge_a3
@@ -195,23 +193,23 @@ def test_edge_diff_and_signal_distance():
         assert result.edge_length_difference == 2.0
         assert edge_a3 in result.edge_matching.element_matching
         assert edge_b3 == result.edge_matching.element_matching[edge_a3]
-        assert result.signal_distance == 4.0
         assert signal_a1 in result.signal_matching.element_matching
         assert signal_b1 == result.signal_matching.element_matching[signal_a1]
         assert signal_a2 in result.signal_matching.element_matching
         assert signal_b2 == result.signal_matching.element_matching[signal_a2]
         assert signal_a3 in result.signal_matching.element_matching
         assert signal_b3 == result.signal_matching.element_matching[signal_a3]
+        assert result.signal_distance == 4.0
 
 
 def test_exact_matching_with_overlapping_graph():
     topology_a = Topology()
-    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_a3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_a4 = Node(geo_node=DbrefGeoNode(20, 0))
-    node_a5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_a6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_a1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_a2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_a3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_a4 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_a5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_a6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_a1 = Edge(node_a1, node_a3)
     edge_a2 = Edge(node_a2, node_a3)
     edge_a3 = Edge(node_a3, node_a4)
@@ -222,12 +220,12 @@ def test_exact_matching_with_overlapping_graph():
     topology_a.update_edge_lengths()
 
     topology_b = Topology()
-    node_b1 = Node(geo_node=DbrefGeoNode(0, 0), uuid=node_a1.uuid)
-    node_b2 = Node(geo_node=DbrefGeoNode(0, 10), uuid=node_a2.uuid)
-    node_b3 = Node(geo_node=DbrefGeoNode(12, 0), uuid=node_a3.uuid)  # x differs to Node A3
-    node_b4 = Node(geo_node=DbrefGeoNode(20, 1), uuid=node_a4.uuid)  # y differs to Node A3
-    node_b5 = Node(geo_node=DbrefGeoNode(-10, 0))
-    node_b6 = Node(geo_node=DbrefGeoNode(-10, 10))
+    node_b1 = Node(geo_node=EuclideanGeoNode(0, 0), uuid=node_a1.uuid)
+    node_b2 = Node(geo_node=EuclideanGeoNode(0, 10), uuid=node_a2.uuid)
+    node_b3 = Node(geo_node=EuclideanGeoNode(12, 0), uuid=node_a3.uuid)  # x differs to Node A3
+    node_b4 = Node(geo_node=EuclideanGeoNode(20, 1), uuid=node_a4.uuid)  # y differs to Node A3
+    node_b5 = Node(geo_node=EuclideanGeoNode(-10, 0))
+    node_b6 = Node(geo_node=EuclideanGeoNode(-10, 10))
     edge_b1 = Edge(node_b1, node_b3, uuid=edge_a1.uuid)
     edge_b2 = Edge(node_b2, node_b3, uuid=edge_a2.uuid)
     edge_b3 = Edge(node_b3, node_b4, uuid=edge_a3.uuid)
@@ -252,12 +250,12 @@ def test_exact_matching_with_overlapping_graph():
 
 def test_non_isomorphic_topologies_different_node_and_edge_count():
     topology_a = Topology()
-    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_a3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_a4 = Node(geo_node=DbrefGeoNode(20, 0))
-    node_a5 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_a6 = Node(geo_node=DbrefGeoNode(30, 10))
+    node_a1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_a2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_a3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_a4 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_a5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_a6 = Node(geo_node=EuclideanGeoNode(30, 10))
     edge_a1 = Edge(node_a1, node_a3)
     edge_a2 = Edge(node_a2, node_a3)
     edge_a3 = Edge(node_a4, node_a3)
@@ -267,10 +265,10 @@ def test_non_isomorphic_topologies_different_node_and_edge_count():
     topology_a.add_edges([edge_a1, edge_a2, edge_a3, edge_a4, edge_a5])
 
     topology_b = Topology()
-    node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_b2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_b3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_b4 = Node(geo_node=DbrefGeoNode(20, 0))
+    node_b1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_b2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_b3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_b4 = Node(geo_node=EuclideanGeoNode(20, 0))
     edge_b1 = Edge(node_b1, node_b3)
     edge_b2 = Edge(node_b2, node_b3)
     edge_b3 = Edge(node_b4, node_b3)
@@ -285,16 +283,16 @@ def test_non_isomorphic_topologies_different_node_and_edge_count():
 
 def test_non_isomorphic_topologies_same_node_and_edge_count():
     topology_a = Topology()
-    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_a2 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_a3 = Node(geo_node=DbrefGeoNode(20, 0))
-    node_a4 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_a5 = Node(geo_node=DbrefGeoNode(40, 10))
-    node_a6 = Node(geo_node=DbrefGeoNode(40, 0))
+    node_a1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_a2 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_a3 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_a4 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_a5 = Node(geo_node=EuclideanGeoNode(40, 10))
+    node_a6 = Node(geo_node=EuclideanGeoNode(40, 0))
     edge_a1 = Edge(node_a1, node_a2)
     edge_a2 = Edge(node_a2, node_a3)
     edge_a2b = Edge(node_a2, node_a3)
-    edge_a2b.intermediate_geo_nodes.extend([DbrefGeoNode(12, 5), DbrefGeoNode(18, 5)])
+    edge_a2b.intermediate_geo_nodes.extend([EuclideanGeoNode(12, 5), EuclideanGeoNode(18, 5)])
     edge_a3 = Edge(node_a3, node_a4)
     edge_a4 = Edge(node_a4, node_a5)
     edge_a5 = Edge(node_a4, node_a6)
@@ -302,12 +300,12 @@ def test_non_isomorphic_topologies_same_node_and_edge_count():
     topology_a.add_edges([edge_a1, edge_a2, edge_a2b, edge_a3, edge_a4, edge_a5])
 
     topology_b = Topology()
-    node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_b2 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_b3 = Node(geo_node=DbrefGeoNode(20, 0))
-    node_b4 = Node(geo_node=DbrefGeoNode(30, 0))
-    node_b5 = Node(geo_node=DbrefGeoNode(13, 5))
-    node_b6 = Node(geo_node=DbrefGeoNode(23, 5))
+    node_b1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_b2 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_b3 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_b4 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_b5 = Node(geo_node=EuclideanGeoNode(13, 5))
+    node_b6 = Node(geo_node=EuclideanGeoNode(23, 5))
     edge_b1 = Edge(node_b1, node_b2)
     edge_b2 = Edge(node_b2, node_b3)
     edge_b3 = Edge(node_b3, node_b4)
@@ -325,10 +323,10 @@ def test_non_isomorphic_topologies_same_node_and_edge_count():
 
 def test_isomorphic_topologies_without_given_node_matching():
     topology_a = Topology()
-    node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_a3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_a4 = Node(geo_node=DbrefGeoNode(20, 0))
+    node_a1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_a2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_a3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_a4 = Node(geo_node=EuclideanGeoNode(20, 0))
     edge_a1 = Edge(node_a1, node_a3)
     edge_a2 = Edge(node_a2, node_a3)
     edge_a3 = Edge(node_a4, node_a3)
@@ -336,10 +334,10 @@ def test_isomorphic_topologies_without_given_node_matching():
     topology_a.add_edges([edge_a1, edge_a2, edge_a3])
 
     topology_b = Topology()
-    node_b1 = Node(geo_node=DbrefGeoNode(0, 0))
-    node_b2 = Node(geo_node=DbrefGeoNode(0, 10))
-    node_b3 = Node(geo_node=DbrefGeoNode(10, 0))
-    node_b4 = Node(geo_node=DbrefGeoNode(20, 0))
+    node_b1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_b2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_b3 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_b4 = Node(geo_node=EuclideanGeoNode(20, 0))
     edge_b1 = Edge(node_b1, node_b3)
     edge_b2 = Edge(node_b2, node_b3)
     edge_b3 = Edge(node_b3, node_b4)

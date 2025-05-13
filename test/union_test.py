@@ -3,8 +3,8 @@ from typing import List
 import pytest
 
 from yaramo.model import (
-    DbrefGeoNode,
     Edge,
+    EuclideanGeoNode,
     Node,
     Route,
     Signal,
@@ -343,7 +343,7 @@ def test_corner_cases_edge_directions():
         },
     ]
 
-    def _are_geo_nodes_in_ascending_order(_geo_node_list: List[DbrefGeoNode]):
+    def _are_geo_nodes_in_ascending_order(_geo_node_list: List[EuclideanGeoNode]):
         current_x = _geo_node_list[0].x
         print(current_x)
         for geo_node in _geo_node_list:
@@ -356,18 +356,22 @@ def test_corner_cases_edge_directions():
     for config in configs:
         print(config)
         topology_a = Topology()
-        node_a1 = Node(geo_node=DbrefGeoNode(0, 0))
-        node_a2 = Node(geo_node=DbrefGeoNode(0, 10))
-        node_a3 = Node(geo_node=DbrefGeoNode(10, 0))  # Point
-        node_a4 = Node(geo_node=DbrefGeoNode(20, 0))  # Union-Node
+        node_a1 = Node(geo_node=EuclideanGeoNode(0, 0))
+        node_a2 = Node(geo_node=EuclideanGeoNode(0, 10))
+        node_a3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+        node_a4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Union-Node
         edge_a1 = Edge(node_a1, node_a3)
         edge_a2 = Edge(node_a2, node_a3)
         if config["switch_edge_a3"]:
             edge_a3 = Edge(node_a4, node_a3)
-            edge_a3.intermediate_geo_nodes.extend([DbrefGeoNode(17, 0), DbrefGeoNode(16, 0)])
+            edge_a3.intermediate_geo_nodes.extend(
+                [EuclideanGeoNode(17, 0), EuclideanGeoNode(16, 0)]
+            )
         else:
             edge_a3 = Edge(node_a3, node_a4)
-            edge_a3.intermediate_geo_nodes.extend([DbrefGeoNode(16, 0), DbrefGeoNode(17, 0)])
+            edge_a3.intermediate_geo_nodes.extend(
+                [EuclideanGeoNode(16, 0), EuclideanGeoNode(17, 0)]
+            )
 
         signal_a1 = Signal(
             edge=edge_a3,
@@ -386,18 +390,22 @@ def test_corner_cases_edge_directions():
         assert edge_a3.length == 10.0
 
         topology_b = Topology()
-        node_b1 = Node(geo_node=DbrefGeoNode(45, 0))
-        node_b2 = Node(geo_node=DbrefGeoNode(45, 10))
-        node_b3 = Node(geo_node=DbrefGeoNode(35, 0))  # Point
-        node_b4 = Node(geo_node=DbrefGeoNode(25, 0))  # Union-Node
+        node_b1 = Node(geo_node=EuclideanGeoNode(45, 0))
+        node_b2 = Node(geo_node=EuclideanGeoNode(45, 10))
+        node_b3 = Node(geo_node=EuclideanGeoNode(35, 0))  # Point
+        node_b4 = Node(geo_node=EuclideanGeoNode(25, 0))  # Union-Node
         edge_b1 = Edge(node_b1, node_b3)
         edge_b2 = Edge(node_b2, node_b3)
         if config["switch_edge_b3"]:
             edge_b3 = Edge(node_b3, node_b4)
-            edge_b3.intermediate_geo_nodes.extend([DbrefGeoNode(32, 0), DbrefGeoNode(31, 0)])
+            edge_b3.intermediate_geo_nodes.extend(
+                [EuclideanGeoNode(32, 0), EuclideanGeoNode(31, 0)]
+            )
         else:
             edge_b3 = Edge(node_b4, node_b3)
-            edge_b3.intermediate_geo_nodes.extend([DbrefGeoNode(31, 0), DbrefGeoNode(32, 0)])
+            edge_b3.intermediate_geo_nodes.extend(
+                [EuclideanGeoNode(31, 0), EuclideanGeoNode(32, 0)]
+            )
 
         signal_b1 = Signal(
             edge=edge_b3,

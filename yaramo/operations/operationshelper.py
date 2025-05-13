@@ -1,4 +1,4 @@
-from yaramo.model import Topology
+from yaramo.model import DbrefGeoNode, EuclideanGeoNode, GeoNode, Topology, Wgs84GeoNode
 
 
 class OperationsHelper:

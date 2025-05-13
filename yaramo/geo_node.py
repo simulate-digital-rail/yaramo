@@ -40,6 +40,18 @@ class GeoNode(ABC, BaseElement):
     def to_serializable(self):
         return self.__dict__, {}
 
+    @staticmethod
+    def get_new_geo_node_same_type(old_geo_node: "GeoNode", x: float, y: float) -> "GeoNode":
+        print(old_geo_node)
+        print(type(old_geo_node))
+        if isinstance(old_geo_node, Wgs84GeoNode):
+            return Wgs84GeoNode(x, y)
+        elif isinstance(old_geo_node, DbrefGeoNode):
+            return DbrefGeoNode(x, y)
+        elif isinstance(old_geo_node, EuclideanGeoNode):
+            return EuclideanGeoNode(x, y)
+        raise NotImplementedError
+
 
 class Wgs84GeoNode(GeoNode):
     def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
