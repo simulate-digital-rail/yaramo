@@ -1,17 +1,15 @@
 from enum import Enum, auto
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Tuple
 
 import networkx as nx
 
 from ..model import (
-    DbrefGeoNode,
     Edge,
     GeoNode,
     Node,
     Signal,
     SignalDirection,
     Topology,
-    Wgs84GeoNode,
 )
 
 
@@ -44,11 +42,13 @@ class Compare:
         topology_b: Topology,
         compare_mode: CompareMode,
         given_node_matching: Dict[Node, Node] | None = None,
-        exclude_ends_in_calculation: bool = False,
+        exclude_element_list=None,
         skip_signals: bool = False,
     ) -> CompareResult:
         if given_node_matching is None:
             given_node_matching = {}
+        if exclude_element_list is None:
+            exclude_element_list = []
 
         result: CompareResult = CompareResult()
 
@@ -66,14 +66,14 @@ class Compare:
             )
 
         result.node_distance = Compare._calc_distance_for_matching(
-            result.node_matching, exclude_ends_in_calculation
+            result.node_matching, exclude_element_list
         )
         result.edge_length_difference = Compare._calc_distance_for_matching(
-            result.edge_matching, exclude_ends_in_calculation, element_type="edge"
+            result.edge_matching, exclude_element_list, element_type="edge"
         )
         if not skip_signals:
             result.signal_distance = Compare._calc_distance_for_matching(
-                result.signal_matching, exclude_ends_in_calculation, element_type="signal"
+                result.signal_matching, exclude_element_list, element_type="signal"
             )
         return result
 
@@ -125,6 +125,7 @@ class Compare:
         def __add_edges_to_matching(__edge_a: Edge, __edge_b: Edge):
             if __edge_a in result.edge_matching.element_matching:
                 if result.edge_matching.element_matching[__edge_a] != __edge_b:
+                    print(f"bad edge {__edge_a.uuid} {__edge_b.uuid}")
                     raise ValueError(
                         "Graph topology is isomorphic, but railway network graph differs (edge graph broken)"
                     )
@@ -225,7 +226,7 @@ class Compare:
     @staticmethod
     def _calc_distance_for_matching(
         matching: CompareMatching,
-        exclude_ends_in_calculation,
+        exclude_element_list,
         element_type: str = "node",
     ):
         if not matching.element_matching:
@@ -234,20 +235,16 @@ class Compare:
         distance_sum: float = 0.0
         for element_a in matching.element_matching:
             element_b = matching.element_matching[element_a]
+            if element_a in exclude_element_list or element_b in exclude_element_list:
+                continue
 
             if element_type == "node":
-                if exclude_ends_in_calculation and not element_a.is_point():
-                    continue
                 geo_node_a: GeoNode = element_a.geo_node
                 geo_node_b: GeoNode = element_b.geo_node
                 distance = abs(geo_node_a.get_distance_to_other_geo_node(geo_node_b))
                 print(f"From {element_a.uuid} to {element_b.uuid}: {distance}")
                 distance_sum += distance
             elif element_type == "edge":
-                if exclude_ends_in_calculation and (
-                    not element_a.node_a.is_point() or not element_a.node_b.is_point()
-                ):
-                    continue
                 print(
                     f"Edge {element_a.uuid} compared to {element_b.uuid}: {abs(element_a.length - element_b.length)}"
                 )
