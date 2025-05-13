@@ -47,6 +47,8 @@ class Edge(BaseElement):
         self.node_b.connected_edges.append(self)
         self.signals = signals or []
         self.length = length
+        if self.length is not None and type(self.length) != float:
+            self.length = float(self.length)
         self.maximum_speed = maximum_speed
         self.vacancy_section = vacancy_section
 
