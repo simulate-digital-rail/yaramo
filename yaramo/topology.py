@@ -124,9 +124,9 @@ class Topology(BaseElement):
                 result.append(edge)
         return result
 
-    def update_edge_lengths(self):
+    def update_edge_lengths(self, force: bool = False):
         for edge in self.edges.values():
-            edge.update_length()
+            edge.update_length(force)
 
     def get_route_by_signal_names(self, start_signal_name, end_signal_name):
         for route_uuid in self.routes:
