@@ -56,7 +56,7 @@ class Wgs84GeoNode(GeoNode):
 
     def to_dbref(self) -> "DbrefGeoNode":
         x, y = transform_wgs84_to_dbref(self.x, self.y, self.dbref_crs)
-        return DbrefGeoNode(x, y, self.dbref_crs)
+        return DbrefGeoNode(x, y, self.dbref_crs, uuid=self.uuid)
 
     def to_euclidean(self) -> "EuclideanGeoNode":
         return self.to_dbref().to_euclidean()
@@ -69,7 +69,7 @@ class DbrefGeoNode(GeoNode):
 
     def to_wgs84(self) -> "Wgs84GeoNode":
         x, y = transform_dbref_to_wgs84(self.x, self.y, self.dbref_crs)
-        return Wgs84GeoNode(x, y, self.dbref_crs)
+        return Wgs84GeoNode(x, y, self.dbref_crs, uuid=self.uuid)
 
     def to_dbref(self) -> "DbrefGeoNode":
         return self
@@ -78,7 +78,9 @@ class DbrefGeoNode(GeoNode):
         # This transformation is just for testing purposes and not correct, see documentation in EuclideanGeoNode.
         _x_shift = 4533770.0
         _y_shift = 5625780.0
-        return EuclideanGeoNode(self.x - _x_shift, self.y - _y_shift, self.dbref_crs)
+        return EuclideanGeoNode(
+            self.x - _x_shift, self.y - _y_shift, self.dbref_crs, uuid=self.uuid
+        )
 
 
 class EuclideanGeoNode(GeoNode):
@@ -105,7 +107,7 @@ class EuclideanGeoNode(GeoNode):
     def to_dbref(self) -> "DbrefGeoNode":
         _x_shift = 4533770.0
         _y_shift = 5625780.0
-        return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift, self.dbref_crs)
+        return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift, self.dbref_crs, uuid=self.uuid)
 
     def to_euclidean(self) -> "EuclideanGeoNode":
         return self
