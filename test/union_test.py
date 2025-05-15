@@ -40,7 +40,7 @@ def test_simple_union():
     topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4])
     topology_b.add_edges([edge_b1, edge_b2, edge_b3])
 
-    topology_ab = Union.union(topology_a, topology_b, {node_a4: node_b4})
+    topology_ab = Union.union(topology_a, {node_a4: node_b4}, topology_b)
 
     assert len(topology_ab.nodes) == (
         len(topology_a.nodes) + len(topology_b.nodes) - 2
@@ -87,7 +87,7 @@ def test_complex_union():
     topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4])
     topology_b.add_edges([edge_b1, edge_b2, edge_b3])
 
-    topology_ab = Union.union(topology_a, topology_b, {node_a3: node_b1, node_a4: node_b4})
+    topology_ab = Union.union(topology_a, {node_a3: node_b1, node_a4: node_b4}, topology_b)
 
     assert len(topology_ab.nodes) == (
         len(topology_a.nodes) + len(topology_b.nodes) - 4
@@ -134,7 +134,7 @@ def test_invalid_node_matching():
     topology_b.add_edges([edge_b1, edge_b2, edge_b3])
 
     with pytest.raises(ValueError):
-        topology_ab = Union.union(topology_a, topology_b, {node_b1: node_b4})
+        topology_ab = Union.union(topology_a, {node_b1: node_b4}, topology_b)
 
 
 def test_point_as_node_matching():
@@ -161,7 +161,7 @@ def test_point_as_node_matching():
     topology_b.add_edges([edge_b1, edge_b2, edge_b3])
 
     with pytest.raises(ValueError):
-        topology_ab = Union.union(topology_a, topology_b, {node_a3: node_b4})
+        topology_ab = Union.union(topology_a, {node_a3: node_b4}, topology_b)
 
 
 def test_other_objects_survive():
@@ -225,7 +225,7 @@ def test_other_objects_survive():
     topology_b.add_signals([signal_b1, signal_b2])
     topology_b.add_routes([route_b1])
 
-    topology_ab = Union.union(topology_a, topology_b, {node_a4: node_b4})
+    topology_ab = Union.union(topology_a, {node_a4: node_b4}, topology_b)
     assert len(topology_ab.signals) == 4
     assert len(topology_ab.routes) == 2
 
@@ -253,7 +253,7 @@ def test_transitive_union_test():
     topology_b.add_nodes([node_b1, node_b2, node_b3, node_b4])
     topology_b.add_edges([edge_b1, edge_b2, edge_b3])
 
-    topology_ab = Union.union(topology_a, topology_b, {node_a4: node_b4})
+    topology_ab = Union.union(topology_a, {node_a4: node_b4}, topology_b)
 
     topology_c = Topology()
     node_c1 = Node()  # Union-Node
@@ -262,7 +262,7 @@ def test_transitive_union_test():
     topology_c.add_nodes([node_c1, node_c2])
     topology_c.add_edges([edge_c1])
 
-    topology_abc = Union.union(topology_ab, topology_c, {node_b1: node_c1})
+    topology_abc = Union.union(topology_ab, {node_b1: node_c1}, topology_c)
 
     assert len(topology_abc.nodes) == (
         len(topology_ab.nodes) + len(topology_c.nodes) - 2
@@ -297,7 +297,7 @@ def test_geo_node_union():
     topology_b.add_nodes([node_4_end, node_4, node_5, node_6])
     topology_b.add_edges([edge_4, edge_5, edge_6])
 
-    topology_ab = Union.union(topology_a, topology_b, {node_3_end: node_4_end})
+    topology_ab = Union.union(topology_a, {node_3_end: node_4_end}, topology_b)
 
     def _count_geo_node(_topology: Topology):
         return sum(map(lambda _edge: len(_edge.intermediate_geo_nodes), _topology.edges.values()))
@@ -423,7 +423,7 @@ def test_corner_cases_edge_directions():
         edge_b3.update_length()
         assert edge_b3.length == 10.0
 
-        topology_ab = Union.union(topology_a, topology_b, {node_a4: node_b4})
+        topology_ab = Union.union(topology_a, {node_a4: node_b4}, topology_b)
 
         assert signal_a1 in topology_ab.signals.values()
         assert signal_b1 in topology_ab.signals.values()
@@ -437,3 +437,25 @@ def test_corner_cases_edge_directions():
         assert signal_a1.direction == config["signal_a1_direction"]
         assert signal_b1.direction == config["signal_b1_direction"]
         assert _are_geo_nodes_in_ascending_order(union_edge.intermediate_geo_nodes)
+
+
+def test_union_in_one_topology():
+    topology_a = Topology()
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(10, 0))
+    node_3 = Node(geo_node=EuclideanGeoNode(14, 0))
+    node_4 = Node(geo_node=EuclideanGeoNode(16, 0))
+    node_5 = Node(geo_node=EuclideanGeoNode(20, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 0))
+    edge_1 = Edge(node_1, node_2)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_2, node_5, intermediate_geo_nodes=[EuclideanGeoNode(13, 5), EuclideanGeoNode(17, 5)])
+    edge_4 = Edge(node_5, node_4)
+    edge_5 = Edge(node_5, node_6)
+    topology_a.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
+    topology_a.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
+
+    topology_ab = Union.union(topology_a, {node_3: node_4})
+    assert [node_1, node_2, node_5, node_6] in topology_ab
+    assert [node_3, node_4] not in topology_ab
+    assert len(topology_ab.edges) == 4

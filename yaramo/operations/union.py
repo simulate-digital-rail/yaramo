@@ -7,7 +7,7 @@ from .operationshelper import OperationsHelper
 class Union:
     @staticmethod
     def union(
-        topology_a: Topology, topology_b: Topology, node_matching: Dict[Node, Node]
+        topology_a: Topology, node_matching: Dict[Node, Node], topology_b: Topology = None
     ) -> Topology:
         if not (
             Union._are_all_nodes_in_topology(topology_a, node_matching.keys())
