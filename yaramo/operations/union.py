@@ -9,32 +9,44 @@ class Union:
     def union(
         topology_a: Topology, node_matching: Dict[Node, Node], topology_b: Topology = None
     ) -> Topology:
-        if not (
-            Union._are_all_nodes_in_topology(topology_a, node_matching.keys())
-            and Union._are_all_nodes_in_topology(topology_b, node_matching.values())
-        ):
-            raise ValueError(
-                "The node matching contains nodes, that are not inside the corresponding topology. Abort."
-            )
+        if topology_b is None:
+            if not (
+                Union._are_all_nodes_in_topology(topology_a, node_matching.keys())
+                and Union._are_all_nodes_in_topology(topology_a, node_matching.values())
+            ):
+                raise ValueError(
+                    "The node matching contains nodes, that are not inside the given topology. Abort."
+                )
+        else:
+            if not (
+                Union._are_all_nodes_in_topology(topology_a, node_matching.keys())
+                and Union._are_all_nodes_in_topology(topology_b, node_matching.values())
+            ):
+                raise ValueError(
+                    "The node matching contains nodes, that are not inside the corresponding topology. Abort."
+                )
 
         if not Union._are_all_nodes_ends(node_matching):
             raise ValueError(
                 "Some of the nodes in the matching are points. All nodes have to be ends. Abort."
             )
 
-        topology_ab = Topology()
-        OperationsHelper.copy_topology_metadata(topology_a, topology_ab)
+        topology_ab = topology_a
 
-        topology_ab.nodes.update(topology_a.nodes)
-        topology_ab.nodes.update(topology_b.nodes)
-        topology_ab.edges.update(topology_a.edges)
-        topology_ab.edges.update(topology_b.edges)
-        topology_ab.signals.update(topology_a.signals)
-        topology_ab.signals.update(topology_b.signals)
-        topology_ab.routes.update(topology_a.routes)
-        topology_ab.routes.update(topology_b.routes)
-        topology_ab.vacancy_sections.update(topology_a.vacancy_sections)
-        topology_ab.vacancy_sections.update(topology_b.vacancy_sections)
+        if topology_b is not None:
+            topology_ab = Topology()
+            OperationsHelper.copy_topology_metadata(topology_a, topology_ab)
+
+            topology_ab.nodes.update(topology_a.nodes)
+            topology_ab.nodes.update(topology_b.nodes)
+            topology_ab.edges.update(topology_a.edges)
+            topology_ab.edges.update(topology_b.edges)
+            topology_ab.signals.update(topology_a.signals)
+            topology_ab.signals.update(topology_b.signals)
+            topology_ab.routes.update(topology_a.routes)
+            topology_ab.routes.update(topology_b.routes)
+            topology_ab.vacancy_sections.update(topology_a.vacancy_sections)
+            topology_ab.vacancy_sections.update(topology_b.vacancy_sections)
 
         for node_a, node_b in node_matching.items():
             union_edge_a: Edge = node_a.connected_edges[0]

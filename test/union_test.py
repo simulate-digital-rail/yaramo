@@ -449,7 +449,9 @@ def test_union_in_one_topology():
     node_6 = Node(geo_node=EuclideanGeoNode(30, 0))
     edge_1 = Edge(node_1, node_2)
     edge_2 = Edge(node_2, node_3)
-    edge_3 = Edge(node_2, node_5, intermediate_geo_nodes=[EuclideanGeoNode(13, 5), EuclideanGeoNode(17, 5)])
+    edge_3 = Edge(
+        node_2, node_5, intermediate_geo_nodes=[EuclideanGeoNode(13, 5), EuclideanGeoNode(17, 5)]
+    )
     edge_4 = Edge(node_5, node_4)
     edge_5 = Edge(node_5, node_6)
     topology_a.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
