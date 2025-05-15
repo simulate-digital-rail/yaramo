@@ -42,8 +42,6 @@ class GeoNode(ABC, BaseElement):
 
     @staticmethod
     def get_new_geo_node_same_type(old_geo_node: "GeoNode", x: float, y: float) -> "GeoNode":
-        print(old_geo_node)
-        print(type(old_geo_node))
         if isinstance(old_geo_node, Wgs84GeoNode):
             return Wgs84GeoNode(x, y)
         elif isinstance(old_geo_node, DbrefGeoNode):

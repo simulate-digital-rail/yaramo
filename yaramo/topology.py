@@ -137,6 +137,21 @@ class Topology(BaseElement):
             ):
                 return route
 
+    def get_first_element_by_uuid_suffix(self, uuid_suffix: str):
+        for node_uuid, node in self.nodes.items():
+            if node_uuid.endswith(uuid_suffix):
+                return node
+        for edge_uuid, edge in self.edges.items():
+            if edge_uuid.endswith(uuid_suffix):
+                return edge
+        for signal_uuid, signal in self.signals.items():
+            if signal_uuid.endswith(uuid_suffix):
+                return signal
+        for route_uuid, route in self.routes.items():
+            if route_uuid.endswith(uuid_suffix):
+                return route
+        return None
+
     def to_serializable(self):
         """See the description in the BaseElement class.
 
