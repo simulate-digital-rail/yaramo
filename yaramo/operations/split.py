@@ -62,7 +62,7 @@ class Split:
 
         if add_missing_elements_to_topology is not None:
             Split._assign_missing_elements_to_label(
-                topology, node_labels, edge_labels, signal_labels, add_missing_elements_to_topology
+                topology, node_labels, edge_labels, signal_labels, add_missing_elements_to_topology, split_edges
             )
 
         # Add nodes, edges and signals to destination topologies.
@@ -94,6 +94,7 @@ class Split:
     @staticmethod
     def _validate_split_edges(topology: Topology, split_edges: Dict[Edge, float]):
         for edge, distance_on_edge in split_edges.items():
+            print(edge)
             if edge not in topology:
                 raise ValueError("Given split edge is not part of the topology")
             edge.update_length()
@@ -318,11 +319,14 @@ class Split:
         edge_labels: Dict[Edge, Label],
         signal_labels: Dict[Signal, Label],
         label: Label,
+        split_edges: [Edge, float],
     ):
         for node in topology.nodes.values():
             if node not in node_labels:
                 node_labels[node] = label
         for edge in topology.edges.values():
+            if edge in split_edges:
+                continue
             if edge not in edge_labels:
                 edge_labels[edge] = label
         for signal in topology.signals.values():

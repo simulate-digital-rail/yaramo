@@ -301,6 +301,8 @@ def test_add_non_connected_elements_to_a_partition():
     assert [node_4, node_5, node_6] in topology_b
     assert [edge_1, edge_2, edge_b1, edge_b2, edge_b3] in topology_a
     assert [edge_4, edge_5] in topology_b
+    assert [edge_3] not in topology_a
+    assert [edge_3] not in topology_b
 
 
 def test_elements_on_split_edges():
