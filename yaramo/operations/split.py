@@ -62,7 +62,12 @@ class Split:
 
         if add_missing_elements_to_topology is not None:
             Split._assign_missing_elements_to_label(
-                topology, node_labels, edge_labels, signal_labels, add_missing_elements_to_topology, split_edges
+                topology,
+                node_labels,
+                edge_labels,
+                signal_labels,
+                add_missing_elements_to_topology,
+                split_edges,
             )
 
         # Add nodes, edges and signals to destination topologies.
