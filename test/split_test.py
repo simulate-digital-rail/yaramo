@@ -325,14 +325,18 @@ def test_elements_on_split_edges():
     signal_2 = Signal(
         edge_3, 5.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
     )
+    signal_2b = Signal(
+        edge_3, 8.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
     edge_3.signals.append(signal_2)
+    edge_3.signals.append(signal_2b)
     signal_3 = Signal(
         edge_5, 5.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
     )
     edge_5.signals.append(signal_3)
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
-    topology.add_signals([signal_1, signal_2, signal_3])
+    topology.add_signals([signal_1, signal_2, signal_2b, signal_3])
 
     topology_a, topology_b, _ = Split.split(
         topology, split_edges={edge_3: 7.0}, node_label_assignments={node_1: Label.A_Topology}
@@ -341,7 +345,9 @@ def test_elements_on_split_edges():
     assert len(topology_a.signals) == 2
     assert signal_1 in topology_a
     assert signal_2 in topology_a
-    assert len(topology_b.signals) == 1
+    assert len(topology_b.signals) == 2
+    assert signal_2b in topology_b
+    assert signal_2b.distance_edge == 1.0
     assert signal_3 in topology_b
 
 

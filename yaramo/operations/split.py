@@ -156,6 +156,7 @@ class Split:
             end_node_a = Node(geo_node=GeoNode.get_new_geo_node_same_type(node_a.geo_node, x, y))
             edge_a = Edge(node_a, end_node_a)
             edge_a.intermediate_geo_nodes = geo_nodes_a
+            edge_a.length = distance_on_edge
             _connect_edge_at_old_position(node_a, edge_a)
             end_node_a.set_connection_head_edge(edge_a)
             topology.add_node(end_node_a)
@@ -166,6 +167,7 @@ class Split:
             end_node_b = Node(geo_node=GeoNode.get_new_geo_node_same_type(node_b.geo_node, x, y))
             edge_b = Edge(end_node_b, node_b)
             edge_b.intermediate_geo_nodes = geo_nodes_b
+            edge_b.length = edge.length - distance_on_edge
             _connect_edge_at_old_position(node_b, edge_b)
             end_node_b.set_connection_head_edge(edge_b)
             topology.add_node(end_node_b)
@@ -178,6 +180,7 @@ class Split:
                 else:
                     edge_b.signals.append(signal)
                     signal.edge = edge_b
+                    signal.distance_edge = signal.distance_edge - distance_on_edge
 
             for route in topology.routes.values():
                 if edge in route.edges:
