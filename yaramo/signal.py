@@ -157,7 +157,7 @@ class Signal(BaseElement):
         super().__init__(**kwargs)
         self.trip: Trip = None
         self.edge = edge
-        self.distance_edge = distance_edge
+        self.distance_edge = float(distance_edge)
         self.classification_number = classification_number
         self.control_member_uuid = str(uuid4())
         self.additional_signals: list[AdditionalSignal] = []
