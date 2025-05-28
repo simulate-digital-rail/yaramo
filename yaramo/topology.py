@@ -11,6 +11,7 @@ from yaramo.node import Node
 from yaramo.route import Route
 from yaramo.signal import Signal
 from yaramo.vacancy_section import VacancySection
+from yaramo.track import Track
 
 
 class PlanningState(Enum):
@@ -44,6 +45,7 @@ class Topology(BaseElement):
         self.signals: dict[str, Signal] = {}
         self.routes: dict[str, Route] = {}
         self.vacancy_sections: dict[str, VacancySection] = {}
+        self.tracks: dict[str, Track] = {}
         self.current_status: PlanningState = PlanningState.erstellt
         self.status_information: dict[PlanningState, dict[str, str]] = defaultdict(dict)
 
@@ -64,6 +66,9 @@ class Topology(BaseElement):
 
     def add_vacancy_section(self, vacancy_section: VacancySection):
         self.vacancy_sections[vacancy_section.uuid] = vacancy_section
+
+    def add_track(self, track: Track):
+        self.tracks[track.uuid] = track
 
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
         for edge_uuid in self.edges:
