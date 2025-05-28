@@ -55,24 +55,27 @@ class Topology(BaseElement):
         self.created_with: str = "unknown"
 
     def __contains__(self, item_list):
-        if type(item_list) != list:
+        if type(item_list) is not list:
             item_list = [item_list]
         all_in = True
         for item in item_list:
-            if type(item) == Node:
+            if type(item) is Node:
                 all_in = all_in and item in self.nodes.values()
-            elif type(item) == Edge:
+            elif type(item) is Edge:
                 all_in = all_in and item in self.edges.values()
-            elif type(item) == Signal:
+            elif type(item) is Signal:
                 all_in = all_in and item in self.signals.values()
-            elif type(item) == Route:
+            elif type(item) is Route:
                 all_in = all_in and item in self.routes.values()
-            elif type(item) == str:
-                all_in = (
+            elif type(item) is Track:
+                all_in = all_in and item in self.tracks.values()
+            elif type(item) is str:
+                all_in = all_in and (
                     item in self.nodes
                     or item in self.edges
                     or item in self.signals
                     or item in self.routes
+                    or item in self.tracks
                 )
             else:
                 all_in = False
@@ -159,6 +162,9 @@ class Topology(BaseElement):
         for route_uuid, route in self.routes.items():
             if route_uuid.endswith(uuid_suffix):
                 return route
+        for track_uuid, track in self.tracks.items():
+            if track_uuid.endswith(uuid_suffix):
+                return track
         return None
 
     def to_serializable(self):
