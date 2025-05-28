@@ -9,6 +9,7 @@ from ..model import (
     Node,
     Signal,
     Topology,
+    Track,
     Wgs84GeoNode,
 )
 from .operationshelper import OperationsHelper
@@ -85,6 +86,9 @@ class Split:
         _add_elements_to_topology(signal_labels, topology_a.add_signal, topology_b.add_signal)
         Split._assign_routes_to_topologies(
             topology, topology_a, topology_b, edge_labels, signal_labels
+        )
+        Split._assign_tracks_to_topologies(
+            topology, topology_a, topology_b, edge_labels, new_end_nodes
         )
 
         Split._validate_for_data_loss(topology, topology_a, topology_b, split_edges)
@@ -319,6 +323,61 @@ class Split:
                 topology_a.add_route(route)
             else:
                 topology_b.add_route(route)
+
+    @staticmethod
+    def _assign_tracks_to_topologies(
+        topology: Topology,
+        topology_a: Topology,
+        topology_b: Topology,
+        edge_labels: Dict[Edge, Label],
+        new_end_nodes: Dict[Edge, Tuple[Node, Node]],
+    ):
+        def _assign_track_by_label(_track: Track, _label: Label):
+            if _label == Label.A_Topology:
+                topology_a.add_track(_track)
+            else:
+                topology_b.add_track(_track)
+
+        for track in topology.tracks.values():
+            if not new_end_nodes:
+                # Nothing separated, so tracks stays connected
+                _assign_track_by_label(track, edge_labels[track.edges[0]])
+                continue
+
+            any_split_edge_in_track: bool = False
+            for edge in new_end_nodes.keys():
+                if edge in track.edges:
+                    any_split_edge_in_track = True
+            if not any_split_edge_in_track:
+                # No split edge is in track, so track stays connected
+                _assign_track_by_label(track, edge_labels[track.edges[0]])
+                continue
+
+            # we need to split the track:
+            current_track = Track(track_type=track.track_type)
+            for edge in track.get_edges_in_order():
+                if edge in new_end_nodes.keys():
+                    node_a = new_end_nodes[edge][0]
+                    edge_a = node_a.connected_edge_on_head
+                    edge_a.update_length()
+                    node_b = new_end_nodes[edge][1]
+                    edge_b = node_b.connected_edge_on_head
+                    edge_b.update_length()
+
+                    if current_track.is_node_in_track(edge_a.get_other_node(node_a)):
+                        current_track.add_edge_section(edge_a, 0.0, edge_a.length)
+                        _assign_track_by_label(current_track, edge_labels[edge_a])
+                        current_track = Track(track_type=track.track_type)
+                        current_track.add_edge_section(edge_b, 0.0, edge_b.length)
+                        _assign_track_by_label(current_track, edge_labels[edge_b])
+                    else:
+                        current_track.add_edge_section(edge_b, 0.0, edge_b.length)
+                        _assign_track_by_label(current_track, edge_labels[edge_b])
+                        current_track = Track(track_type=track.track_type)
+                        current_track.add_edge_section(edge_a, 0.0, edge_a.length)
+                        _assign_track_by_label(current_track, edge_labels[edge_a])
+                else:
+                    current_track.edge_sections[edge] = track.edge_sections[edge]
 
     @staticmethod
     def _assign_missing_elements_to_label(

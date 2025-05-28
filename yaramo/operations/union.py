@@ -47,6 +47,8 @@ class Union:
             topology_ab.routes.update(topology_b.routes)
             topology_ab.vacancy_sections.update(topology_a.vacancy_sections)
             topology_ab.vacancy_sections.update(topology_b.vacancy_sections)
+            topology_ab.tracks.update(topology_a.tracks)
+            topology_ab.tracks.update(topology_b.tracks)
 
         for node_a, node_b in node_matching.items():
             union_edge_a: Edge = node_a.connected_edges[0]
