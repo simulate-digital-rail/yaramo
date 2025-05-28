@@ -76,3 +76,9 @@ class Track(BaseElement):
             previous_edge = next_edge
 
         return edges_in_order
+
+    def is_node_in_track(self, node: Node):
+        for edge in self.edges:
+            if edge.is_node_connected(node):
+                return True
+        return False
