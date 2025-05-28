@@ -12,6 +12,8 @@ from yaramo.model import (
     SignalFunction,
     SignalKind,
     Topology,
+    Track,
+    TrackType,
     Wgs84GeoNode,
 )
 from yaramo.operations import Union
@@ -173,6 +175,9 @@ def test_other_objects_survive():
     edge_a1 = Edge(node_a1, node_a3)
     edge_a2 = Edge(node_a2, node_a3)
     edge_a3 = Edge(node_a3, node_a4)
+    track_a = Track(TrackType.sonstige)
+    track_a.add_edge_section(edge_a1, 0.0, 5.0)
+    track_a.add_edge_section(edge_a2, 0.0, 5.0)
     signal_a1 = Signal(
         edge=edge_a1,
         distance_edge=5.0,
@@ -194,6 +199,7 @@ def test_other_objects_survive():
     topology_a.add_edges([edge_a1, edge_a2, edge_a3])
     topology_a.add_signals([signal_a1, signal_a2])
     topology_a.add_routes([route_a1])
+    topology_a.add_tracks([track_a])
 
     topology_b = Topology()
     node_b1 = Node(geo_node=Wgs84GeoNode(60, 0))
@@ -203,6 +209,9 @@ def test_other_objects_survive():
     edge_b1 = Edge(node_b1, node_b3)
     edge_b2 = Edge(node_b2, node_b3)
     edge_b3 = Edge(node_b3, node_b4)
+    track_b = Track(TrackType.sonstige)
+    track_b.add_edge_section(edge_b2, 0.0, 5.0)
+    track_b.add_edge_section(edge_b3, 0.0, 5.0)
     signal_b1 = Signal(
         edge=edge_b1,
         distance_edge=4.0,
@@ -224,10 +233,12 @@ def test_other_objects_survive():
     topology_b.add_edges([edge_b1, edge_b2, edge_b3])
     topology_b.add_signals([signal_b1, signal_b2])
     topology_b.add_routes([route_b1])
+    topology_b.add_tracks([track_b])
 
     topology_ab = Union.union(topology_a, {node_a4: node_b4}, topology_b)
     assert len(topology_ab.signals) == 4
     assert len(topology_ab.routes) == 2
+    assert len(topology_ab.tracks) == 2
 
 
 def test_transitive_union_test():

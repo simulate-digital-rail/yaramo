@@ -10,6 +10,8 @@ from yaramo.model import (
     SignalFunction,
     SignalKind,
     Topology,
+    Track,
+    TrackType,
 )
 from yaramo.operations import Label, Split
 
@@ -216,6 +218,13 @@ def test_split_in_three_partitions():
     edge_7 = Edge(node_6, node_8)
     topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6, node_7, node_8])
     topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5, edge_6, edge_7])
+    topology.update_edge_lengths(force=True)
+    track = Track(TrackType.Durchgehendes_Hauptgleis)
+    track.add_edge_section(edge_1, 0.0, edge_1.length)
+    track.add_edge_section(edge_3, 0.0, edge_3.length)
+    track.add_edge_section(edge_5, 0.0, edge_5.length)
+    track.add_edge_section(edge_6, 0.0, edge_6.length)
+    topology.add_tracks([track])
 
     topology_a, topology_b, _ = Split.split(topology, split_edges={edge_3: 5.0, edge_5: 5.0})
     assert [
@@ -231,6 +240,10 @@ def test_split_in_three_partitions():
         edge_7,
     ] in topology_a
     assert [node_4, node_5, edge_4] in topology_b
+    assert track not in topology_a
+    assert track not in topology_b
+    assert len(topology_a.tracks) == 2
+    assert len(topology_b.tracks) == 1
 
 
 def test_split_in_more_than_three_partitions():
@@ -880,3 +893,56 @@ def test_validate_input():
         topology_a, topology_b, _ = Split.split(
             topology, node_label_assignments={Node(): Label.A_Topology}
         )
+
+
+def test_split_tracks():
+    topology = Topology()
+    node_1 = Node(geo_node=EuclideanGeoNode(0, 0))
+    node_2 = Node(geo_node=EuclideanGeoNode(0, 10))
+    node_3 = Node(geo_node=EuclideanGeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=EuclideanGeoNode(20, 0))  # Point
+    node_5 = Node(geo_node=EuclideanGeoNode(30, 0))
+    node_6 = Node(geo_node=EuclideanGeoNode(30, 10))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_4, node_3)
+    edge_4 = Edge(node_4, node_5)
+    edge_5 = Edge(node_4, node_6)
+    track_1 = Track(TrackType.Nebengleis)
+    track_1.add_edge_section(edge_2, 0.0, 10.0)
+    track_2 = Track(TrackType.Durchgehendes_Hauptgleis)
+    track_2.add_edge_section(edge_1, 0.0, 10.0)
+    track_2.add_edge_section(edge_3, 0.0, 10.0)
+    track_2.add_edge_section(edge_4, 0.0, 10.0)
+    track_3 = Track(TrackType.Anschlussgleis)
+    track_3.add_edge_section(edge_5, 0.0, 10.0)
+
+    topology.add_nodes([node_1, node_2, node_3, node_4, node_5, node_6])
+    topology.add_edges([edge_1, edge_2, edge_3, edge_4, edge_5])
+    topology.add_tracks([track_1, track_2, track_3])
+
+    topology_a, topology_b, _ = Split.split(
+        topology, node_label_assignments={node_1: Label.A_Topology}
+    )
+
+    assert [track_1, track_2, track_3] in topology_a
+
+    topology_a, topology_b, _ = Split.split(
+        topology, split_edges={edge_3: 5.0}, node_label_assignments={node_1: Label.A_Topology}
+    )
+
+    assert track_1 in topology_a
+    assert track_3 in topology_b
+    assert track_2 not in topology_a and track_2 not in topology_b
+    assert len(topology_a.tracks) == 2
+    assert len(topology_b.tracks) == 2
+    assert set(map(lambda track: track.track_type, topology_a.tracks.values())) == {
+        TrackType.Nebengleis,
+        TrackType.Durchgehendes_Hauptgleis,
+    }
+    assert set(map(lambda track: track.track_type, topology_b.tracks.values())) == {
+        TrackType.Anschlussgleis,
+        TrackType.Durchgehendes_Hauptgleis,
+    }
+    assert set(map(lambda track: len(track.edges), topology_a.tracks.values())) == {1, 2}
+    assert set(map(lambda track: len(track.edges), topology_b.tracks.values())) == {1, 2}
