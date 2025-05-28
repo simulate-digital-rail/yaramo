@@ -10,8 +10,8 @@ from yaramo.geo_node import Wgs84GeoNode
 from yaramo.node import Node
 from yaramo.route import Route
 from yaramo.signal import Signal
-from yaramo.vacancy_section import VacancySection
 from yaramo.track import Track
+from yaramo.vacancy_section import VacancySection
 
 
 class PlanningState(Enum):

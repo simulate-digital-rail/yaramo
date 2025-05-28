@@ -18,8 +18,12 @@ class TrackType(Enum):
 class Track(BaseElement):
     def __init__(self, track_type, **kwargs):
         super().__init__(**kwargs)
-        self.track_type: TrackType = track_type
         self.edge_sections: Dict[Edge, Tuple[float, float]] = {}
+
+        if isinstance(track_type, str):
+            self.track_type = TrackType.__members__.get(track_type, TrackType.sonstige)
+        elif isinstance(track_type, TrackType):
+            self.track_type = track_type
 
     def add_edge_section(self, edge: Edge, section_start: float, section_end: float):
         self.edge_sections[edge] = (section_start, section_end)
