@@ -12,6 +12,7 @@ from yaramo.geo_node import Wgs84GeoNode
 from yaramo.node import Node
 from yaramo.route import Route
 from yaramo.signal import Signal
+from yaramo.track import Track
 from yaramo.vacancy_section import VacancySection
 
 
@@ -46,6 +47,7 @@ class Topology(BaseElement):
         self.signals: dict[str, Signal] = {}
         self.routes: dict[str, Route] = {}
         self.vacancy_sections: dict[str, VacancySection] = {}
+        self.tracks: dict[str, Track] = {}
         self.current_status: PlanningState = PlanningState.erstellt
         self.status_information: dict[PlanningState, dict[str, str]] = defaultdict(dict)
 
@@ -110,6 +112,13 @@ class Topology(BaseElement):
     def add_vavancy_sections(self, vacancy_sections: List[VacancySection]):
         for vacancy_section in vacancy_sections:
             self.add_vacancy_section(vacancy_section)
+
+    def add_track(self, track: Track):
+        self.tracks[track.uuid] = track
+
+    def add_tracks(self, tracks: List[Track]):
+        for track in tracks:
+            self.add_track(track)
 
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
         result = []

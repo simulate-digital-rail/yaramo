@@ -11,4 +11,5 @@ from yaramo.signal import (  # pylint: noqa
     SignalSystem,
 )
 from yaramo.topology import Topology  # pylint: noqa
+from yaramo.track import Track, TrackType  # pylint: noqa
 from yaramo.trip import Trip  # pylint: noqa
