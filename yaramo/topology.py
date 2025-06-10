@@ -1,7 +1,9 @@
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
+from typing import List
 
+import networkx as nx
 import simplejson as json
 
 from yaramo.base_element import BaseElement
@@ -52,25 +54,77 @@ class Topology(BaseElement):
         self.created_at: datetime = datetime.now()
         self.created_with: str = "unknown"
 
+    def __contains__(self, item_list):
+        if type(item_list) is not list:
+            item_list = [item_list]
+        all_in = True
+        for item in item_list:
+            if type(item) is Node:
+                all_in = all_in and item in self.nodes.values()
+            elif type(item) is Edge:
+                all_in = all_in and item in self.edges.values()
+            elif type(item) is Signal:
+                all_in = all_in and item in self.signals.values()
+            elif type(item) is Route:
+                all_in = all_in and item in self.routes.values()
+            elif type(item) is Track:
+                all_in = all_in and item in self.tracks.values()
+            elif type(item) is str:
+                all_in = all_in and (
+                    item in self.nodes
+                    or item in self.edges
+                    or item in self.signals
+                    or item in self.routes
+                    or item in self.tracks
+                )
+            else:
+                all_in = False
+        return all_in
+
     def add_node(self, node: Node):
         self.nodes[node.uuid] = node
+
+    def add_nodes(self, nodes: List[Node]):
+        for node in nodes:
+            self.add_node(node)
 
     def add_edge(self, edge: Edge):
         self.edges[edge.uuid] = edge
 
+    def add_edges(self, edges: List[Edge]):
+        for edge in edges:
+            self.add_edge(edge)
+
     def add_signal(self, signal: Signal):
         self.signals[signal.uuid] = signal
+
+    def add_signals(self, signals: List[Signal]):
+        for signal in signals:
+            self.add_signal(signal)
 
     def add_route(self, route: Route):
         self.routes[route.uuid] = route
 
+    def add_routes(self, routes: List[Route]):
+        for route in routes:
+            self.add_route(route)
+
     def add_vacancy_section(self, vacancy_section: VacancySection):
         self.vacancy_sections[vacancy_section.uuid] = vacancy_section
+
+    def add_vavancy_sections(self, vacancy_sections: List[VacancySection]):
+        for vacancy_section in vacancy_sections:
+            self.add_vacancy_section(vacancy_section)
 
     def add_track(self, track: Track):
         self.tracks[track.uuid] = track
 
+    def add_tracks(self, tracks: List[Track]):
+        for track in tracks:
+            self.add_track(track)
+
     def get_edge_by_nodes(self, node_a: Node, node_b: Node):
+        result = []
         for edge_uuid in self.edges:
             edge = self.edges[edge_uuid]
             if (
@@ -79,8 +133,12 @@ class Topology(BaseElement):
                 or edge.node_a.uuid == node_b.uuid
                 and edge.node_b.uuid == node_a.uuid
             ):
-                return edge
-        return None
+                result.append(edge)
+        return result
+
+    def update_edge_lengths(self, force: bool = False):
+        for edge in self.edges.values():
+            edge.update_length(force)
 
     def get_route_by_signal_names(self, start_signal_name, end_signal_name):
         for route_uuid in self.routes:
@@ -90,6 +148,24 @@ class Topology(BaseElement):
                 and route.end_signal.name == end_signal_name
             ):
                 return route
+
+    def get_first_element_by_uuid_suffix(self, uuid_suffix: str):
+        for node_uuid, node in self.nodes.items():
+            if node_uuid.endswith(uuid_suffix):
+                return node
+        for edge_uuid, edge in self.edges.items():
+            if edge_uuid.endswith(uuid_suffix):
+                return edge
+        for signal_uuid, signal in self.signals.items():
+            if signal_uuid.endswith(uuid_suffix):
+                return signal
+        for route_uuid, route in self.routes.items():
+            if route_uuid.endswith(uuid_suffix):
+                return route
+        for track_uuid, track in self.tracks.items():
+            if track_uuid.endswith(uuid_suffix):
+                return track
+        return None
 
     def to_serializable(self):
         """See the description in the BaseElement class.
@@ -178,3 +254,15 @@ class Topology(BaseElement):
         for signal in obj["signals"]:
             topology.signals[signal["uuid"]].edge = topology.edges[signal["edge"]]
         return topology
+
+    def to_networkx_graph(self) -> nx.MultiGraph:
+        graph = nx.MultiGraph()
+        for node_uuid, node in self.nodes.items():
+            x = node.geo_node.x
+            y = node.geo_node.y
+            graph.add_node(node_uuid, x=x, y=y)
+
+        for edge_uuid, edge in self.edges.items():
+            edge.update_length()
+            graph.add_edge(edge.node_a.uuid, edge.node_b.uuid, uuid=edge_uuid, length=edge.length)
+        return graph

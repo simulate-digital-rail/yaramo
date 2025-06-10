@@ -1,4 +1,14 @@
-from yaramo.model import Edge, Node, Topology
+from yaramo.model import (
+    Edge,
+    Node,
+    Route,
+    Signal,
+    SignalDirection,
+    SignalFunction,
+    SignalKind,
+    Topology,
+    Wgs84GeoNode,
+)
 
 from .helper import create_edge, create_geo_node, create_node
 
@@ -19,8 +29,11 @@ def test_get_edge_by_nodes():
     assert len(topology.edges) == 1
 
     def _test_edge(_node_a, _node_b, _expected_edge):
-        _edge = topology.get_edge_by_nodes(_node_a, _node_b)
-        assert _edge == _expected_edge
+        _edge_list = topology.get_edge_by_nodes(_node_a, _node_b)
+        if not _edge_list:
+            assert _expected_edge is None
+        else:
+            assert _edge_list[0] == _expected_edge
 
     _test_edge(node_a, node_b, edge)
     _test_edge(node_b, node_a, edge)
@@ -83,3 +96,45 @@ def test_station_topology():
     assert point_b.connected_edge_on_left == edge_2a
     assert len(end_b.connected_edges) == 1
     assert end_b.connected_edge_on_head == edge_3
+
+
+def test_contains_method():
+    topology = Topology()
+    node_1 = Node(geo_node=Wgs84GeoNode(0, 0))
+    node_2 = Node(geo_node=Wgs84GeoNode(0, 5))
+    node_3 = Node(geo_node=Wgs84GeoNode(10, 0))  # Point
+    node_4 = Node(geo_node=Wgs84GeoNode(20, 0))
+    edge_1 = Edge(node_1, node_3)
+    edge_2 = Edge(node_2, node_3)
+    edge_3 = Edge(node_3, node_4)
+
+    signal_1 = Signal(
+        edge_1, 5.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
+    edge_1.signals.append(signal_1)
+    signal_2 = Signal(
+        edge_3, 3.0, SignalDirection.IN, SignalFunction.Block_Signal, SignalKind.Hauptsignal
+    )
+    edge_3.signals.append(signal_2)
+    route_1 = Route(signal_1)
+    route_1.edges.add(edge_1)
+    route_1.edges.add(edge_3)
+    route_1.end_signal = signal_2
+
+    topology.add_nodes([node_1, node_2, node_3, node_4])
+    topology.add_edges([edge_1, edge_2, edge_3])
+    topology.add_signals([signal_1, signal_2])
+    topology.add_routes([route_1])
+    assert node_1 in topology
+    assert node_1.uuid in topology
+    assert node_2 in topology
+    assert [node_3, node_4] in topology
+    assert [node_3.uuid, node_4.uuid] in topology
+    assert edge_1 in topology
+    assert [edge_2, edge_3] in topology
+    assert signal_1 in topology
+    assert signal_2 in topology
+    assert route_1 in topology
+    assert "test" not in topology
+    assert ["test"] not in topology
+    assert [node_1, "test"] not in topology
