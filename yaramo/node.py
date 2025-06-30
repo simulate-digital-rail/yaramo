@@ -43,7 +43,6 @@ class Node(BaseElement):
         self.turnout_side: str = turnout_side
         self.drive_amount = 0
 
-
     def maximum_speed(self, node_a: "Node", node_b: "Node"):
         """Return the maximum allowed speed for traversing this node,
         coming from node_a and going to node_b
