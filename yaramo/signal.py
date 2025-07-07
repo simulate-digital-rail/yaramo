@@ -28,7 +28,7 @@ class SignalFunction(Enum):
     Block_Signal = auto()
     Vorsignal_Vorsignalwiederholer = auto()
     Zwischen_Signal = auto()
-    # Not real signals: signal.kind == SignalKind.FikitivesSignal
+    # Not real signals: signal.kind == SignalKind.FiktivesSignal
     Zug_Ziel_Strecke = auto()
     Rangier_Start_Ziel_ohne_Signal = auto()
     Nicht_Definiert = auto()
@@ -81,11 +81,16 @@ class SignalState(Enum):
     ZS2V = auto()
     ZS3 = auto()
     ZS3V = auto()
+    ZS7 = auto()
     ZLO = auto()
     LF7 = auto()
     RA10 = auto()
     RA12 = auto()
     MS_WS_RT_WS = auto()
+    MS_WS_GE_WS_GE_WS = auto()
+    MS_WS_SW_WS_SW_WS = auto()
+    MS_RT = auto()
+    MS_WS_SW_PT = auto()
     MS_GE_D = auto()
 
     @classmethod
@@ -99,12 +104,20 @@ class SignalState(Enum):
             return SignalState.__members__[state_string_trimmed]
         if state_string == "Mastschild weiß-rot-weiß":
             return SignalState.MS_WS_RT_WS
+        if state_string == "Mastschild weiß-gelb-weiß-gelb-weiß":
+            return SignalState.MS_WS_GE_WS_GE_WS
+        if state_string == "Mastschild weiß-schwarz-weiß-schwarz-weiß":
+            return SignalState.MS_WS_SW_WS_SW_WS
+        if state_string == "Mastschild rot":
+            return SignalState.MS_RT
+        if state_string == "Mastschild weiß mit zwei schwarzen Punkten":
+            return SignalState.MS_WS_SW_PT
         if state_string == "gelbes Dreieck mit Spitze nach unten":
             return SignalState.MS_GE_D
         if state_string == "verkuerzter Abstand des Bremswegs, weißes Zusatzlicht über Signallicht":
             return SignalState.ZLO
         logging.warning(
-            f"The Signal State with the string {state_string} does not exists. Return None instead"
+            f"The Signal State with the string {state_string} does not exist. Returning None instead"
         )
         return None
 
@@ -124,9 +137,10 @@ class Signal(BaseElement):
         function: SignalFunction | str,
         kind: SignalKind | str,
         system: SignalSystem | str = SignalSystem.andere,
-        side_distance: float = None,
-        supported_states: Set[SignalState] = None,
+        side_distance: float | None = None,
+        supported_states: Set[SignalState] | None = None,
         classification_number: str = "60",
+        additional_signals: list[AdditionalSignal] = [],
         **kwargs,
     ):
         """
@@ -147,12 +161,12 @@ class Signal(BaseElement):
         """
 
         super().__init__(**kwargs)
-        self.trip: Trip = None
+        self.trip: Trip | None = None
         self.edge = edge
         self.distance_edge = distance_edge
         self.classification_number = classification_number
         self.control_member_uuid = str(uuid4())
-        self.additional_signals: list[AdditionalSignal] = []
+        self.additional_signals = additional_signals
         self.supported_states: Set[SignalState] = supported_states if supported_states else set()
 
         if isinstance(direction, str):
