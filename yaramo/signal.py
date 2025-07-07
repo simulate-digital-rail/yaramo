@@ -81,8 +81,12 @@ class SignalState(Enum):
     ZS2V = auto()
     ZS3 = auto()
     ZS3V = auto()
+    ZS6 = auto()
     ZS7 = auto()
+    ZS13 = auto()
     ZLO = auto()
+    ZLU = auto()
+    KL = auto()
     LF7 = auto()
     RA10 = auto()
     RA12 = auto()
@@ -116,6 +120,10 @@ class SignalState(Enum):
             return SignalState.MS_GE_D
         if state_string == "verkuerzter Abstand des Bremswegs, weißes Zusatzlicht über Signallicht":
             return SignalState.ZLO
+        if state_string == "Vorsignalwiederholer, weißes Zusatzlicht unter Signallicht":
+            return SignalState.ZLU
+        if state_string == "ein weißes Licht anstelle der sonst vorgesehenen Signalbilder":
+            return SignalState.KL
         logging.warning(
             f"The Signal State with the string {state_string} does not exist. Returning None instead"
         )
