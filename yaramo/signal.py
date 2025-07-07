@@ -87,10 +87,10 @@ class SignalState(Enum):
     RA10 = auto()
     RA12 = auto()
     MS_WS_RT_WS = auto()
-    MS_WS_GE_WS_GE_WS = auto()
-    MS_WS_SW_WS_SW_WS = auto()
+    MS_WS_GE_WS = auto()
+    MS_WS_SW_WS = auto()
     MS_RT = auto()
-    MS_WS_SW_PT = auto()
+    MS_WS_2SWP = auto()
     MS_GE_D = auto()
 
     @classmethod
@@ -105,13 +105,13 @@ class SignalState(Enum):
         if state_string == "Mastschild weiß-rot-weiß":
             return SignalState.MS_WS_RT_WS
         if state_string == "Mastschild weiß-gelb-weiß-gelb-weiß":
-            return SignalState.MS_WS_GE_WS_GE_WS
+            return SignalState.MS_WS_GE_WS
         if state_string == "Mastschild weiß-schwarz-weiß-schwarz-weiß":
-            return SignalState.MS_WS_SW_WS_SW_WS
+            return SignalState.MS_WS_SW_WS
         if state_string == "Mastschild rot":
             return SignalState.MS_RT
         if state_string == "Mastschild weiß mit zwei schwarzen Punkten":
-            return SignalState.MS_WS_SW_PT
+            return SignalState.MS_WS_2SWP
         if state_string == "gelbes Dreieck mit Spitze nach unten":
             return SignalState.MS_GE_D
         if state_string == "verkuerzter Abstand des Bremswegs, weißes Zusatzlicht über Signallicht":
