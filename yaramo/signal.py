@@ -1,5 +1,5 @@
-import logging
 from enum import Enum, auto
+import logging
 from typing import Set, Tuple
 from uuid import uuid4
 

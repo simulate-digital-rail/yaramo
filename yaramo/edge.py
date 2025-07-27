@@ -1,9 +1,14 @@
-from typing import List, Optional, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
 from yaramo.node import Node
 from yaramo.vacancy_section import VacancySection
+
+if TYPE_CHECKING:
+    from yaramo.signal import Signal, SignalDirection
 
 
 class Edge(BaseElement):
@@ -22,7 +27,7 @@ class Edge(BaseElement):
         vacancy_section: Optional[VacancySection] = None,
         length: float = None,
         intermediate_geo_nodes: List[GeoNode] = None,
-        signals: list["Signal"] = None,
+        signals: list[Signal] = None,
         maximum_speed: int = None,
         **kwargs
     ):
@@ -86,7 +91,7 @@ class Edge(BaseElement):
         )
         return total_length
 
-    def get_direction_based_on_start_node(self, start: "Node") -> "SignalDirection":
+    def get_direction_based_on_start_node(self, start: Node) -> SignalDirection:
         from yaramo.signal import SignalDirection
 
         if self.node_a.uuid == start.uuid:
@@ -95,7 +100,7 @@ class Edge(BaseElement):
             return SignalDirection.GEGEN
         return None
 
-    def get_direction_based_on_nodes(self, node_a: "Node", node_b: "Node") -> "SignalDirection":
+    def get_direction_based_on_nodes(self, node_a: Node, node_b: Node) -> SignalDirection:
         """Returns the direction according to whether the order of node_a and node_b is the same as in self
 
         Parameters
@@ -119,7 +124,7 @@ class Edge(BaseElement):
             return SignalDirection.GEGEN
         return None
 
-    def get_signals_with_direction_in_order(self, direction: "SignalDirection") -> List["Signal"]:
+    def get_signals_with_direction_in_order(self, direction: SignalDirection) -> List[Signal]:
         """Returns all the signals (with that direction) on that Edge ordered by the given direction
 
         This only consideres Signals of SignalFunction type Einfahr_Signal, Ausfahr_Signal and Block_Signal that have the same direction as requested.
@@ -150,7 +155,7 @@ class Edge(BaseElement):
         result.sort(key=lambda x: x.distance_edge, reverse=(direction == SignalDirection.GEGEN))
         return result
 
-    def get_opposite_node(self, node: "Node") -> "Node":
+    def get_opposite_node(self, node: Node) -> Node:
         """Returns the opposite Node of the given Node
 
         Parameters
@@ -168,7 +173,7 @@ class Edge(BaseElement):
             return self.node_b
         return self.node_a
 
-    def get_next_geo_node(self, node: "Node") -> "GeoNode":
+    def get_next_geo_node(self, node: Node) -> GeoNode:
         """Returns the next GeoNode on Edgeof the given Top Node
 
         Parameters

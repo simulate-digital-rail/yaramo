@@ -33,6 +33,10 @@ class Track(BaseElement):
     def edges(self) -> List[Edge]:
         return list(self.edge_sections.keys())
 
+    @property
+    def nodes(self) -> List[Node]:
+        return list({node for edge in self.edges for node in (edge.node_a, edge.node_b)})
+
     def get_edges_in_order(self) -> List[Edge]:
         if len(self.edges) <= 1:
             return self.edges
@@ -83,24 +87,3 @@ class Track(BaseElement):
             if edge.is_node_connected(node):
                 return True
         return False
-
-    def get_nodes_in_order(self) -> List[Node]:
-        nodes = [node for edge in self.edges for node in (edge.node_a, edge.node_b)]
-        start_nodes = [node for node, count in Counter(nodes).items() if count == 1]
-
-        if len(start_nodes) != 2:
-            raise ValueError("Edges of Track separated")
-
-        previous_node = start_nodes[0]
-        start_edge = next(edge for edge in self.edges if previous_node in (edge.node_a, edge.node_b))
-
-        edges_in_order = self.get_edges_in_order()
-        if edges_in_order[0] != start_edge:
-            edges_in_order.reverse()
-
-        nodes_in_order: list[Node] = [previous_node]
-        for edge in edges_in_order:
-            previous_node = edge.get_other_node(previous_node)
-            nodes_in_order.append(previous_node)
-
-        return nodes_in_order
