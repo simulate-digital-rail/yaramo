@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import sys
 from enum import Enum
 from itertools import permutations
 from math import atan2, cos, sin
-from typing import List
+from typing import TYPE_CHECKING
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
+
+if TYPE_CHECKING:
+    from yaramo.edge import Edge
 
 
 class EdgeConnectionDirection(Enum):
@@ -33,17 +38,17 @@ class Node(BaseElement):
         """
 
         super().__init__(**kwargs)
-        self.connected_edge_on_head = None
-        self.connected_edge_on_right = None
-        self.connected_edge_on_left = None
+        self.connected_edge_on_head: Edge = None
+        self.connected_edge_on_right: Edge = None
+        self.connected_edge_on_left: Edge = None
         self.maximum_speed_on_left = None
         self.maximum_speed_on_right = None
-        self.connected_edges: list["Edge"] = []
+        self.connected_edges: list[Edge] = []
         self.geo_node: GeoNode = kwargs.get("geo_node", None)
         self.turnout_side: str = turnout_side
         self.drive_amount = 0
 
-    def maximum_speed(self, node_a: "Node", node_b: "Node"):
+    def maximum_speed(self, node_a: Node, node_b: Node):
         """Return the maximum allowed speed for traversing this node,
         coming from node_a and going to node_b
         """
@@ -56,11 +61,11 @@ class Node(BaseElement):
             return None
 
     @property
-    def connected_nodes(self):
+    def connected_nodes(self) -> list[Node]:
         return [edge.get_opposite_node(self) for edge in self.connected_edges]
 
     @property
-    def connected_on_head(self):
+    def connected_on_head(self) -> Node:
         if self.connected_edge_on_head is None:
             self.calc_anschluss_of_all_edges()
         if self.connected_edge_on_head is None:
@@ -68,7 +73,7 @@ class Node(BaseElement):
         return self.connected_edge_on_head.get_opposite_node(self)
 
     @property
-    def connected_on_left(self):
+    def connected_on_left(self) -> Node:
         if self.connected_edge_on_head is None:
             self.calc_anschluss_of_all_edges()
         if self.connected_edge_on_left is None:
@@ -76,29 +81,29 @@ class Node(BaseElement):
         return self.connected_edge_on_left.get_opposite_node(self)
 
     @property
-    def connected_on_right(self):
+    def connected_on_right(self) -> Node:
         if self.connected_edge_on_head is None:
             self.calc_anschluss_of_all_edges()
         if self.connected_edge_on_right is None:
             return None
         return self.connected_edge_on_right.get_opposite_node(self)
 
-    def set_connection_head_edge(self, edge: "Edge"):
+    def set_connection_head_edge(self, edge: Edge):
         self.connected_edge_on_head = edge
         if edge not in self.connected_edges:
             self.connected_edges.append(edge)
 
-    def set_connection_left_edge(self, edge: "Edge"):
+    def set_connection_left_edge(self, edge: Edge):
         self.connected_edge_on_left = edge
         if edge not in self.connected_edges:
             self.connected_edges.append(edge)
 
-    def set_connection_right_edge(self, edge: "Edge"):
+    def set_connection_right_edge(self, edge: Edge):
         self.connected_edge_on_right = edge
         if edge not in self.connected_edges:
             self.connected_edges.append(edge)
 
-    def remove_edge(self, edge: "Edge"):
+    def remove_edge(self, edge: Edge):
         self.connected_edges.remove(edge)
         if self.connected_edge_on_head == edge:
             self.connected_edge_on_head = None
@@ -107,7 +112,7 @@ class Node(BaseElement):
         if self.connected_edge_on_right == edge:
             self.connected_edge_on_right = None
 
-    def remove_edge_to_node(self, node: "Node"):
+    def remove_edge_to_node(self, node: Node):
         """Removes the edge to the given node and removes the node from the connected_nodes list."""
         edge = self.get_edge_to_node(node)
         self.remove_edge(edge)
@@ -116,7 +121,7 @@ class Node(BaseElement):
         """Returns the edge to the given neighbor node."""
         return next(edge for edge in self.connected_edges if edge.get_opposite_node(self) == node)
 
-    def get_possible_followers(self, source: "Edge") -> List["Edge"]:
+    def get_possible_followers(self, source: Edge) -> list[Edge]:
         """Returns the `Edge`s that could follow (head, left, right) when comming from a source `Edge` connected to this `Node`."""
         if source is None:
             return self.connected_edges
@@ -131,7 +136,7 @@ class Node(BaseElement):
             return [self.connected_edge_on_left, self.connected_edge_on_right]
         return [self.connected_edge_on_head]
 
-    def get_anschluss_for_edge(self, edge: "Edge") -> EdgeConnectionDirection:
+    def get_anschluss_for_edge(self, edge: Edge) -> EdgeConnectionDirection:
         """Gets the Anschluss (Ende, Links, Rechts, Spitze) of other node.
         Idea: We assume, the current node is a point and we want to estimate the Anschluss of the other node.
 
@@ -203,7 +208,7 @@ class Node(BaseElement):
             self.connected_edge_on_right = right
             break
 
-    def is_point(self):
+    def is_point(self) -> bool:
         """
         Returns true if this node is a point.
         A point is a `Node` with at least 3 connected tracks (yaramo only supports three edges at the moment)

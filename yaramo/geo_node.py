@@ -1,7 +1,8 @@
-import math
-from abc import ABC, abstractmethod
+from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from haversine import Unit, haversine
+import math
 
 from yaramo.base_element import BaseElement
 
@@ -21,27 +22,27 @@ class GeoNode(ABC, BaseElement):
         self.dbref_crs = dbref_crs
 
     @abstractmethod
-    def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
+    def get_distance_to_other_geo_node(self, geo_node_b: GeoNode):
         """Returns to distance to the given other GeoNode."""
         pass
 
     @abstractmethod
-    def to_wgs84(self) -> "Wgs84GeoNode":
+    def to_wgs84(self) -> Wgs84GeoNode:
         pass
 
     @abstractmethod
-    def to_dbref(self) -> "DbrefGeoNode":
+    def to_dbref(self) -> DbrefGeoNode:
         pass
 
     @abstractmethod
-    def to_euclidean(self) -> "EuclideanGeoNode":
+    def to_euclidean(self) -> EuclideanGeoNode:
         pass
 
     def to_serializable(self):
         return self.__dict__, {}
 
     @staticmethod
-    def get_new_geo_node_same_type(old_geo_node: "GeoNode", x: float, y: float) -> "GeoNode":
+    def get_new_geo_node_same_type(old_geo_node: GeoNode, x: float, y: float) -> GeoNode:
         if isinstance(old_geo_node, Wgs84GeoNode):
             return Wgs84GeoNode(x, y)
         elif isinstance(old_geo_node, DbrefGeoNode):
@@ -52,39 +53,39 @@ class GeoNode(ABC, BaseElement):
 
 
 class Wgs84GeoNode(GeoNode):
-    def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
+    def get_distance_to_other_geo_node(self, geo_node_b: GeoNode):
         geo_node_b = geo_node_b.to_wgs84()
         return self.__haversine_distance(geo_node_b)
 
-    def __haversine_distance(self, geo_node_b: "GeoNode"):
+    def __haversine_distance(self, geo_node_b: GeoNode):
         own = (self.x, self.y)
         other = (geo_node_b.x, geo_node_b.y)
         return haversine(own, other, unit=Unit.METERS)
 
-    def to_wgs84(self) -> "Wgs84GeoNode":
+    def to_wgs84(self) -> Wgs84GeoNode:
         return self
 
-    def to_dbref(self) -> "DbrefGeoNode":
+    def to_dbref(self) -> DbrefGeoNode:
         x, y = transform_wgs84_to_dbref(self.x, self.y, self.dbref_crs)
         return DbrefGeoNode(x, y, self.dbref_crs, uuid=self.uuid)
 
-    def to_euclidean(self) -> "EuclideanGeoNode":
+    def to_euclidean(self) -> EuclideanGeoNode:
         return self.to_dbref().to_euclidean()
 
 
 class DbrefGeoNode(GeoNode):
-    def get_distance_to_other_geo_node(self, geo_node_b: "GeoNode"):
+    def get_distance_to_other_geo_node(self, geo_node_b: GeoNode):
         # Separate DB Ref distance method not implemented yet, therefore use WGS84 distance
         return self.to_wgs84().get_distance_to_other_geo_node(geo_node_b)
 
-    def to_wgs84(self) -> "Wgs84GeoNode":
+    def to_wgs84(self) -> Wgs84GeoNode:
         x, y = transform_dbref_to_wgs84(self.x, self.y, self.dbref_crs)
         return Wgs84GeoNode(x, y, self.dbref_crs, uuid=self.uuid)
 
-    def to_dbref(self) -> "DbrefGeoNode":
+    def to_dbref(self) -> DbrefGeoNode:
         return self
 
-    def to_euclidean(self) -> "EuclideanGeoNode":
+    def to_euclidean(self) -> EuclideanGeoNode:
         # This transformation is just for testing purposes and not correct, see documentation in EuclideanGeoNode.
         _x_shift = 4533770.0
         _y_shift = 5625780.0
@@ -100,24 +101,24 @@ class EuclideanGeoNode(GeoNode):
     DBRef geo nodes, but the conversion is just a simple coordinate shift and with this, probably incorrect.
     """
 
-    def get_distance_to_other_geo_node(self, geo_node_b: "EuclideanGeoNode"):
+    def get_distance_to_other_geo_node(self, geo_node_b: EuclideanGeoNode):
         geo_node_b = geo_node_b.to_euclidean()
         return self.__eucldian_distance(geo_node_b)
 
-    def __eucldian_distance(self, geo_node_b: "GeoNode"):
+    def __eucldian_distance(self, geo_node_b: GeoNode):
         min_x = min(self.x, geo_node_b.x)
         min_y = min(self.y, geo_node_b.y)
         max_x = max(self.x, geo_node_b.x)
         max_y = max(self.y, geo_node_b.y)
         return math.sqrt(math.pow(max_x - min_x, 2) + math.pow(max_y - min_y, 2))
 
-    def to_wgs84(self) -> "Wgs84GeoNode":
+    def to_wgs84(self) -> Wgs84GeoNode:
         return self.to_dbref().to_wgs84()
 
-    def to_dbref(self) -> "DbrefGeoNode":
+    def to_dbref(self) -> DbrefGeoNode:
         _x_shift = 4533770.0
         _y_shift = 5625780.0
         return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift, self.dbref_crs, uuid=self.uuid)
 
-    def to_euclidean(self) -> "EuclideanGeoNode":
+    def to_euclidean(self) -> EuclideanGeoNode:
         return self
