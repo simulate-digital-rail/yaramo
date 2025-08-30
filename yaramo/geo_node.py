@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from haversine import Unit, haversine
 import math
+from abc import ABC, abstractmethod
+
+from haversine import Unit, haversine
 
 from yaramo.base_element import BaseElement
 
