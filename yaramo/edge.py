@@ -29,7 +29,7 @@ class Edge(BaseElement):
         intermediate_geo_nodes: List[GeoNode] = None,
         signals: list[Signal] = None,
         maximum_speed: int = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Parameters
