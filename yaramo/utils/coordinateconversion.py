@@ -57,7 +57,7 @@ def __get_proj_dbref_str(coordinate_str: str):
             return CRS_CR0_STRING
         case "DR0":
             return CRS_DR0_STRING
-        case "ER0":
+        case "ER0" | "EA0":
             return CRS_ERO_STRING
         case "FR0":
             return CRS_FRO_STRING

@@ -75,7 +75,8 @@ class Track(BaseElement):
                 if edge.is_node_connected(next_node) and not edge == previous_edge:
                     next_edge = edge
                     break
-
+            if next_edge is None:
+                raise ValueError("Next Edge not found.")
             edges_in_order.append(next_edge)
             next_node = next_edge.get_other_node(next_node)
             previous_edge = next_edge

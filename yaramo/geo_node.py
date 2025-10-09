@@ -16,10 +16,11 @@ class GeoNode(ABC, BaseElement):
     A GeoNode is characterized by it's x and y coordinates.
     """
 
-    def __init__(self, x, y, dbref_crs: str = "ER0", **kwargs):
+    def __init__(self, x, y, data_source: str = "unknown", dbref_crs: str = "ER0", **kwargs):
         super().__init__(**kwargs)
         self.x = x
         self.y = y
+        self.data_source = data_source
         self.dbref_crs = dbref_crs
 
     @abstractmethod
@@ -68,7 +69,7 @@ class Wgs84GeoNode(GeoNode):
 
     def to_dbref(self) -> DbrefGeoNode:
         x, y = transform_wgs84_to_dbref(self.x, self.y, self.dbref_crs)
-        return DbrefGeoNode(x, y, self.dbref_crs, uuid=self.uuid)
+        return DbrefGeoNode(x, y, self.data_source, self.dbref_crs, uuid=self.uuid)
 
     def to_euclidean(self) -> EuclideanGeoNode:
         return self.to_dbref().to_euclidean()
@@ -81,7 +82,7 @@ class DbrefGeoNode(GeoNode):
 
     def to_wgs84(self) -> Wgs84GeoNode:
         x, y = transform_dbref_to_wgs84(self.x, self.y, self.dbref_crs)
-        return Wgs84GeoNode(x, y, self.dbref_crs, uuid=self.uuid)
+        return Wgs84GeoNode(x, y, self.data_source, self.dbref_crs, uuid=self.uuid)
 
     def to_dbref(self) -> DbrefGeoNode:
         return self
@@ -91,7 +92,7 @@ class DbrefGeoNode(GeoNode):
         _x_shift = 4533770.0
         _y_shift = 5625780.0
         return EuclideanGeoNode(
-            self.x - _x_shift, self.y - _y_shift, self.dbref_crs, uuid=self.uuid
+            self.x - _x_shift, self.y - _y_shift, self.data_source, self.dbref_crs, uuid=self.uuid
         )
 
 
@@ -119,7 +120,7 @@ class EuclideanGeoNode(GeoNode):
     def to_dbref(self) -> DbrefGeoNode:
         _x_shift = 4533770.0
         _y_shift = 5625780.0
-        return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift, self.dbref_crs, uuid=self.uuid)
+        return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift, self.data_source, self.dbref_crs, uuid=self.uuid)
 
     def to_euclidean(self) -> EuclideanGeoNode:
         return self
