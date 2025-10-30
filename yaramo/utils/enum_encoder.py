@@ -5,5 +5,5 @@ import simplejson as json
 class EnumEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Enum):
-            return o.name
+            return str(o)
         return super().default(o)
