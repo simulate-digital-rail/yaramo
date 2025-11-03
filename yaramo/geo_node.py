@@ -120,7 +120,9 @@ class EuclideanGeoNode(GeoNode):
     def to_dbref(self) -> DbrefGeoNode:
         _x_shift = 4533770.0
         _y_shift = 5625780.0
-        return DbrefGeoNode(self.x + _x_shift, self.y + _y_shift, self.data_source, self.dbref_crs, uuid=self.uuid)
+        return DbrefGeoNode(
+            self.x + _x_shift, self.y + _y_shift, self.data_source, self.dbref_crs, uuid=self.uuid
+        )
 
     def to_euclidean(self) -> EuclideanGeoNode:
         return self

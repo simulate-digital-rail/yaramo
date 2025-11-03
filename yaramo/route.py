@@ -120,7 +120,7 @@ class Route(BaseElement):
         }
 
         return {**attributes, **references}, {}
-    
+
     def __str__(self):
         if self.end_signal is None:
             return f"{self.start_signal.name}->None"

@@ -81,18 +81,32 @@ class AdditionalSignalZs2v(AdditionalSignal):
     def __str__(self):
         return "AdditionalSignalZs2v(kind=Zs2v" + ", symbols=" + str(self.symbols) + ")"
 
+
 class AdditionalSignalZs3Type(Enum):
     LIGHT_SIGNAL = 0
     FORM_SIGNAL = 1
 
+
 class AdditionalSignalZs3(AdditionalSignal):
-    def __init__(self, symbols: List["AdditionalSignalSymbolZs3"], type: AdditionalSignalZs3Type = AdditionalSignalZs3Type.LIGHT_SIGNAL, **kwargs) -> None:
+    def __init__(
+        self,
+        symbols: List["AdditionalSignalSymbolZs3"],
+        type: AdditionalSignalZs3Type = AdditionalSignalZs3Type.LIGHT_SIGNAL,
+        **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.symbols = symbols
         self.type = type
 
     def __str__(self):
-        return "AdditionalSignalZs3(kind=Zs3" + ", symbols=" + str(self.symbols) + ", type=" + str(self.type) + ")"
+        return (
+            "AdditionalSignalZs3(kind=Zs3"
+            + ", symbols="
+            + str(self.symbols)
+            + ", type="
+            + str(self.type)
+            + ")"
+        )
 
     class AdditionalSignalSymbolZs3(Enum):
         OFF = 0
@@ -122,13 +136,26 @@ class AdditionalSignalZs3v(AdditionalSignal):
     AdditionalSignalSymbolZs3v = AdditionalSignalZs3.AdditionalSignalSymbolZs3
     AdditionalSignalZs3vType = AdditionalSignalZs3Type
 
-    def __init__(self, symbols: List["AdditionalSignalSymbolZs3v"], type: AdditionalSignalZs3vType = AdditionalSignalZs3vType.LIGHT_SIGNAL, **kwargs) -> None:
+    def __init__(
+        self,
+        symbols: List["AdditionalSignalSymbolZs3v"],
+        type: AdditionalSignalZs3vType = AdditionalSignalZs3vType.LIGHT_SIGNAL,
+        **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.symbols = symbols
         self.type = type
 
     def __str__(self):
-        return "AdditionalSignalZs3v(kind=Zs3v" + ", symbols=" + str(self.symbols) + ", type=" + str(self.type) + ")"
+        return (
+            "AdditionalSignalZs3v(kind=Zs3v"
+            + ", symbols="
+            + str(self.symbols)
+            + ", type="
+            + str(self.type)
+            + ")"
+        )
+
 
 class AdditionalSignalZs6(AdditionalSignal):
     def __init__(self, symbols: List["AdditionalSignalSymbolZs6"], **kwargs) -> None:
@@ -141,6 +168,7 @@ class AdditionalSignalZs6(AdditionalSignal):
     class AdditionalSignalSymbolZs6(Enum):
         Zs6 = 0
 
+
 class AdditionalSignalZs7(AdditionalSignal):
     def __init__(self, symbols: List["AdditionalSignalSymbolZs7"], **kwargs) -> None:
         super().__init__(**kwargs)
@@ -151,6 +179,7 @@ class AdditionalSignalZs7(AdditionalSignal):
 
     class AdditionalSignalSymbolZs7(Enum):
         Zs7 = 0
+
 
 class AdditionalSignalZs13(AdditionalSignal):
     def __init__(self, symbols: List["AdditionalSignalSymbolZs13"], **kwargs) -> None:
