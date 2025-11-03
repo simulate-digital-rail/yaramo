@@ -1,15 +1,15 @@
 from itertools import product
 
-from yaramo.geo_node import Wgs84GeoNode
-from yaramo.node import Node
+from pytest import raises
 
+import yaramo.utils.coordinateconversion
+from yaramo.model import DbrefGeoNode, Node, Wgs84GeoNode
 
-def create_node(x, y):
-    return Node(geo_node=Wgs84GeoNode(x, y))
+from .helper import create_edge, create_node
 
 
 def coords_str(node: Node):
-    return f"({node.geo_node.geo_point.x}, {node.geo_node.geo_point.y})"
+    return f"({node.geo_node.x}, {node.geo_node.y})"
 
 
 def test_anschluss():
@@ -103,10 +103,14 @@ def test_anschluss():
 
         # apply offsets to base scenario, set up nodes and actually test
         for offset_x, offset_y in product(offsets, repeat=2):
-            head = create_node(hx + offset_x, hy + offset_y)
             switch = create_node(sx + offset_x, sy + offset_y)
+
+            head = create_node(hx + offset_x, hy + offset_y)
+            create_edge(switch, head)
             left = create_node(lx + offset_x, ly + offset_y)
+            create_edge(switch, left)
             right = create_node(rx + offset_x, ry + offset_y)
+            create_edge(switch, right)
 
             print(
                 "scenario:",
@@ -120,11 +124,8 @@ def test_anschluss():
                 coords_str(right),
             )
 
-            # connect all nodes to the switch
-            switch.connected_nodes.extend((head, left, right))
-
             # finally call the procedure we want to test here
-            switch.calc_anschluss_of_all_nodes()
+            switch.calc_anschluss_of_all_edges()
 
             # assert ``calc_anschluss_of_all_nodes`` did what it should
             assert switch.connected_on_head == head, (
@@ -136,3 +137,48 @@ def test_anschluss():
             assert switch.connected_on_right == right, (
                 "right node " f"{coords_str(switch.connected_on_right)} incorrect"
             )
+
+
+def test_implausible_anschluss():
+    """Assert that detection of "Anschluss" (head, left, right) raises
+    an exception on really implausible geographies."""
+    head = create_node(0, 0)  # layout:
+    point = create_node(2, 2)  #      l
+    left = create_node(1, 3)  #       s r
+    right = create_node(3, 2)  #     h
+
+    point.connected_nodes.extend((head, left, right))
+
+    with raises(Exception) as exception:
+        point.calc_anschluss_of_all_nodes()
+
+
+def test_wgs84_dbref_coordinate_conversion():
+    def _test_distance(_dbref_x, _dbref_y, _wgs84_x, _wgs84_y, factor, smaller_as):
+        wgs84_geo_node = Wgs84GeoNode(wgs84_x, wgs84_y)
+        dbref_geo_node = DbrefGeoNode(dbref_x, dbref_y)
+        assert wgs84_geo_node.get_distance_to_other_geo_node(dbref_geo_node) * factor < smaller_as
+
+    # Example 1:
+    dbref_x = 4563230.251887853
+    dbref_y = 5601992.441701063
+    wgs84_x = 50.55025861737121
+    wgs84_y = 12.890666340087865
+
+    _test_distance(dbref_x, dbref_y, wgs84_x, wgs84_y, 1000 * 1000, 2)
+
+    # Example 2:
+    dbref_x = 4563437.90802
+    dbref_y = 5601946.51808
+    wgs84_x = 50.54982337298292
+    wgs84_y = 12.893588101538324
+
+    _test_distance(dbref_x, dbref_y, wgs84_x, wgs84_y, 1000 * 1000, 2)
+
+    # Example 3: (close-by)
+    dbref_x = 4564720.99586
+    dbref_y = 5601735.46336
+    wgs84_x = 50.5477883
+    wgs84_y = 12.9116547
+
+    _test_distance(dbref_x, dbref_y, wgs84_x, wgs84_y, 1, 0.3)

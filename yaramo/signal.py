@@ -19,6 +19,14 @@ class SignalDirection(Enum):
     def __str__(self):
         return self.name.lower()
 
+    @staticmethod
+    def get_other_direction(direction):
+        if direction == SignalDirection.IN:
+            return SignalDirection.GEGEN
+        elif direction == SignalDirection.GEGEN:
+            return SignalDirection.IN
+        return None
+
 
 class SignalFunction(Enum):
     """The SignalFunction determines the function of a Signal."""
@@ -28,7 +36,7 @@ class SignalFunction(Enum):
     Block_Signal = auto()
     Vorsignal_Vorsignalwiederholer = auto()
     Zwischen_Signal = auto()
-    # Not real signals: signal.kind == SignalKind.FikitivesSignal
+    # Not real signals: signal.kind == SignalKind.FiktivesSignal
     Zug_Ziel_Strecke = auto()
     Rangier_Start_Ziel_ohne_Signal = auto()
     Nicht_Definiert = auto()
@@ -81,11 +89,20 @@ class SignalState(Enum):
     ZS2V = auto()
     ZS3 = auto()
     ZS3V = auto()
+    ZS6 = auto()
+    ZS7 = auto()
+    ZS13 = auto()
     ZLO = auto()
+    ZLU = auto()
+    KL = auto()
     LF7 = auto()
     RA10 = auto()
     RA12 = auto()
     MS_WS_RT_WS = auto()
+    MS_WS_GE_WS = auto()
+    MS_WS_SW_WS = auto()
+    MS_RT = auto()
+    MS_WS_2SWP = auto()
     MS_GE_D = auto()
 
     @classmethod
@@ -99,12 +116,24 @@ class SignalState(Enum):
             return SignalState.__members__[state_string_trimmed]
         if state_string == "Mastschild weiß-rot-weiß":
             return SignalState.MS_WS_RT_WS
+        if state_string == "Mastschild weiß-gelb-weiß-gelb-weiß":
+            return SignalState.MS_WS_GE_WS
+        if state_string == "Mastschild weiß-schwarz-weiß-schwarz-weiß":
+            return SignalState.MS_WS_SW_WS
+        if state_string == "Mastschild rot":
+            return SignalState.MS_RT
+        if state_string == "Mastschild weiß mit zwei schwarzen Punkten":
+            return SignalState.MS_WS_2SWP
         if state_string == "gelbes Dreieck mit Spitze nach unten":
             return SignalState.MS_GE_D
         if state_string == "verkuerzter Abstand des Bremswegs, weißes Zusatzlicht über Signallicht":
             return SignalState.ZLO
+        if state_string == "Vorsignalwiederholer, weißes Zusatzlicht unter Signallicht":
+            return SignalState.ZLU
+        if state_string == "ein weißes Licht anstelle der sonst vorgesehenen Signalbilder":
+            return SignalState.KL
         logging.warning(
-            f"The Signal State with the string {state_string} does not exists. Return None instead"
+            f"The Signal State with the string {state_string} does not exist. Returning None instead"
         )
         return None
 
@@ -124,9 +153,10 @@ class Signal(BaseElement):
         function: SignalFunction | str,
         kind: SignalKind | str,
         system: SignalSystem | str = SignalSystem.andere,
-        side_distance: float = None,
-        supported_states: Set[SignalState] = None,
+        side_distance: float | None = None,
+        supported_states: Set[SignalState] | None = None,
         classification_number: str = "60",
+        additional_signals: list[AdditionalSignal] = [],
         **kwargs,
     ):
         """
@@ -147,12 +177,12 @@ class Signal(BaseElement):
         """
 
         super().__init__(**kwargs)
-        self.trip: Trip = None
+        self.trip: Trip | None = None
         self.edge = edge
-        self.distance_edge = distance_edge
+        self.distance_edge = float(distance_edge)
         self.classification_number = classification_number
         self.control_member_uuid = str(uuid4())
-        self.additional_signals: list[AdditionalSignal] = []
+        self.additional_signals = additional_signals
         self.supported_states: Set[SignalState] = supported_states if supported_states else set()
 
         if isinstance(direction, str):
@@ -191,6 +221,26 @@ class Signal(BaseElement):
         """Return the node connecting the Signal's edge which comes after the Signal
         (with relative direction on the edge)."""
         return self.edge.node_b if self.direction == SignalDirection.IN else self.edge.node_a
+
+    def get_calculated_coordinates(self):
+        previous_geo_node = self.edge.node_a.geo_node
+        missing_nodes = self.edge.intermediate_geo_nodes + [self.edge.node_b.geo_node]
+        edge_distance_sum_so_far = 0
+
+        for inter_geo_node in missing_nodes:
+            edge_length = previous_geo_node.get_distance_to_other_geo_node(inter_geo_node)
+            if self.distance_edge < edge_distance_sum_so_far + edge_length:
+                # Signal is between the geo nodes
+                x1, y1 = previous_geo_node.x, previous_geo_node.y
+                x2, y2 = inter_geo_node.x, inter_geo_node.y
+                factor = (float(self.distance_edge) - edge_distance_sum_so_far) / edge_length
+                x = x1 + (factor * (x2 - x1))
+                y = y1 + (factor * (y2 - y1))
+                return x, y
+
+            edge_distance_sum_so_far = edge_distance_sum_so_far + edge_length
+            previous_geo_node = inter_geo_node
+        raise ValueError("Signal is out of edge.")
 
     def to_serializable(self) -> Tuple[dict, dict]:
         """See the description in the BaseElement class.

@@ -1,9 +1,14 @@
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from yaramo.base_element import BaseElement
 from yaramo.geo_node import GeoNode
 from yaramo.node import Node
 from yaramo.vacancy_section import VacancySection
+
+if TYPE_CHECKING:
+    from yaramo.signal import Signal, SignalDirection
 
 
 class Edge(BaseElement):
@@ -22,9 +27,9 @@ class Edge(BaseElement):
         vacancy_section: Optional[VacancySection] = None,
         length: float = None,
         intermediate_geo_nodes: List[GeoNode] = None,
-        signals: list["Signal"] = None,
+        signals: list[Signal] = None,
         maximum_speed: int = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Parameters
@@ -42,9 +47,13 @@ class Edge(BaseElement):
         super().__init__(**kwargs)
         self.intermediate_geo_nodes = intermediate_geo_nodes or []
         self.node_a = node_a
+        self.node_a.connected_edges.append(self)
         self.node_b = node_b
+        self.node_b.connected_edges.append(self)
         self.signals = signals or []
         self.length = length
+        if self.length is not None and type(self.length) != float:
+            self.length = float(self.length)
         self.maximum_speed = maximum_speed
         self.vacancy_section = vacancy_section
 
@@ -56,10 +65,15 @@ class Edge(BaseElement):
             return self.node_b
         return self.node_a
 
-    def update_length(self):
+    def update_length(self, force: bool = False):
+        if force:
+            self.length = None
         self.length = self.__get_length()
 
     def __get_length(self) -> float:
+        if self.length is not None:
+            return self.length
+
         if len(self.intermediate_geo_nodes) == 0:
             return self.node_a.geo_node.get_distance_to_other_geo_node(self.node_b.geo_node)
 
@@ -77,7 +91,16 @@ class Edge(BaseElement):
         )
         return total_length
 
-    def get_direction_based_on_nodes(self, node_a: "Node", node_b: "Node") -> "SignalDirection":
+    def get_direction_based_on_start_node(self, start: Node) -> SignalDirection:
+        from yaramo.signal import SignalDirection
+
+        if self.node_a.uuid == start.uuid:
+            return SignalDirection.IN
+        elif self.node_b.uuid == start.uuid:
+            return SignalDirection.GEGEN
+        return None
+
+    def get_direction_based_on_nodes(self, node_a: Node, node_b: Node) -> SignalDirection:
         """Returns the direction according to whether the order of node_a and node_b is the same as in self
 
         Parameters
@@ -101,7 +124,7 @@ class Edge(BaseElement):
             return SignalDirection.GEGEN
         return None
 
-    def get_signals_with_direction_in_order(self, direction: "SignalDirection") -> List["Signal"]:
+    def get_signals_with_direction_in_order(self, direction: SignalDirection) -> List[Signal]:
         """Returns all the signals (with that direction) on that Edge ordered by the given direction
 
         This only consideres Signals of SignalFunction type Einfahr_Signal, Ausfahr_Signal and Block_Signal that have the same direction as requested.
@@ -131,6 +154,72 @@ class Edge(BaseElement):
                 result.append(signal)
         result.sort(key=lambda x: x.distance_edge, reverse=(direction == SignalDirection.GEGEN))
         return result
+
+    def get_opposite_node(self, node: Node) -> Node:
+        """Returns the opposite Node of the given Node
+
+        Parameters
+        ----------
+        node : Node
+            The Node to get the opposite Node of
+
+        Returns
+        -------
+        Node
+            The opposite Node
+        """
+
+        if self.node_a.uuid == node.uuid:
+            return self.node_b
+        return self.node_a
+
+    def get_next_geo_node(self, node: Node) -> GeoNode:
+        """Returns the next GeoNode on Edgeof the given Top Node
+
+        Parameters
+        ----------
+        geo_node : Node
+            The Top Node to get the next GeoNode of
+
+        Returns
+        -------
+        GeoNode
+            The next GeoNode
+        """
+        if len(self.intermediate_geo_nodes) < 2:
+            return self.get_opposite_node(node).geo_node
+        if self.node_a.uuid == node.uuid:
+            return self.intermediate_geo_nodes[1]
+        if self.node_b.uuid == node.uuid:
+            return self.intermediate_geo_nodes[-2]
+        return None
+
+    def get_coordinates_on_edge_by_distance_from_start_node(
+        self, distance: float
+    ) -> Tuple[float, float]:
+        if distance > self.__get_length():
+            raise ValueError("Given distance is longer than edge.")
+        all_geo_nodes = (
+            [self.node_a.geo_node] + self.intermediate_geo_nodes + [self.node_b.geo_node]
+        )
+        remaining_distance = distance
+        for i in range(len(all_geo_nodes) - 1):
+            cur_geo_node = all_geo_nodes[i]
+            next_geo_node = all_geo_nodes[i + 1]
+            distance_between_nodes = cur_geo_node.get_distance_to_other_geo_node(next_geo_node)
+
+            if remaining_distance < distance_between_nodes:
+                # target is between these nodes
+                x1, y1 = cur_geo_node.x, cur_geo_node.y
+                x2, y2 = next_geo_node.x, next_geo_node.y
+                factor = remaining_distance / distance_between_nodes
+                x = float(x1) + (factor * float(x2 - x1))
+                y = float(y1) + (factor * float(y2 - y1))
+                return x, y
+
+            remaining_distance = remaining_distance - distance_between_nodes
+        # This shouldn't happen
+        raise ValueError("Distance on edge not found")
 
     def to_serializable(self):
         """See the description in the BaseElement class.
