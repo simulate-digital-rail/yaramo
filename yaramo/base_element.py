@@ -3,6 +3,8 @@ from uuid import uuid4
 
 import simplejson as json
 
+from yaramo.utils.enum_encoder import EnumEncoder
+
 
 class BaseElement(object):
     def __init__(self, uuid: str = None, name: str = None, **kwargs) -> None:
@@ -27,4 +29,4 @@ class BaseElement(object):
         return self.__dict__, {}
 
     def to_json(self) -> str:
-        return json.dumps(self.to_serializable()[0], iterable_as_array=True)
+        return json.dumps(self.to_serializable()[0], iterable_as_array=True, cls=EnumEncoder)
